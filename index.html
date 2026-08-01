@@ -1,0 +1,2796 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KépMozaik</title>
+  <style>
+    :root {
+      --bg: #f3f5f8;
+      --panel: #ffffff;
+      --text: #18202b;
+      --muted: #667085;
+      --line: #d9dee7;
+      --accent: #315efb;
+      --danger: #c62828;
+      --success: #157347;
+      --shadow: 0 10px 30px rgba(20, 30, 50, 0.08);
+      --columns: 4;
+      --card-min-width: 300px;
+      --grid-gap: 16px;
+      --title-text-color: #ffffff;
+      --title-background-color: rgba(18, 24, 33, 0.72);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .app {
+      /* Szeles monitoron kihasznaljuk szinte a teljes kepernyoszelesseget.
+         2560 px-es kijelzon igy 8 darab, legalabb 300 px-es kartya is kifer. */
+      width: min(2600px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.55rem, 3vw, 2.25rem);
+      line-height: 1.15;
+    }
+
+    .header-summary {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .image-count {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 0.86rem;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(20, 30, 50, 0.05);
+    }
+
+    .toolbar,
+    .export-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .export-panel { margin-bottom: 18px; }
+
+    .toolbar-action-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      min-height: 68px;
+      padding: 5px;
+      border: 1px solid #e3e7ee;
+      border-radius: 16px;
+      background: #f6f8fb;
+    }
+
+    .export-action-group {
+      flex: 0 0 auto;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 9px 13px;
+      border: 1px solid #d8dee8;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+      color: var(--text);
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 4px 12px rgba(16, 24, 40, 0.04);
+      transition:
+        transform 0.16s ease,
+        border-color 0.16s ease,
+        background 0.16s ease,
+        box-shadow 0.16s ease,
+        color 0.16s ease;
+    }
+
+    .button svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      stroke-width: 2;
+    }
+
+    .button:hover:not(:disabled) {
+      border-color: #b8c2d1;
+      background: #ffffff;
+      box-shadow: 0 2px 5px rgba(16, 24, 40, 0.08), 0 8px 18px rgba(16, 24, 40, 0.07);
+      transform: translateY(-1px);
+    }
+
+    .button:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
+    }
+
+    .button:focus-visible {
+      outline: 3px solid rgba(49, 94, 251, 0.22);
+      outline-offset: 2px;
+    }
+
+    .button.primary {
+      border-color: #315efb;
+      background: linear-gradient(135deg, #3f6cff 0%, #2850dc 100%);
+      color: #fff;
+      box-shadow: 0 5px 14px rgba(49, 94, 251, 0.26);
+    }
+
+    .button.primary:hover:not(:disabled) {
+      border-color: #2448d8;
+      background: linear-gradient(135deg, #4b75ff 0%, #2448d8 100%);
+      box-shadow: 0 8px 20px rgba(49, 94, 251, 0.32);
+    }
+
+    .button.export {
+      border-color: #157347;
+      background: linear-gradient(135deg, #198754 0%, #11663f 100%);
+      color: #fff;
+      box-shadow: 0 5px 14px rgba(21, 115, 71, 0.24);
+    }
+
+    .button.export:hover:not(:disabled) {
+      border-color: #0f5e39;
+      background: linear-gradient(135deg, #209563 0%, #0f5e39 100%);
+      box-shadow: 0 8px 20px rgba(21, 115, 71, 0.3);
+    }
+
+    .button.danger {
+      border-color: #f1c6c6;
+      background: #fff7f7;
+      color: var(--danger);
+      box-shadow: none;
+    }
+
+    .button.danger:hover:not(:disabled) {
+      border-color: #dc9f9f;
+      background: #fff0f0;
+      color: #a91f1f;
+    }
+
+    .button.subtle {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .button:disabled,
+    .icon-button:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .toolbar-spacer { flex: 1 1 18px; }
+
+    .range-group {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .custom-ratio {
+      display: flex;
+      align-items: flex-end;
+      gap: 7px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .inline-field,
+    .control-field {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+      min-width: 146px;
+      min-height: 68px;
+      padding: 5px 8px 7px;
+      border: 1px solid #e3e7ee;
+      border-radius: 13px;
+      background: #f7f9fc;
+      color: var(--text);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    }
+
+    .inline-field > span,
+    .control-label {
+      padding-left: 2px;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: 0.015em;
+    }
+
+    .inline-field select {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 36px 8px 11px;
+      border: 1px solid #d8dee8;
+      border-radius: 10px;
+      appearance: none;
+      background-color: #fff;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #667085 50%),
+        linear-gradient(135deg, #667085 50%, transparent 50%);
+      background-position:
+        calc(100% - 16px) 17px,
+        calc(100% - 11px) 17px;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+    }
+
+    .inline-field select:hover {
+      border-color: #b8c2d1;
+      background-color: #fff;
+    }
+
+    .inline-field select:focus-visible {
+      outline: none;
+      border-color: #315efb;
+      box-shadow: 0 0 0 3px rgba(49, 94, 251, 0.16);
+    }
+
+    .range-field {
+      min-width: 205px;
+    }
+
+    .range-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 38px;
+      padding: 8px 9px 8px 11px;
+      border: 1px solid #d8dee8;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .range-field:focus-within .range-control {
+      border-color: #315efb;
+      box-shadow: 0 0 0 3px rgba(49, 94, 251, 0.16);
+    }
+
+    .range-control input[type="range"] {
+      flex: 1 1 auto;
+      min-width: 112px;
+      height: 6px;
+      margin: 0;
+      appearance: none;
+      border-radius: 999px;
+      outline: none;
+      background: #dfe5ee;
+      cursor: pointer;
+    }
+
+    .range-control input[type="range"]::-webkit-slider-thumb {
+      width: 18px;
+      height: 18px;
+      appearance: none;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 1px 5px rgba(49, 94, 251, 0.38);
+    }
+
+    .range-control input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 1px 5px rgba(49, 94, 251, 0.38);
+    }
+
+    .range-control output {
+      display: inline-grid;
+      place-items: center;
+      min-width: 34px;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 8px;
+      background: #eef2ff;
+      color: #2948a8;
+      font-size: 0.86rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .color-field {
+      min-width: 154px;
+    }
+
+    .color-control {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 38px;
+      padding: 5px 9px 5px 5px;
+      border: 1px solid #d8dee8;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .color-field:hover .color-control {
+      border-color: #b8c2d1;
+    }
+
+    .color-field:focus-within .color-control {
+      border-color: #315efb;
+      box-shadow: 0 0 0 3px rgba(49, 94, 251, 0.16);
+    }
+
+    .color-control input[type="color"] {
+      width: 34px;
+      height: 30px;
+      flex: 0 0 auto;
+      padding: 2px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .color-control input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .color-control input[type="color"]::-webkit-color-swatch {
+      border: 1px solid rgba(16, 24, 40, 0.12);
+      border-radius: 7px;
+    }
+    .color-control input[type="color"]::-moz-color-swatch {
+      border: 1px solid rgba(16, 24, 40, 0.12);
+      border-radius: 7px;
+    }
+
+    .color-code {
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .toggle-field {
+      min-width: 190px;
+    }
+
+    .toggle-control {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 38px;
+      padding: 7px 10px;
+      border: 1px solid #d8dee8;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .toggle-field:hover .toggle-control {
+      border-color: #b8c2d1;
+    }
+
+    .toggle-control input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .toggle-track {
+      position: relative;
+      width: 38px;
+      height: 22px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: #c8d0dc;
+      transition: background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .toggle-track::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(16, 24, 40, 0.25);
+      transition: transform 0.18s ease;
+    }
+
+    .toggle-control input:checked + .toggle-track {
+      background: var(--accent);
+    }
+
+    .toggle-control input:checked + .toggle-track::after {
+      transform: translateX(16px);
+    }
+
+    .toggle-control input:focus-visible + .toggle-track {
+      box-shadow: 0 0 0 3px rgba(49, 94, 251, 0.2);
+    }
+
+    .toggle-state {
+      color: var(--text);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .toggle-state::before { content: "Kikapcsolva"; }
+    .toggle-control input:checked ~ .toggle-state::before { content: "Bekapcsolva"; }
+
+    .custom-ratio[hidden] { display: none; }
+
+    .custom-ratio .ratio-number-field {
+      min-width: 104px;
+      min-height: 68px;
+      padding: 5px 8px 7px;
+    }
+
+    .custom-ratio input[type="number"] {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 1px solid #d8dee8;
+      border-radius: 10px;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .custom-ratio input[type="number"]:hover {
+      border-color: #b8c2d1;
+    }
+
+    .custom-ratio input[type="number"]:focus-visible {
+      border-color: #315efb;
+      box-shadow: 0 0 0 3px rgba(49, 94, 251, 0.16);
+    }
+
+    .ratio-separator {
+      display: grid;
+      place-items: center;
+      width: 18px;
+      height: 42px;
+      margin-bottom: 9px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .status {
+      min-height: 1.35em;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .drop-zone {
+      display: grid;
+      place-items: center;
+      min-height: 145px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 2px dashed #b8c1cf;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.65);
+      color: var(--muted);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: #eef2ff;
+    }
+
+    .drop-zone.dragover { transform: scale(1.005); }
+
+    .drop-zone[hidden],
+    .grid-scroll[hidden] {
+      display: none !important;
+    }
+
+    .drop-zone strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text);
+      font-size: 1.05rem;
+    }
+
+    .grid-scroll-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: max-content;
+      max-width: 100%;
+      margin: 0 auto 12px;
+      padding: 7px 11px;
+      border: 1px solid rgba(49, 94, 251, 0.22);
+      border-radius: 999px;
+      background: rgba(49, 94, 251, 0.07);
+      color: #2948a8;
+      font-size: 0.82rem;
+      font-weight: 650;
+      text-align: center;
+    }
+
+    .grid-scroll-hint[hidden] { display: none; }
+
+    /* A kártyák megtartják a kényelmes minimumszélességet. Ha a kiválasztott
+       oszlopszám nem fér el, a szerkesztőrács vízszintesen görgethető. */
+    .grid-scroll {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: visible;
+      padding: 8px 8px 16px;
+      margin: -8px -8px 0;
+      scrollbar-gutter: stable;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .grid-scroll:focus-visible {
+      outline: 3px solid rgba(49, 94, 251, 0.35);
+      outline-offset: 3px;
+      border-radius: 14px;
+    }
+
+    .grid {
+      display: grid;
+      width: 100%;
+      min-width: 100%;
+      grid-template-columns: repeat(var(--columns), minmax(var(--card-min-width), 1fr));
+      gap: var(--grid-gap);
+      align-items: start;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      padding: 42px 20px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .card {
+      min-width: 0;
+      overflow: hidden;
+      container-type: inline-size;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      transition: opacity 0.16s ease, transform 0.16s ease, outline-color 0.16s ease;
+    }
+
+    .card.dragging {
+      opacity: 0.5;
+      transform: scale(0.98);
+    }
+
+
+    /* Egyedi pointeres húzás közben a helyőrző tartja fenn a kártya helyét.
+       A forráskártyát biztonságosan elrejthetjük, mert a mozgatást az ablak
+       szintjén figyeljük, nem a böngésző natív drag eseményeivel. */
+    .card.dragging-source-hidden {
+      display: none !important;
+    }
+
+    .drag-ghost {
+      position: fixed !important;
+      z-index: 10000 !important;
+      margin: 0 !important;
+      pointer-events: none !important;
+      opacity: 0.9;
+      transform: rotate(1deg) scale(0.94);
+      transform-origin: center;
+      box-shadow: 0 22px 55px rgba(20, 30, 50, 0.28) !important;
+      will-change: left, top;
+    }
+
+    .drag-ghost .controls {
+      display: none !important;
+    }
+
+    body.reorder-dragging,
+    body.reorder-dragging * {
+      cursor: grabbing !important;
+    }
+
+    .grid.reordering {
+      padding: 8px;
+      margin: -8px;
+      border-radius: 18px;
+      background: rgba(49, 94, 251, 0.035);
+    }
+
+    .drop-placeholder {
+      display: grid;
+      min-width: 0;
+      place-items: center;
+      align-content: center;
+      gap: 5px;
+      padding: 12px;
+      border: 3px dashed var(--accent);
+      border-radius: 14px;
+      background: rgba(49, 94, 251, 0.12);
+      color: #2147cc;
+      text-align: center;
+      box-shadow:
+        inset 0 0 0 2px rgba(255, 255, 255, 0.72),
+        0 10px 28px rgba(49, 94, 251, 0.18);
+      pointer-events: none;
+      animation: drop-placeholder-pulse 1.05s ease-in-out infinite alternate;
+    }
+
+    .drop-placeholder-title {
+      font-size: clamp(0.86rem, 2.4cqi, 1.08rem);
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .drop-placeholder-position {
+      font-size: clamp(0.68rem, 2cqi, 0.82rem);
+      font-weight: 650;
+      opacity: 0.82;
+    }
+
+    .file-drop-placeholder {
+      border-style: solid;
+      background: rgba(49, 94, 251, 0.16);
+    }
+
+    .grid.file-drop-active {
+      padding: 8px;
+      margin: -8px;
+      border-radius: 18px;
+      background: rgba(49, 94, 251, 0.045);
+      box-shadow: inset 0 0 0 2px rgba(49, 94, 251, 0.18);
+    }
+
+    @keyframes drop-placeholder-pulse {
+      from {
+        border-color: rgba(49, 94, 251, 0.62);
+        background: rgba(49, 94, 251, 0.08);
+      }
+      to {
+        border-color: rgba(49, 94, 251, 1);
+        background: rgba(49, 94, 251, 0.18);
+      }
+    }
+
+    .image-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: var(--ratio, 4 / 3);
+      overflow: hidden;
+      background: #15181d;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      outline: none;
+    }
+
+    .image-frame:focus-visible {
+      box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.8);
+    }
+
+    .image-frame.panning { cursor: grabbing; }
+
+    .image-frame img {
+      position: absolute;
+      z-index: 1;
+      display: block;
+      max-width: none;
+      max-height: none;
+      user-select: none;
+      pointer-events: none;
+      -webkit-user-drag: none;
+      will-change: width, height, left, top;
+    }
+
+    .image-frame::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      background:
+        linear-gradient(to right,
+          transparent calc(33.333% - 0.5px),
+          rgba(255,255,255,0.72) calc(33.333% - 0.5px),
+          rgba(255,255,255,0.72) calc(33.333% + 0.5px),
+          transparent calc(33.333% + 0.5px),
+          transparent calc(66.666% - 0.5px),
+          rgba(255,255,255,0.72) calc(66.666% - 0.5px),
+          rgba(255,255,255,0.72) calc(66.666% + 0.5px),
+          transparent calc(66.666% + 0.5px)),
+        linear-gradient(to bottom,
+          transparent calc(33.333% - 0.5px),
+          rgba(255,255,255,0.72) calc(33.333% - 0.5px),
+          rgba(255,255,255,0.72) calc(33.333% + 0.5px),
+          transparent calc(33.333% + 0.5px),
+          transparent calc(66.666% - 0.5px),
+          rgba(255,255,255,0.72) calc(66.666% - 0.5px),
+          rgba(255,255,255,0.72) calc(66.666% + 0.5px),
+          transparent calc(66.666% + 0.5px));
+      transition: opacity 0.15s ease;
+    }
+
+    .image-frame:hover::after,
+    .image-frame:focus-visible::after,
+    .image-frame.panning::after { opacity: 0.42; }
+
+    .pan-hint {
+      position: absolute;
+      z-index: 4;
+      left: 50%;
+      bottom: 10px;
+      transform: translateX(-50%);
+      max-width: calc(100% - 20px);
+      padding: 5px 8px;
+      border-radius: 7px;
+      background: rgba(18, 24, 33, 0.72);
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 0.72rem;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0.82;
+      transition: opacity 0.15s ease;
+      backdrop-filter: blur(5px);
+    }
+
+    .image-frame.panning .pan-hint { opacity: 0; }
+
+    .title-input {
+      position: absolute;
+      z-index: 5;
+      top: 10px;
+      left: 10px;
+      width: calc(100% - 64px);
+      height: 34px;
+      min-height: 34px;
+      max-height: 48%;
+      max-width: 260px;
+      padding: 7px 9px;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 8px;
+      outline: none;
+      overflow-x: hidden;
+      overflow-y: hidden;
+      resize: none;
+      background: var(--title-background-color);
+      color: var(--title-text-color);
+      font-family: inherit;
+      font-weight: 650;
+      line-height: 1.25;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      backdrop-filter: blur(6px);
+      user-select: text;
+    }
+
+    .title-input::placeholder { color: rgba(255, 255, 255, 0.72); }
+
+    .title-input:focus {
+      border-color: #fff;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
+    }
+
+    .drag-badge {
+      position: absolute;
+      z-index: 6;
+      top: 10px;
+      right: 10px;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      background: rgba(18, 24, 33, 0.76);
+      color: #fff;
+      font-size: 1.05rem;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      backdrop-filter: blur(6px);
+    }
+
+    .drag-badge:active { cursor: grabbing; }
+
+    .controls {
+      display: grid;
+      min-width: 0;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .crop-control {
+      display: grid;
+      gap: 6px;
+    }
+
+    .crop-control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 650;
+    }
+
+    .crop-control input { width: 100%; }
+
+    .position-readout {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .position-readout span:last-child { text-align: right; }
+
+    .card-actions {
+      display: grid;
+      min-width: 0;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .icon-button {
+      width: 100%;
+      min-width: 0;
+      min-height: 38px;
+      padding: 7px 9px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      color: var(--text);
+      line-height: 1.2;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      cursor: pointer;
+    }
+
+    .icon-button:hover { background: #f7f8fa; }
+    .icon-button.delete {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      color: var(--danger);
+    }
+
+    .icon-button.delete svg {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 auto;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+
+
+    /* A kártyák saját szélességéhez igazodó vezérlők. Ez akkor is működik,
+       ha nagy oszlopszám miatt egy-egy kép nagyon keskeny lesz. */
+    @container (max-width: 300px) {
+      .controls {
+        gap: 8px;
+        padding: 8px;
+      }
+
+      .card-actions {
+        gap: 6px;
+      }
+
+      .icon-button {
+        min-height: 34px;
+        padding: 6px 5px;
+        font-size: 0.74rem;
+      }
+
+      .crop-control label,
+      .position-readout,
+      .file-info {
+        font-size: 0.68rem;
+      }
+    }
+
+    @container (max-width: 220px) {
+      .card-actions {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .title-input {
+        top: 7px;
+        left: 7px;
+        width: calc(100% - 54px);
+        padding: 5px 6px;
+        font-size: 0.72rem;
+      }
+
+      .drag-badge {
+        top: 7px;
+        right: 7px;
+        width: 30px;
+        height: 30px;
+      }
+
+      .pan-hint {
+        right: 7px;
+        bottom: 7px;
+        left: 7px;
+        font-size: 0.63rem;
+        white-space: normal;
+      }
+    }
+
+    .file-info {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        width: min(100% - 20px, 2600px);
+        padding-top: 18px;
+      }
+
+      .header { display: block; }
+      .toolbar, .export-panel { align-items: stretch; }
+      .toolbar-action-group {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .toolbar-action-group .button {
+        width: 100%;
+        min-width: 0;
+        white-space: normal;
+        line-height: 1.2;
+      }
+      .export-action-group {
+        display: flex;
+        width: 100%;
+      }
+      .export-action-group .button {
+        width: 100%;
+      }
+      .toolbar-spacer { display: none; }
+
+      .inline-field,
+      .control-field,
+      .custom-ratio {
+        width: 100%;
+      }
+
+      .custom-ratio {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: end;
+      }
+
+      .custom-ratio[hidden] { display: none; }
+
+      .custom-ratio .ratio-number-field {
+        min-width: 0;
+        width: 100%;
+      }
+
+      .inline-field,
+      .control-field {
+        min-width: 0;
+      }
+
+      .range-control input[type="range"] {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .toolbar-action-group { grid-template-columns: 1fr; }
+      .button { width: 100%; }
+    }
+  
+    .move-icon {
+      width: 18px;
+      height: 18px;
+      display: block;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div>
+        <h1>KépMozaik</h1>
+        <div class="header-summary">
+          <p class="subtitle">Képek rendezése, vágása és exportálása.</p>
+          <span class="image-count" id="imageCount" role="status" aria-live="polite">0 kép betöltve</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="Szerkesztő eszköztár">
+      <div class="toolbar-action-group" aria-label="Fájl- és projektműveletek">
+        <button class="button primary" id="browseButton" type="button">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+            <circle cx="8.5" cy="9" r="1.5"></circle>
+            <path d="m21 15-4.5-4.5L7 20"></path>
+            <path d="M17 3v6M14 6h6"></path>
+          </svg>
+          <span>Képek tallózása</span>
+        </button>
+        <input class="visually-hidden" id="fileInput" type="file" accept="image/*" multiple />
+
+        <button class="button" id="saveProjectButton" type="button" disabled>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 4h12l2 2v14H5z"></path>
+            <path d="M8 4v6h8V4"></path>
+            <path d="M8 20v-6h8v6"></path>
+          </svg>
+          <span>Projekt mentése</span>
+        </button>
+
+        <button class="button" id="loadProjectButton" type="button">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h6l2 2h10v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <path d="m12 12-3 3 3 3"></path>
+            <path d="M9 15h7"></path>
+          </svg>
+          <span>Projekt betöltése</span>
+        </button>
+        <input class="visually-hidden" id="projectInput" type="file" accept=".json,application/json" />
+
+        <button class="button danger" id="clearButton" type="button" disabled>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7h16"></path>
+            <path d="M9 7V4h6v3"></path>
+            <path d="m7 7 1 13h8l1-13"></path>
+            <path d="M10 11v5M14 11v5"></path>
+          </svg>
+          <span>Összes törlése</span>
+        </button>
+      </div>
+
+      <label class="inline-field" for="globalRatio">
+        <span>Képarány</span>
+        <select id="globalRatio">
+          <option value="1 / 1">1:1</option>
+          <option value="5 / 4">5:4</option>
+          <option value="4 / 3" selected>4:3</option>
+          <option value="3 / 2">3:2</option>
+          <option value="16 / 9">16:9</option>
+          <option value="2 / 1">2:1</option>
+          <option value="9 / 16">9:16</option>
+          <option value="custom">Egyéni</option>
+        </select>
+      </label>
+
+      <div class="custom-ratio" id="customRatioFields" hidden aria-label="Egyéni képarány">
+        <label class="control-field ratio-number-field" for="customRatioWidth">
+          <span class="control-label">Szélesség</span>
+          <input id="customRatioWidth" type="number" min="1" max="100" step="1" value="3" inputmode="numeric" />
+        </label>
+        <span class="ratio-separator" aria-hidden="true">:</span>
+        <label class="control-field ratio-number-field" for="customRatioHeight">
+          <span class="control-label">Magasság</span>
+          <input id="customRatioHeight" type="number" min="1" max="100" step="1" value="2" inputmode="numeric" />
+        </label>
+      </div>
+
+      <label class="control-field range-field" for="columnRange">
+        <span class="control-label">Oszlopok</span>
+        <span class="range-control">
+          <input id="columnRange" type="range" min="1" max="10" value="4" />
+          <output id="columnValue" for="columnRange">4</output>
+        </span>
+      </label>
+    </section>
+
+    <section class="export-panel" aria-label="Exportálási beállítások">
+      <div class="toolbar-action-group export-action-group" aria-label="Exportálási művelet">
+        <button class="button export" id="exportButton" type="button" disabled>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12"></path>
+            <path d="m7 10 5 5 5-5"></path>
+            <path d="M5 21h14a2 2 0 0 0 2-2v-3"></path>
+            <path d="M3 16v3a2 2 0 0 0 2 2"></path>
+          </svg>
+          <span>PNG exportálás</span>
+        </button>
+      </div>
+
+      <label class="inline-field" for="exportCellWidth">
+        <span>Minőség</span>
+        <select id="exportCellWidth">
+          <option value="240">Kompakt</option>
+          <option value="480" selected>Nagy</option>
+          <option value="720">Extra nagy</option>
+        </select>
+      </label>
+
+      <label class="inline-field" for="exportGap">
+        <span>Rácsköz</span>
+        <select id="exportGap">
+          <option value="0">0 px</option>
+          <option value="4">4 px</option>
+          <option value="8" selected>8 px</option>
+          <option value="16">16 px</option>
+        </select>
+      </label>
+
+      <label class="control-field toggle-field" for="exportTitles">
+        <span class="control-label">Feliratok megjelenítése</span>
+        <span class="toggle-control">
+          <input id="exportTitles" type="checkbox" checked />
+          <span class="toggle-track" aria-hidden="true"></span>
+          <span class="toggle-state" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <label class="control-field color-field" for="titleTextColor">
+        <span class="control-label">Felirat színe</span>
+        <span class="color-control">
+          <input id="titleTextColor" type="color" value="#ffffff" aria-label="A képcím szövegszíne" />
+          <span class="color-code" id="titleTextColorValue">#FFFFFF</span>
+        </span>
+      </label>
+
+      <label class="control-field color-field" for="titleBackgroundColor">
+        <span class="control-label">Felirat háttere</span>
+        <span class="color-control">
+          <input id="titleBackgroundColor" type="color" value="#121821" aria-label="A képcím hátterének színe" />
+          <span class="color-code" id="titleBackgroundColorValue">#121821</span>
+        </span>
+      </label>
+
+      <label class="control-field color-field" for="exportBackgroundColor">
+        <span class="control-label">Mozaik háttere</span>
+        <span class="color-control">
+          <input id="exportBackgroundColor" type="color" value="#000000" aria-label="Az exportált képrács háttérszíne" />
+          <span class="color-code" id="exportBackgroundColorValue">#000000</span>
+        </span>
+      </label>
+
+      <div class="toolbar-spacer"></div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Képek feltöltése">
+      <div>
+        <strong>Képek tallózása</strong>
+      </div>
+    </section>
+
+    <div class="grid-scroll-hint" id="gridScrollHint" hidden>
+      <span aria-hidden="true">↔</span>
+      <span>A teljes rács vízszintesen görgethető.</span>
+    </div>
+    <div class="grid-scroll" id="gridScroll" tabindex="0" aria-label="Vízszintesen görgethető képrács" hidden>
+      <section class="grid" id="grid" aria-live="polite">
+        <div class="empty-state" id="emptyState">Még nincs feltöltött kép.</div>
+      </section>
+    </div>
+    <div class="visually-hidden" id="reorderStatus" role="status" aria-live="polite"></div>
+  </main>
+
+  <template id="cardTemplate">
+    <article class="card">
+      <div class="image-frame" tabindex="0" aria-label="Kép kivágásának pozicionálása">
+        <img alt="" />
+        <textarea class="title-input" rows="1" maxlength="300" placeholder="Kép neve&#10;Új sorhoz nyomj Entert" aria-label="Kép neve, több sor is megadható" spellcheck="true"></textarea>
+        <div class="drag-badge" role="button" tabindex="0" title="Fogd meg és húzd. A kék helyőrző mutatja a pontos új helyet." aria-label="Kártya átrendezése. A kék helyőrző mutatja a pontos új helyet."><svg class="move-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l3.5 3.5-2 2L13 7v4h4l-.5-.5 2-2L22 12l-3.5 3.5-2-2 .5-.5h-4v4l.5-.5 2 2L12 22l-3.5-3.5 2-2 .5.5v-4H7l.5.5-2 2L2 12l3.5-3.5 2 2L7 11h4V7l-.5.5-2-2L12 2z" fill="currentColor"/></svg></div>
+        <div class="pan-hint">Húzd a képet a vágáshoz</div>
+      </div>
+
+      <div class="controls">
+        <div class="crop-control">
+          <label>
+            <span>Crop nagyítása</span>
+            <strong class="zoom-value">100%</strong>
+          </label>
+          <input class="zoom-range" type="range" min="1" max="4" step="0.05" value="1" aria-label="Crop nagyítása" />
+        </div>
+
+        <div class="position-readout">
+          <span>Pozíció: <span class="position-value">50% / 50%</span></span>
+          <span>Dupla kattintás: visszaállítás</span>
+        </div>
+
+        <div class="card-actions">
+          <button class="icon-button move-left" type="button" title="Mozgatás balra">← Balra</button>
+          <button class="icon-button move-right" type="button" title="Mozgatás jobbra">Jobbra →</button>
+          <button class="icon-button reset-crop" type="button">Vágás visszaállítása</button>
+          <button class="icon-button delete" type="button" title="Kép törlése">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 6h18"></path>
+              <path d="M8 6V4h8v2"></path>
+              <path d="M19 6l-1 14H6L5 6"></path>
+              <path d="M10 11v5"></path>
+              <path d="M14 11v5"></path>
+            </svg>
+            <span>Törlés</span>
+          </button>
+        </div>
+
+        <div class="file-info"></div>
+      </div>
+    </article>
+  </template>
+
+  <script>
+    (() => {
+      const fileInput = document.getElementById("fileInput");
+      const browseButton = document.getElementById("browseButton");
+      const projectInput = document.getElementById("projectInput");
+      const saveProjectButton = document.getElementById("saveProjectButton");
+      const loadProjectButton = document.getElementById("loadProjectButton");
+      const clearButton = document.getElementById("clearButton");
+      const imageCount = document.getElementById("imageCount");
+      const exportButton = document.getElementById("exportButton");
+      const exportCellWidth = document.getElementById("exportCellWidth");
+      const exportGap = document.getElementById("exportGap");
+      const exportTitles = document.getElementById("exportTitles");
+      const titleTextColor = document.getElementById("titleTextColor");
+      const titleBackgroundColor = document.getElementById("titleBackgroundColor");
+      const exportBackgroundColor = document.getElementById("exportBackgroundColor");
+      const titleTextColorValue = document.getElementById("titleTextColorValue");
+      const titleBackgroundColorValue = document.getElementById("titleBackgroundColorValue");
+      const exportBackgroundColorValue = document.getElementById("exportBackgroundColorValue");
+      const status = document.getElementById("status");
+      const dropZone = document.getElementById("dropZone");
+      const gridScroll = document.getElementById("gridScroll");
+      const gridScrollHint = document.getElementById("gridScrollHint");
+      const grid = document.getElementById("grid");
+      const emptyState = document.getElementById("emptyState");
+      const reorderStatus = document.getElementById("reorderStatus");
+      const cardTemplate = document.getElementById("cardTemplate");
+      const columnRange = document.getElementById("columnRange");
+      const columnValue = document.getElementById("columnValue");
+      const globalRatio = document.getElementById("globalRatio");
+      const customRatioFields = document.getElementById("customRatioFields");
+      const customRatioWidth = document.getElementById("customRatioWidth");
+      const customRatioHeight = document.getElementById("customRatioHeight");
+
+      let draggedCard = null;
+      let dropPlaceholder = null;
+      let dragGhost = null;
+      let reorderPointerId = null;
+      let dragOffsetX = 0;
+      let dragOffsetY = 0;
+      let lastAnnouncedDropPosition = 0;
+      let fileDropPlaceholder = null;
+      let fileDragLeaveTimer = null;
+      let pendingFileCount = 1;
+      const objectUrls = new Set();
+      const PROJECT_IMAGE_MAX_DIMENSION = 1600;
+      const PROJECT_IMAGE_QUALITY = 0.82;
+      const MIN_CARD_WIDTH = 300;
+      const GRID_GAP = 16;
+      const DEFAULT_TITLE_TEXT_COLOR = "#ffffff";
+      const DEFAULT_TITLE_BACKGROUND_COLOR = "#121821";
+      const DEFAULT_EXPORT_BACKGROUND_COLOR = "#000000";
+      const TITLE_BACKGROUND_ALPHA = 0.74;
+      const EDITOR_TITLE_BACKGROUND_ALPHA = 0.72;
+      // A PNG kétszeres belső felbontáson készül, így a canvasra rajzolt
+      // feliratok és élek nagyításkor is lényegesen tisztábbak maradnak.
+
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+      function normalizeHexColor(value, fallback) {
+        const candidate = String(value || "").trim();
+        return /^#[0-9a-f]{6}$/i.test(candidate) ? candidate.toLowerCase() : fallback;
+      }
+
+      function hexToRgba(hex, alpha = 1) {
+        const value = normalizeHexColor(hex, "#000000").slice(1);
+        const red = parseInt(value.slice(0, 2), 16);
+        const green = parseInt(value.slice(2, 4), 16);
+        const blue = parseInt(value.slice(4, 6), 16);
+        return `rgba(${red}, ${green}, ${blue}, ${clamp(Number(alpha), 0, 1)})`;
+      }
+
+      function applyColorSettings() {
+        const textColor = normalizeHexColor(titleTextColor.value, DEFAULT_TITLE_TEXT_COLOR);
+        const backgroundColor = normalizeHexColor(titleBackgroundColor.value, DEFAULT_TITLE_BACKGROUND_COLOR);
+        const finalBackgroundColor = normalizeHexColor(exportBackgroundColor.value, DEFAULT_EXPORT_BACKGROUND_COLOR);
+
+        titleTextColor.value = textColor;
+        titleBackgroundColor.value = backgroundColor;
+        exportBackgroundColor.value = finalBackgroundColor;
+        titleTextColorValue.textContent = textColor.toUpperCase();
+        titleBackgroundColorValue.textContent = backgroundColor.toUpperCase();
+        exportBackgroundColorValue.textContent = finalBackgroundColor.toUpperCase();
+        document.documentElement.style.setProperty("--title-text-color", textColor);
+        document.documentElement.style.setProperty(
+          "--title-background-color",
+          hexToRgba(backgroundColor, EDITOR_TITLE_BACKGROUND_ALPHA)
+        );
+      }
+
+      function getCards() {
+        return [...grid.querySelectorAll(".card")];
+      }
+
+      function getGlobalRatioText() {
+        if (globalRatio.value !== "custom") return globalRatio.value;
+        const width = clamp(Number(customRatioWidth.value) || 1, 1, 100);
+        const height = clamp(Number(customRatioHeight.value) || 1, 1, 100);
+        return `${width} / ${height}`;
+      }
+
+      function getGlobalAspectRatio() {
+        const parts = getGlobalRatioText().split("/").map(Number);
+        return parts.length === 2 && parts[0] > 0 && parts[1] > 0
+          ? parts[0] / parts[1]
+          : 4 / 3;
+      }
+
+      function updateGridLayout() {
+        const columns = Math.round(clamp(Number(columnRange.value) || 1, 1, 10));
+        const hasCards = getCards().length > 0;
+        const minimumWidth = (columns * MIN_CARD_WIDTH) + (Math.max(0, columns - 1) * GRID_GAP);
+        grid.style.minWidth = hasCards ? `${minimumWidth}px` : "100%";
+
+        requestAnimationFrame(() => {
+          const hasHorizontalOverflow = hasCards && gridScroll.scrollWidth > gridScroll.clientWidth + 2;
+          gridScrollHint.hidden = !hasHorizontalOverflow;
+          gridScroll.setAttribute("aria-description", hasHorizontalOverflow
+            ? "A rács szélesebb a képernyőnél, ezért vízszintesen görgethető."
+            : "A teljes képrács látható vízszintes görgetés nélkül.");
+        });
+      }
+
+      function updateEmptyState() {
+        const cardCount = getCards().length;
+        const hasCards = cardCount > 0;
+
+        // Az első feltöltési mező csak üres projektben látható. Amint van kép,
+        // a rács veszi át a drag and drop célterület szerepét.
+        dropZone.hidden = hasCards;
+        gridScroll.hidden = !hasCards;
+        emptyState.hidden = true;
+        if (!hasCards) clearFileDropPreview();
+
+        clearButton.disabled = !hasCards;
+        saveProjectButton.disabled = !hasCards;
+        exportButton.disabled = !hasCards;
+        imageCount.textContent = `${cardCount} kép betöltve`;
+        updateGridLayout();
+      }
+
+      function formatBytes(bytes) {
+        if (bytes === 0) return "0 B";
+        const units = ["B", "KB", "MB", "GB"];
+        const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+        return `${(bytes / Math.pow(1024, index)).toFixed(index ? 1 : 0)} ${units[index]}`;
+      }
+
+      function filenameWithoutExtension(filename) {
+        return filename.replace(/\.[^/.]+$/, "");
+      }
+
+      function setCardRatio(card) {
+        card.querySelector(".image-frame").style.setProperty("--ratio", getGlobalRatioText());
+      }
+
+      function getRenderedMetrics(card) {
+        const frame = card.querySelector(".image-frame");
+        const img = card.querySelector("img");
+        const rect = frame.getBoundingClientRect();
+        const frameWidth = rect.width;
+        const frameHeight = rect.height;
+        const imageWidth = img.naturalWidth;
+        const imageHeight = img.naturalHeight;
+        const zoom = Number(card.dataset.zoom || 1);
+
+        if (!frameWidth || !frameHeight || !imageWidth || !imageHeight) return null;
+
+        const baseScale = Math.max(frameWidth / imageWidth, frameHeight / imageHeight);
+        const scale = baseScale * zoom;
+        const renderedWidth = imageWidth * scale;
+        const renderedHeight = imageHeight * scale;
+
+        return {
+          frameWidth,
+          frameHeight,
+          imageWidth,
+          imageHeight,
+          zoom,
+          renderedWidth,
+          renderedHeight,
+          overflowX: Math.max(0, renderedWidth - frameWidth),
+          overflowY: Math.max(0, renderedHeight - frameHeight)
+        };
+      }
+
+      function resizeTitleInput(input) {
+        if (!input) return;
+
+        const frame = input.closest(".image-frame");
+        const minHeight = 34;
+        const maxHeight = frame && frame.clientHeight
+          ? Math.max(minHeight, Math.floor(frame.clientHeight * 0.48))
+          : 180;
+        const previousScrollTop = input.scrollTop;
+
+        input.style.height = "0px";
+        const requiredHeight = Math.max(minHeight, input.scrollHeight);
+        const nextHeight = Math.min(requiredHeight, maxHeight);
+
+        input.style.height = `${nextHeight}px`;
+        input.style.overflowY = requiredHeight > maxHeight ? "auto" : "hidden";
+        input.scrollTop = requiredHeight > maxHeight ? previousScrollTop : 0;
+      }
+
+      function updateImageGeometry(card) {
+        const metrics = getRenderedMetrics(card);
+        if (!metrics) return;
+
+        const img = card.querySelector("img");
+        const posX = clamp(Number(card.dataset.posX || 50), 0, 100);
+        const posY = clamp(Number(card.dataset.posY || 50), 0, 100);
+
+        img.style.width = `${metrics.renderedWidth}px`;
+        img.style.height = `${metrics.renderedHeight}px`;
+        img.style.left = `${-metrics.overflowX * (posX / 100)}px`;
+        img.style.top = `${-metrics.overflowY * (posY / 100)}px`;
+        resizeTitleInput(card.querySelector(".title-input"));
+      }
+
+      function setCardPosition(card, x, y) {
+        const nextX = clamp(Number(x), 0, 100);
+        const nextY = clamp(Number(y), 0, 100);
+        card.dataset.posX = String(nextX);
+        card.dataset.posY = String(nextY);
+        card.querySelector(".position-value").textContent = `${Math.round(nextX)}% / ${Math.round(nextY)}%`;
+        updateImageGeometry(card);
+      }
+
+      function setCardZoom(card, zoom) {
+        const nextZoom = clamp(Number(zoom), 1, 4);
+        card.dataset.zoom = String(nextZoom);
+        card.querySelector(".zoom-range").value = String(nextZoom);
+        card.querySelector(".zoom-value").textContent = `${Math.round(nextZoom * 100)}%`;
+        updateImageGeometry(card);
+      }
+
+      function resetCardCrop(card) {
+        setCardPosition(card, 50, 50);
+        setCardZoom(card, 1);
+      }
+
+      function applyGlobalRatio() {
+        customRatioFields.hidden = globalRatio.value !== "custom";
+        getCards().forEach(setCardRatio);
+        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+      }
+
+      function refreshMoveButtons() {
+        const cards = getCards();
+        cards.forEach((card, index) => {
+          card.querySelector(".move-left").disabled = index === 0;
+          card.querySelector(".move-right").disabled = index === cards.length - 1;
+        });
+      }
+
+      function createDropPlaceholder(card) {
+        const placeholder = document.createElement("div");
+        const rect = card.getBoundingClientRect();
+        placeholder.className = "drop-placeholder";
+        placeholder.setAttribute("aria-hidden", "true");
+        placeholder.style.height = `${Math.max(96, Math.round(rect.height))}px`;
+        placeholder.innerHTML = `
+          <span class="drop-placeholder-title">Ide kerül</span>
+          <span class="drop-placeholder-position"></span>
+        `;
+        return placeholder;
+      }
+
+      function sortableCards() {
+        return getCards().filter((card) => card !== draggedCard);
+      }
+
+      function nextSortableCard(card) {
+        const cards = sortableCards();
+        const index = cards.indexOf(card);
+        return index >= 0 ? (cards[index + 1] || null) : null;
+      }
+
+      function updateDropPlaceholderLabel() {
+        if (!dropPlaceholder) return;
+
+        const orderedItems = [...grid.children].filter((element) =>
+          element === dropPlaceholder ||
+          (element.classList && element.classList.contains("card") && element !== draggedCard)
+        );
+        const position = orderedItems.indexOf(dropPlaceholder) + 1;
+        const total = getCards().length;
+        const positionLabel = dropPlaceholder.querySelector(".drop-placeholder-position");
+
+        if (positionLabel) {
+          positionLabel.textContent = `${position}. hely a ${total} közül`;
+        }
+
+        if (position > 0 && position !== lastAnnouncedDropPosition) {
+          reorderStatus.textContent = `A kép a(z) ${position}. helyre kerül.`;
+          lastAnnouncedDropPosition = position;
+        }
+      }
+
+      function placeDropPlaceholderBefore(referenceCard) {
+        if (!dropPlaceholder) return;
+        grid.insertBefore(dropPlaceholder, referenceCard || null);
+        updateDropPlaceholderLabel();
+      }
+
+      function findDropReference(clientX, clientY) {
+        const cards = sortableCards();
+        if (!cards.length) return null;
+
+        const items = cards.map((card) => {
+          const rect = card.getBoundingClientRect();
+          return {
+            card,
+            rect,
+            centerX: rect.left + rect.width / 2,
+            centerY: rect.top + rect.height / 2
+          };
+        });
+
+        const rows = [];
+        for (const item of items) {
+          const currentRow = rows[rows.length - 1];
+          const tolerance = Math.max(10, item.rect.height * 0.12);
+          if (!currentRow || Math.abs(item.rect.top - currentRow.top) > tolerance) {
+            rows.push({
+              top: item.rect.top,
+              centerY: item.centerY,
+              items: [item]
+            });
+          } else {
+            currentRow.items.push(item);
+            currentRow.centerY = currentRow.items.reduce((sum, rowItem) => sum + rowItem.centerY, 0) / currentRow.items.length;
+          }
+        }
+
+        let selectedRow = rows[0];
+        let closestDistance = Math.abs(clientY - selectedRow.centerY);
+        for (const row of rows.slice(1)) {
+          const distance = Math.abs(clientY - row.centerY);
+          if (distance < closestDistance) {
+            selectedRow = row;
+            closestDistance = distance;
+          }
+        }
+
+        const rowItems = [...selectedRow.items].sort((a, b) => a.rect.left - b.rect.left);
+        for (const item of rowItems) {
+          if (clientX < item.centerX) return item.card;
+        }
+
+        return nextSortableCard(rowItems[rowItems.length - 1].card);
+      }
+
+      function updateDropPreview(event) {
+        if (!draggedCard || !dropPlaceholder) return;
+
+        const hoveredCard = event.target.closest && event.target.closest(".card");
+        let referenceCard = null;
+
+        if (hoveredCard && hoveredCard !== draggedCard) {
+          const rect = hoveredCard.getBoundingClientRect();
+          referenceCard = event.clientX < rect.left + rect.width / 2
+            ? hoveredCard
+            : nextSortableCard(hoveredCard);
+        } else {
+          referenceCard = findDropReference(event.clientX, event.clientY);
+        }
+
+        placeDropPlaceholderBefore(referenceCard);
+      }
+
+      function positionDragGhost(clientX, clientY) {
+        if (!dragGhost) return;
+        dragGhost.style.left = `${Math.round(clientX - dragOffsetX)}px`;
+        dragGhost.style.top = `${Math.round(clientY - dragOffsetY)}px`;
+      }
+
+      function createDragGhost(card, event) {
+        const rect = card.getBoundingClientRect();
+        const ghost = card.cloneNode(true);
+        ghost.classList.remove("dragging", "dragging-source-hidden");
+        ghost.classList.add("drag-ghost");
+        ghost.setAttribute("aria-hidden", "true");
+        ghost.querySelectorAll("input, textarea, button, select").forEach((element) => {
+          element.tabIndex = -1;
+        });
+        ghost.style.width = `${Math.round(rect.width)}px`;
+        ghost.style.height = `${Math.round(rect.height)}px`;
+        dragOffsetX = clamp(event.clientX - rect.left, 0, rect.width);
+        dragOffsetY = clamp(event.clientY - rect.top, 0, rect.height);
+        document.body.appendChild(ghost);
+        dragGhost = ghost;
+        positionDragGhost(event.clientX, event.clientY);
+      }
+
+      function startReorderDrag(card, event) {
+        if (draggedCard) finishReorderDrag({ commit: false });
+
+        draggedCard = card;
+        reorderPointerId = event.pointerId;
+        dropPlaceholder = createDropPlaceholder(card);
+        createDragGhost(card, event);
+        grid.insertBefore(dropPlaceholder, card);
+        grid.classList.add("reordering");
+        document.body.classList.add("reorder-dragging");
+        card.classList.add("dragging", "dragging-source-hidden");
+        updateDropPlaceholderLabel();
+        reorderStatus.textContent = "Áthelyezés folyamatban. A kék helyőrző mutatja az új pozíciót.";
+      }
+
+      function pointIsInsideGrid(clientX, clientY) {
+        const rect = grid.getBoundingClientRect();
+        const tolerance = 24;
+        return clientX >= rect.left - tolerance &&
+          clientX <= rect.right + tolerance &&
+          clientY >= rect.top - tolerance &&
+          clientY <= rect.bottom + tolerance;
+      }
+
+      function autoScrollDuringReorder(clientX, clientY) {
+        const verticalEdge = 72;
+        const verticalMaxSpeed = 18;
+        if (clientY < verticalEdge) {
+          window.scrollBy(0, -Math.ceil(((verticalEdge - clientY) / verticalEdge) * verticalMaxSpeed));
+        } else if (clientY > window.innerHeight - verticalEdge) {
+          window.scrollBy(0, Math.ceil(((clientY - (window.innerHeight - verticalEdge)) / verticalEdge) * verticalMaxSpeed));
+        }
+
+        const rect = gridScroll.getBoundingClientRect();
+        const horizontalEdge = Math.min(110, Math.max(64, rect.width * 0.12));
+        const horizontalMaxSpeed = 28;
+        const canScrollLeft = gridScroll.scrollLeft > 0;
+        const canScrollRight = gridScroll.scrollLeft + gridScroll.clientWidth < gridScroll.scrollWidth - 1;
+
+        if (clientX >= rect.left && clientX < rect.left + horizontalEdge && canScrollLeft) {
+          const strength = (rect.left + horizontalEdge - clientX) / horizontalEdge;
+          gridScroll.scrollBy({ left: -Math.ceil(strength * horizontalMaxSpeed), behavior: "auto" });
+        } else if (clientX <= rect.right && clientX > rect.right - horizontalEdge && canScrollRight) {
+          const strength = (clientX - (rect.right - horizontalEdge)) / horizontalEdge;
+          gridScroll.scrollBy({ left: Math.ceil(strength * horizontalMaxSpeed), behavior: "auto" });
+        }
+      }
+
+      function finishReorderDrag({ commit = false } = {}) {
+        if (!draggedCard) return;
+
+        const card = draggedCard;
+        if (commit && dropPlaceholder) {
+          grid.insertBefore(card, dropPlaceholder);
+        }
+
+        card.classList.remove("dragging", "dragging-source-hidden");
+        if (dropPlaceholder) dropPlaceholder.remove();
+        if (dragGhost) dragGhost.remove();
+        grid.classList.remove("reordering");
+        document.body.classList.remove("reorder-dragging");
+        reorderStatus.textContent = commit ? "A kép új helyre került." : "Az áthelyezés megszakadt.";
+
+        draggedCard = null;
+        dropPlaceholder = null;
+        dragGhost = null;
+        reorderPointerId = null;
+        dragOffsetX = 0;
+        dragOffsetY = 0;
+        lastAnnouncedDropPosition = 0;
+        refreshMoveButtons();
+      }
+
+      function handleReorderPointerMove(event) {
+        if (!draggedCard || event.pointerId !== reorderPointerId) return;
+        event.preventDefault();
+        positionDragGhost(event.clientX, event.clientY);
+        updateDropPreview(event);
+        autoScrollDuringReorder(event.clientX, event.clientY);
+      }
+
+      function handleReorderPointerEnd(event) {
+        if (!draggedCard || event.pointerId !== reorderPointerId) return;
+        event.preventDefault();
+        const commit = pointIsInsideGrid(event.clientX, event.clientY);
+        if (commit) updateDropPreview(event);
+        finishReorderDrag({ commit });
+      }
+
+      function installImageCropping(card, frame, img) {
+        let pan = null;
+
+        frame.addEventListener("pointerdown", (event) => {
+          if (event.button !== undefined && event.button !== 0) return;
+          if (event.target.closest("input, textarea, button, select, .drag-badge")) return;
+          if (!img.naturalWidth || !img.naturalHeight) return;
+
+          const metrics = getRenderedMetrics(card);
+          if (!metrics) return;
+
+          pan = {
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            startPosX: Number(card.dataset.posX || 50),
+            startPosY: Number(card.dataset.posY || 50),
+            overflowX: metrics.overflowX,
+            overflowY: metrics.overflowY
+          };
+
+          frame.setPointerCapture(event.pointerId);
+          frame.classList.add("panning");
+          event.preventDefault();
+        });
+
+        frame.addEventListener("pointermove", (event) => {
+          if (!pan || event.pointerId !== pan.pointerId) return;
+
+          const dx = event.clientX - pan.startX;
+          const dy = event.clientY - pan.startY;
+          const x = pan.overflowX > 0.5
+            ? pan.startPosX - (dx / pan.overflowX) * 100
+            : 50;
+          const y = pan.overflowY > 0.5
+            ? pan.startPosY - (dy / pan.overflowY) * 100
+            : 50;
+
+          setCardPosition(card, x, y);
+          event.preventDefault();
+        });
+
+        function endPan(event) {
+          if (!pan || event.pointerId !== pan.pointerId) return;
+          try { frame.releasePointerCapture(event.pointerId); } catch (_) {}
+          frame.classList.remove("panning");
+          pan = null;
+        }
+
+        frame.addEventListener("pointerup", endPan);
+        frame.addEventListener("pointercancel", endPan);
+
+        frame.addEventListener("dblclick", (event) => {
+          if (event.target.closest("input, textarea, button, select, .drag-badge")) return;
+          resetCardCrop(card);
+        });
+
+        frame.addEventListener("keydown", (event) => {
+          if (event.target.closest("input, textarea, button, select, .drag-badge")) return;
+
+          const posX = Number(card.dataset.posX || 50);
+          const posY = Number(card.dataset.posY || 50);
+          const zoom = Number(card.dataset.zoom || 1);
+          const step = event.shiftKey ? 5 : 1;
+
+          if (event.key === "ArrowLeft") setCardPosition(card, posX - step, posY);
+          else if (event.key === "ArrowRight") setCardPosition(card, posX + step, posY);
+          else if (event.key === "ArrowUp") setCardPosition(card, posX, posY - step);
+          else if (event.key === "ArrowDown") setCardPosition(card, posX, posY + step);
+          else if (event.key === "+" || event.key === "=") setCardZoom(card, zoom + 0.05);
+          else if (event.key === "-" || event.key === "_") setCardZoom(card, zoom - 0.05);
+          else if (event.key === "0") resetCardCrop(card);
+          else return;
+
+          event.preventDefault();
+        });
+      }
+
+      function createCard(file, state = {}, beforeNode = null) {
+        const fragment = cardTemplate.content.cloneNode(true);
+        const card = fragment.querySelector(".card");
+        const frame = fragment.querySelector(".image-frame");
+        const img = fragment.querySelector("img");
+        const titleInput = fragment.querySelector(".title-input");
+        const dragBadge = fragment.querySelector(".drag-badge");
+        const zoomRange = fragment.querySelector(".zoom-range");
+        const zoomValue = fragment.querySelector(".zoom-value");
+        const positionValue = fragment.querySelector(".position-value");
+        const deleteButton = fragment.querySelector(".delete");
+        const moveLeftButton = fragment.querySelector(".move-left");
+        const moveRightButton = fragment.querySelector(".move-right");
+        const resetCropButton = fragment.querySelector(".reset-crop");
+        const fileInfo = fragment.querySelector(".file-info");
+
+        const fileName = String(state.fileName || file.name || "kep");
+        const fileType = String(state.fileType || file.type || "image/png");
+        const fileSize = Number.isFinite(Number(state.fileSize))
+          ? Number(state.fileSize)
+          : Number(file.size || 0);
+        const lastModified = Number.isFinite(Number(state.lastModified))
+          ? Number(state.lastModified)
+          : Number(file.lastModified || Date.now());
+        const initialX = clamp(Number(state.posX ?? 50), 0, 100);
+        const initialY = clamp(Number(state.posY ?? 50), 0, 100);
+        const initialZoom = clamp(Number(state.zoom ?? 1), 1, 4);
+        const objectUrl = URL.createObjectURL(file);
+        objectUrls.add(objectUrl);
+
+        card._imageBlob = file;
+        card._fileMeta = {
+          name: fileName,
+          type: String(state.originalFileType || fileType),
+          size: Number.isFinite(Number(state.originalFileSize))
+            ? Number(state.originalFileSize)
+            : fileSize,
+          lastModified
+        };
+        card._projectSaveBlob = state.storageOptimized === true ? file : null;
+        card._projectSaveInfo = state.storageOptimized === true
+          ? {
+              width: Number(state.storedWidth || 0),
+              height: Number(state.storedHeight || 0),
+              originalWidth: Number(state.originalWidth || state.storedWidth || 0),
+              originalHeight: Number(state.originalHeight || state.storedHeight || 0),
+              reused: true
+            }
+          : null;
+        card.dataset.objectUrl = objectUrl;
+        card.dataset.posX = String(initialX);
+        card.dataset.posY = String(initialY);
+        card.dataset.zoom = String(initialZoom);
+        titleInput.value = state.title !== undefined
+          ? String(state.title).slice(0, 300)
+          : filenameWithoutExtension(fileName);
+        img.alt = titleInput.value.trim().replace(/\s+/g, " ") || "Feltöltött kép";
+        img.src = objectUrl;
+        fileInfo.textContent = `${fileName} • ${formatBytes(fileSize)}`;
+        fileInfo.title = fileName;
+        zoomRange.value = String(initialZoom);
+        zoomValue.textContent = `${Math.round(initialZoom * 100)}%`;
+        positionValue.textContent = `${Math.round(initialX)}% / ${Math.round(initialY)}%`;
+        setCardRatio(card);
+
+        img.addEventListener("load", () => {
+          updateImageGeometry(card);
+        });
+
+        titleInput.addEventListener("input", () => {
+          img.alt = titleInput.value.trim().replace(/\s+/g, " ") || "Feltöltött kép";
+          resizeTitleInput(titleInput);
+        });
+
+        zoomRange.addEventListener("input", () => {
+          setCardZoom(card, zoomRange.value);
+        });
+
+        resetCropButton.addEventListener("click", () => resetCardCrop(card));
+
+        deleteButton.addEventListener("click", () => {
+          revokeCardResources(card);
+          card.remove();
+          updateEmptyState();
+          refreshMoveButtons();
+        });
+
+        moveLeftButton.addEventListener("click", () => {
+          const previous = card.previousElementSibling;
+          if (previous && previous.classList.contains("card")) {
+            grid.insertBefore(card, previous);
+            refreshMoveButtons();
+          }
+        });
+
+        moveRightButton.addEventListener("click", () => {
+          const next = card.nextElementSibling;
+          if (next && next.classList.contains("card")) {
+            grid.insertBefore(next, card);
+            refreshMoveButtons();
+          }
+        });
+
+        dragBadge.addEventListener("pointerdown", (event) => {
+          if (event.button !== undefined && event.button !== 0) return;
+          if (event.isPrimary === false) return;
+          event.preventDefault();
+          event.stopPropagation();
+          startReorderDrag(card, event);
+        });
+
+        dragBadge.addEventListener("keydown", (event) => {
+          if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+          event.preventDefault();
+          const direction = event.key === "ArrowLeft" ? -1 : 1;
+          const cards = getCards();
+          const currentIndex = cards.indexOf(card);
+          const nextIndex = clamp(currentIndex + direction, 0, cards.length - 1);
+          if (nextIndex === currentIndex) return;
+          if (direction < 0) {
+            grid.insertBefore(card, cards[nextIndex]);
+          } else {
+            grid.insertBefore(card, cards[nextIndex].nextSibling);
+          }
+          refreshMoveButtons();
+          reorderStatus.textContent = `A kép a(z) ${nextIndex + 1}. helyre került.`;
+        });
+
+        installImageCropping(card, frame, img);
+
+        if (typeof ResizeObserver !== "undefined") {
+          const observer = new ResizeObserver(() => {
+            updateImageGeometry(card);
+            resizeTitleInput(titleInput);
+          });
+          observer.observe(frame);
+          card._resizeObserver = observer;
+        }
+
+        grid.insertBefore(fragment, beforeNode && beforeNode.parentNode === grid ? beforeNode : null);
+        requestAnimationFrame(() => {
+          resizeTitleInput(titleInput);
+          updateImageGeometry(card);
+        });
+      }
+
+      function revokeCardResources(card) {
+        if (card._resizeObserver) card._resizeObserver.disconnect();
+        const url = card.dataset.objectUrl;
+        if (url && objectUrls.has(url)) {
+          URL.revokeObjectURL(url);
+          objectUrls.delete(url);
+        }
+      }
+
+      function addFiles(fileList, { beforeNode = null } = {}) {
+        const imageFiles = [...fileList].filter((file) => file.type.startsWith("image/"));
+        imageFiles.forEach((file) => createCard(file, {}, beforeNode));
+        fileInput.value = "";
+        updateEmptyState();
+        refreshMoveButtons();
+        return imageFiles.length;
+      }
+
+      function hasDraggedFiles(event) {
+        return Array.from(event.dataTransfer?.types || []).includes("Files");
+      }
+
+      function draggedImageCount(event) {
+        const items = Array.from(event.dataTransfer?.items || []);
+        const imageItems = items.filter((item) => item.kind === "file" && item.type.startsWith("image/"));
+        return Math.max(1, imageItems.length || Array.from(event.dataTransfer?.files || []).filter((file) => file.type.startsWith("image/")).length);
+      }
+
+      function createFileDropPlaceholder(fileCount = 1) {
+        const placeholder = document.createElement("div");
+        const firstCard = getCards()[0];
+        const height = firstCard ? firstCard.getBoundingClientRect().height : 180;
+        placeholder.className = "drop-placeholder file-drop-placeholder";
+        placeholder.setAttribute("aria-hidden", "true");
+        placeholder.style.height = `${Math.max(120, Math.round(height))}px`;
+        placeholder.innerHTML = `
+          <span class="drop-placeholder-title">${fileCount > 1 ? `${fileCount} új kép ide kerül` : "Új kép ide kerül"}</span>
+          <span class="drop-placeholder-position"></span>
+        `;
+        return placeholder;
+      }
+
+      function updateFileDropPlaceholderLabel() {
+        if (!fileDropPlaceholder) return;
+        const orderedItems = [...grid.children].filter((element) =>
+          element === fileDropPlaceholder ||
+          (element.classList && element.classList.contains("card"))
+        );
+        const position = orderedItems.indexOf(fileDropPlaceholder) + 1;
+        const label = fileDropPlaceholder.querySelector(".drop-placeholder-position");
+        if (label) {
+          label.textContent = pendingFileCount > 1
+            ? `${position}. helytől, ${pendingFileCount} kép`
+            : `${position}. hely`;
+        }
+        reorderStatus.textContent = pendingFileCount > 1
+          ? `${pendingFileCount} új kép a(z) ${position}. helytől kerül be.`
+          : `Az új kép a(z) ${position}. helyre kerül.`;
+      }
+
+      function showFileDropPreview(event) {
+        if (!getCards().length) return;
+        pendingFileCount = draggedImageCount(event);
+
+        if (!fileDropPlaceholder) {
+          fileDropPlaceholder = createFileDropPlaceholder(pendingFileCount);
+          grid.appendChild(fileDropPlaceholder);
+        } else {
+          const title = fileDropPlaceholder.querySelector(".drop-placeholder-title");
+          if (title) title.textContent = pendingFileCount > 1
+            ? `${pendingFileCount} új kép ide kerül`
+            : "Új kép ide kerül";
+        }
+
+        const hoveredCard = event.target.closest && event.target.closest(".card");
+        let referenceCard = null;
+        if (hoveredCard) {
+          const rect = hoveredCard.getBoundingClientRect();
+          referenceCard = event.clientX < rect.left + rect.width / 2
+            ? hoveredCard
+            : nextSortableCard(hoveredCard);
+        } else {
+          referenceCard = findDropReference(event.clientX, event.clientY);
+        }
+
+        grid.insertBefore(fileDropPlaceholder, referenceCard || null);
+        grid.classList.add("file-drop-active");
+        updateFileDropPlaceholderLabel();
+        autoScrollDuringReorder(event.clientX, event.clientY);
+      }
+
+      function clearFileDropPreview() {
+        if (fileDragLeaveTimer) clearTimeout(fileDragLeaveTimer);
+        fileDragLeaveTimer = null;
+        pendingFileCount = 1;
+        if (fileDropPlaceholder) fileDropPlaceholder.remove();
+        fileDropPlaceholder = null;
+        grid.classList.remove("file-drop-active");
+      }
+
+      function clearCurrentProject({ clearStatus = true } = {}) {
+        getCards().forEach(revokeCardResources);
+        getCards().forEach((card) => card.remove());
+        if (clearStatus) status.textContent = "";
+        updateEmptyState();
+        refreshMoveButtons();
+      }
+
+      function blobToDataUrl(blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.addEventListener("load", () => resolve(String(reader.result)));
+          reader.addEventListener("error", () => reject(reader.error || new Error("A kép beolvasása sikertelen.")));
+          reader.readAsDataURL(blob);
+        });
+      }
+
+      function canvasToBlob(canvas, type, quality) {
+        return new Promise((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error("A projektkép tömörítése sikertelen volt."));
+          }, type, quality);
+        });
+      }
+
+      async function decodeImageBlob(blob) {
+        if (typeof createImageBitmap === "function") {
+          try {
+            const bitmap = await createImageBitmap(blob);
+            return {
+              source: bitmap,
+              width: bitmap.width,
+              height: bitmap.height,
+              cleanup: () => bitmap.close()
+            };
+          } catch (_) {}
+        }
+
+        const url = URL.createObjectURL(blob);
+        const image = new Image();
+        image.decoding = "async";
+        image.src = url;
+
+        try {
+          await new Promise((resolve, reject) => {
+            image.addEventListener("load", resolve, { once: true });
+            image.addEventListener("error", () => reject(new Error("A kép nem dekódolható.")), { once: true });
+          });
+          return {
+            source: image,
+            width: image.naturalWidth,
+            height: image.naturalHeight,
+            cleanup: () => URL.revokeObjectURL(url)
+          };
+        } catch (error) {
+          URL.revokeObjectURL(url);
+          throw error;
+        }
+      }
+
+      async function optimizeImageForProject(blob) {
+        const decoded = await decodeImageBlob(blob);
+
+        try {
+          const originalWidth = Number(decoded.width || 0);
+          const originalHeight = Number(decoded.height || 0);
+          if (!originalWidth || !originalHeight) {
+            throw new Error("Az egyik kép mérete nem állapítható meg.");
+          }
+
+          const longestSide = Math.max(originalWidth, originalHeight);
+          const scale = Math.min(1, PROJECT_IMAGE_MAX_DIMENSION / longestSide);
+          const width = Math.max(1, Math.round(originalWidth * scale));
+          const height = Math.max(1, Math.round(originalHeight * scale));
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d", { alpha: true });
+          if (!ctx) throw new Error("A böngésző nem tudta előkészíteni a projektképet.");
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(decoded.source, 0, 0, width, height);
+
+          let optimizedBlob;
+          try {
+            optimizedBlob = await canvasToBlob(canvas, "image/webp", PROJECT_IMAGE_QUALITY);
+          } catch (_) {
+            optimizedBlob = await canvasToBlob(canvas, "image/png");
+          }
+
+          return {
+            blob: optimizedBlob,
+            width,
+            height,
+            originalWidth,
+            originalHeight,
+            reused: false
+          };
+        } finally {
+          decoded.cleanup();
+        }
+      }
+
+      async function getProjectImage(card) {
+        if (card._projectSaveBlob && card._projectSaveInfo) {
+          return {
+            blob: card._projectSaveBlob,
+            ...card._projectSaveInfo,
+            reused: true
+          };
+        }
+
+        const optimized = await optimizeImageForProject(card._imageBlob);
+        card._projectSaveBlob = optimized.blob;
+        card._projectSaveInfo = {
+          width: optimized.width,
+          height: optimized.height,
+          originalWidth: optimized.originalWidth,
+          originalHeight: optimized.originalHeight
+        };
+        return optimized;
+      }
+
+      async function dataUrlToBlob(dataUrl) {
+        if (typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
+          throw new Error("A projekt egyik képe hibás vagy nem támogatott.");
+        }
+        const response = await fetch(dataUrl);
+        if (!response.ok) throw new Error("A projekt egyik képét nem lehetett visszaállítani.");
+        return response.blob();
+      }
+
+      function projectTimestampFilename() {
+        const date = new Date();
+        const pad = (value) => String(value).padStart(2, "0");
+        return `kepmozaik-projekt-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}.json`;
+      }
+
+      function selectHasValue(select, value) {
+        return [...select.options].some((option) => option.value === String(value));
+      }
+
+      function applyProjectSettings(settings = {}) {
+        const ratioValue = String(settings.globalRatio || "4 / 3");
+        globalRatio.value = selectHasValue(globalRatio, ratioValue) ? ratioValue : "4 / 3";
+        customRatioWidth.value = String(clamp(Number(settings.customRatioWidth) || 3, 1, 100));
+        customRatioHeight.value = String(clamp(Number(settings.customRatioHeight) || 2, 1, 100));
+
+        const columns = Math.round(clamp(Number(settings.columns) || 4, 1, 10));
+        columnRange.value = String(columns);
+        columnValue.textContent = String(columns);
+        document.documentElement.style.setProperty("--columns", String(columns));
+        updateGridLayout();
+
+        const cellWidth = String(settings.exportCellWidth || "480");
+        exportCellWidth.value = selectHasValue(exportCellWidth, cellWidth) ? cellWidth : "480";
+        const gap = String(settings.exportGap ?? "8");
+        exportGap.value = selectHasValue(exportGap, gap) ? gap : "8";
+        exportTitles.checked = settings.exportTitles !== false;
+        titleTextColor.value = normalizeHexColor(settings.titleTextColor, DEFAULT_TITLE_TEXT_COLOR);
+        titleBackgroundColor.value = normalizeHexColor(settings.titleBackgroundColor, DEFAULT_TITLE_BACKGROUND_COLOR);
+        exportBackgroundColor.value = normalizeHexColor(settings.exportBackgroundColor, DEFAULT_EXPORT_BACKGROUND_COLOR);
+        applyColorSettings();
+        applyGlobalRatio();
+      }
+
+      async function saveProject() {
+        const cards = getCards();
+        if (!cards.length) return;
+
+        saveProjectButton.disabled = true;
+        status.textContent = "JSON-projekt mentése folyamatban…";
+
+        try {
+          const images = [];
+          let originalBytes = 0;
+          let optimizedBytes = 0;
+
+          for (let index = 0; index < cards.length; index += 1) {
+            const card = cards[index];
+            if (!card._imageBlob) throw new Error("Az egyik kép forrása nem érhető el.");
+            status.textContent = `Képek tömörítése és mentése: ${index + 1} / ${cards.length}…`;
+            const meta = card._fileMeta || {};
+            const projectImage = await getProjectImage(card);
+            const sourceSize = Number(meta.size || card._imageBlob.size || 0);
+            originalBytes += sourceSize;
+            optimizedBytes += projectImage.blob.size;
+
+            images.push({
+              fileName: String(meta.name || `kep-${index + 1}`),
+              fileType: String(projectImage.blob.type || "image/webp"),
+              fileSize: Number(projectImage.blob.size || 0),
+              originalFileType: String(meta.type || card._imageBlob.type || "image/png"),
+              originalFileSize: sourceSize,
+              lastModified: Number(meta.lastModified || Date.now()),
+              title: card.querySelector(".title-input").value,
+              posX: Number(card.dataset.posX || 50),
+              posY: Number(card.dataset.posY || 50),
+              zoom: Number(card.dataset.zoom || 1),
+              storageOptimized: true,
+              storedWidth: projectImage.width,
+              storedHeight: projectImage.height,
+              originalWidth: projectImage.originalWidth,
+              originalHeight: projectImage.originalHeight,
+              dataUrl: await blobToDataUrl(projectImage.blob)
+            });
+          }
+
+          const project = {
+            format: "kepracs-editor-project",
+            version: 2,
+            savedAt: new Date().toISOString(),
+            imageStorage: {
+              maxDimension: PROJECT_IMAGE_MAX_DIMENSION,
+              preferredFormat: "image/webp",
+              quality: PROJECT_IMAGE_QUALITY
+            },
+            settings: {
+              globalRatio: globalRatio.value,
+              customRatioWidth: Number(customRatioWidth.value),
+              customRatioHeight: Number(customRatioHeight.value),
+              columns: Number(columnRange.value),
+              exportCellWidth: Number(exportCellWidth.value),
+              exportGap: Number(exportGap.value),
+              exportTitles: exportTitles.checked,
+              titleTextColor: normalizeHexColor(titleTextColor.value, DEFAULT_TITLE_TEXT_COLOR),
+              titleBackgroundColor: normalizeHexColor(titleBackgroundColor.value, DEFAULT_TITLE_BACKGROUND_COLOR),
+              exportBackgroundColor: normalizeHexColor(exportBackgroundColor.value, DEFAULT_EXPORT_BACKGROUND_COLOR)
+            },
+            images
+          };
+
+          const json = JSON.stringify(project);
+          const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+          downloadBlob(blob, projectTimestampFilename());
+
+          const reduction = originalBytes > 0
+            ? Math.max(0, Math.round((1 - optimizedBytes / originalBytes) * 100))
+            : 0;
+          status.textContent = `JSON elmentve: ${images.length} kép, ${formatBytes(blob.size)}. Képadatok: ${formatBytes(originalBytes)} → ${formatBytes(optimizedBytes)} (${reduction}% csökkenés).`;
+        } catch (error) {
+          console.error(error);
+          status.textContent = error instanceof Error ? error.message : "A projekt mentése sikertelen volt.";
+        } finally {
+          saveProjectButton.disabled = getCards().length === 0;
+        }
+      }
+
+      async function loadProjectFile(file) {
+        loadProjectButton.disabled = true;
+        saveProjectButton.disabled = true;
+        status.textContent = "Projektfájl ellenőrzése…";
+
+        try {
+          const textContent = await file.text();
+          const project = JSON.parse(textContent);
+
+          if (
+            !project ||
+            project.format !== "kepracs-editor-project" ||
+            ![1, 2].includes(project.version) ||
+            !Array.isArray(project.images)
+          ) {
+            throw new Error("Ez nem támogatott képrács JSON-projektfájl.");
+          }
+
+          if (!project.images.length) {
+            throw new Error("A projektfájl nem tartalmaz képeket.");
+          }
+
+          const preparedImages = [];
+          for (let index = 0; index < project.images.length; index += 1) {
+            status.textContent = `Projekt betöltése: ${index + 1} / ${project.images.length} kép előkészítése…`;
+            const item = project.images[index] || {};
+            const blob = await dataUrlToBlob(item.dataUrl);
+            preparedImages.push({ blob, state: item });
+          }
+
+          if (getCards().length && !window.confirm("A projekt betöltése lecseréli a jelenlegi munkát. Folytatod?")) {
+            status.textContent = "A projekt betöltése megszakítva.";
+            return;
+          }
+
+          clearCurrentProject({ clearStatus: false });
+          applyProjectSettings(project.settings || {});
+
+          preparedImages.forEach(({ blob, state }) => createCard(blob, state));
+          updateEmptyState();
+          refreshMoveButtons();
+          requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+          status.textContent = `JSON-projekt betöltve: ${preparedImages.length} kép.`;
+        } catch (error) {
+          console.error(error);
+          status.textContent = error instanceof Error ? error.message : "A projekt betöltése sikertelen volt.";
+        } finally {
+          projectInput.value = "";
+          loadProjectButton.disabled = false;
+          saveProjectButton.disabled = getCards().length === 0;
+        }
+      }
+
+      async function ensureImageReady(img) {
+        if (img.complete && img.naturalWidth) return;
+        if (typeof img.decode === "function") {
+          try {
+            await img.decode();
+            return;
+          } catch (_) {}
+        }
+        await new Promise((resolve, reject) => {
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", reject, { once: true });
+        });
+      }
+
+      function drawCroppedImage(ctx, img, x, y, width, height, posX, posY, zoom) {
+        const sourceWidth = img.naturalWidth;
+        const sourceHeight = img.naturalHeight;
+        if (!sourceWidth || !sourceHeight) return;
+
+        const safeZoom = clamp(Number(zoom) || 1, 1, 4);
+        const scale = Math.max(width / sourceWidth, height / sourceHeight) * safeZoom;
+        const visibleSourceWidth = Math.min(sourceWidth, width / scale);
+        const visibleSourceHeight = Math.min(sourceHeight, height / scale);
+        const maxSourceX = Math.max(0, sourceWidth - visibleSourceWidth);
+        const maxSourceY = Math.max(0, sourceHeight - visibleSourceHeight);
+        const sourceX = maxSourceX * (clamp(posX, 0, 100) / 100);
+        const sourceY = maxSourceY * (clamp(posY, 0, 100) / 100);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, width, height);
+        ctx.clip();
+        ctx.fillStyle = "#15181d";
+        ctx.fillRect(x, y, width, height);
+        ctx.drawImage(
+          img,
+          sourceX,
+          sourceY,
+          visibleSourceWidth,
+          visibleSourceHeight,
+          x,
+          y,
+          width,
+          height
+        );
+        ctx.restore();
+      }
+
+      function ellipsizeText(ctx, text, maxWidth) {
+        if (ctx.measureText(text).width <= maxWidth) return text;
+        let value = text;
+        while (value.length > 1 && ctx.measureText(`${value}…`).width > maxWidth) {
+          value = value.slice(0, -1);
+        }
+        return `${value}…`;
+      }
+
+      function prepareTitleLines(ctx, title, maxLineWidth, maxLines) {
+        const sourceLines = String(title).replace(/\r\n?/g, "\n").split("\n");
+        const lines = sourceLines.slice(0, maxLines).map((line) =>
+          ellipsizeText(ctx, line, maxLineWidth)
+        );
+
+        if (sourceLines.length > maxLines && lines.length) {
+          const lastIndex = lines.length - 1;
+          const base = lines[lastIndex].replace(/…$/, "");
+          lines[lastIndex] = ellipsizeText(ctx, `${base}…`, maxLineWidth);
+        }
+
+        return lines;
+      }
+
+      function drawTitle(ctx, title, x, y, cellWidth, cellHeight) {
+        if (!title) return;
+
+        const fontSize = Math.max(14, Math.round(cellWidth * 0.045));
+        const padX = Math.round(fontSize * 0.55);
+        const padY = Math.max(4, Math.round(fontSize * 0.30));
+        const maxBoxWidth = cellWidth - 20;
+        const maxLineWidth = maxBoxWidth - padX * 2;
+
+        ctx.save();
+        ctx.font = `600 ${fontSize}px system-ui, -apple-system, Segoe UI, sans-serif`;
+        ctx.textBaseline = "alphabetic";
+        ctx.textAlign = "left";
+        if ("fontKerning" in ctx) ctx.fontKerning = "normal";
+        if ("textRendering" in ctx) ctx.textRendering = "optimizeLegibility";
+
+        // A tényleges betűmetrikából számolunk, ezért egy egysoros cím
+        // háttere nem kap egy teljes, fölösleges sormagasságnyi alsó részt.
+        const metricProbe = ctx.measureText("ÁÉŐgjy");
+        const ascent = Math.ceil(metricProbe.actualBoundingBoxAscent || fontSize * 0.78);
+        const descent = Math.ceil(metricProbe.actualBoundingBoxDescent || fontSize * 0.22);
+        const glyphHeight = ascent + descent;
+        const lineGap = Math.max(2, Math.round(fontSize * 0.16));
+        const lineHeight = glyphHeight + lineGap;
+        const availableHeight = Math.max(glyphHeight, cellHeight - 20 - padY * 2);
+        const fittingLines = availableHeight <= glyphHeight
+          ? 1
+          : 1 + Math.floor((availableHeight - glyphHeight) / lineHeight);
+        const maxLines = Math.max(1, Math.min(8, fittingLines));
+
+        const lines = prepareTitleLines(ctx, title, maxLineWidth, maxLines);
+        if (!lines.length) {
+          ctx.restore();
+          return;
+        }
+
+        const widestLine = lines.reduce(
+          (width, line) => Math.max(width, ctx.measureText(line || " ").width),
+          0
+        );
+        const textBlockHeight = glyphHeight + Math.max(0, lines.length - 1) * lineHeight;
+        const boxWidth = Math.min(maxBoxWidth, Math.ceil(widestLine + padX * 2));
+        const boxHeight = Math.ceil(textBlockHeight + padY * 2);
+        const boxX = x + 10;
+        const boxY = y + 10;
+        const firstBaseline = boxY + padY + ascent;
+
+        ctx.fillStyle = hexToRgba(titleBackgroundColor.value, TITLE_BACKGROUND_ALPHA);
+        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        ctx.fillStyle = normalizeHexColor(titleTextColor.value, DEFAULT_TITLE_TEXT_COLOR);
+        lines.forEach((line, index) => {
+          ctx.fillText(line, boxX + padX, firstBaseline + index * lineHeight);
+        });
+        ctx.restore();
+      }
+
+      function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function timestampFilename() {
+        const date = new Date();
+        const pad = (value) => String(value).padStart(2, "0");
+        return `kepmozaik-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}.png`;
+      }
+
+      async function exportGridAsPng() {
+        const cards = getCards();
+        if (!cards.length) return;
+
+        exportButton.disabled = true;
+        status.textContent = "Exportálás folyamatban…";
+
+        try {
+          await Promise.all(cards.map((card) => ensureImageReady(card.querySelector("img"))));
+
+          const requestedColumns = Number(columnRange.value);
+          const columns = Math.max(1, Math.min(requestedColumns, cards.length));
+          const cellWidth = Number(exportCellWidth.value);
+          const cellHeight = Math.max(1, Math.round(cellWidth / getGlobalAspectRatio()));
+          const gap = Number(exportGap.value);
+          const rows = Math.ceil(cards.length / columns);
+          const canvasWidth = columns * cellWidth + (columns + 1) * gap;
+          const canvasHeight = rows * cellHeight + (rows + 1) * gap;
+          const maxDimension = 16384;
+          const maxPixels = 180000000;
+
+          if (canvasWidth > maxDimension || canvasHeight > maxDimension || canvasWidth * canvasHeight > maxPixels) {
+            throw new Error("A létrejövő kép túl nagy. Válassz kisebb exportminőséget vagy kevesebb oszlopot.");
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = canvasWidth;
+          canvas.height = canvasHeight;
+          const ctx = canvas.getContext("2d", { alpha: false });
+          if (!ctx) throw new Error("A böngésző nem tudta létrehozni az exportvásznat.");
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.fillStyle = normalizeHexColor(exportBackgroundColor.value, DEFAULT_EXPORT_BACKGROUND_COLOR);
+          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+          cards.forEach((card, index) => {
+            const row = Math.floor(index / columns);
+            const column = index % columns;
+            const x = gap + column * (cellWidth + gap);
+            const y = gap + row * (cellHeight + gap);
+            const img = card.querySelector("img");
+            const posX = Number(card.dataset.posX || 50);
+            const posY = Number(card.dataset.posY || 50);
+            const zoom = Number(card.dataset.zoom || 1);
+
+            drawCroppedImage(ctx, img, x, y, cellWidth, cellHeight, posX, posY, zoom);
+
+            if (exportTitles.checked) {
+              drawTitle(ctx, card.querySelector(".title-input").value.trim(), x, y, cellWidth, cellHeight);
+            }
+          });
+
+          const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+          if (!blob) throw new Error("A PNG-fájl létrehozása sikertelen volt.");
+
+          downloadBlob(blob, timestampFilename());
+          status.textContent = `Elkészült: ${canvasWidth} × ${canvasHeight} px`;
+        } catch (error) {
+          console.error(error);
+          status.textContent = error instanceof Error ? error.message : "Az exportálás sikertelen volt.";
+        } finally {
+          exportButton.disabled = getCards().length === 0;
+        }
+      }
+
+      browseButton.addEventListener("click", () => fileInput.click());
+      dropZone.addEventListener("click", () => fileInput.click());
+
+      dropZone.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener("change", () => addFiles(fileInput.files));
+
+      window.addEventListener("pointermove", handleReorderPointerMove, { passive: false });
+      window.addEventListener("pointerup", handleReorderPointerEnd, { passive: false });
+      window.addEventListener("pointercancel", (event) => {
+        if (!draggedCard || event.pointerId !== reorderPointerId) return;
+        finishReorderDrag({ commit: false });
+      });
+      window.addEventListener("blur", () => {
+        if (draggedCard) finishReorderDrag({ commit: false });
+      });
+
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          if (!hasDraggedFiles(event)) return;
+          event.preventDefault();
+          dropZone.classList.add("dragover");
+          event.dataTransfer.dropEffect = "copy";
+        });
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.remove("dragover"));
+      });
+
+      dropZone.addEventListener("drop", (event) => {
+        if (!hasDraggedFiles(event)) return;
+        event.preventDefault();
+        const added = addFiles(event.dataTransfer.files);
+        status.textContent = added ? `${added} kép hozzáadva.` : "A behúzott fájlok között nem volt támogatott kép.";
+      });
+
+      gridScroll.addEventListener("dragenter", (event) => {
+        if (!hasDraggedFiles(event) || !getCards().length) return;
+        event.preventDefault();
+        if (fileDragLeaveTimer) clearTimeout(fileDragLeaveTimer);
+        fileDragLeaveTimer = null;
+        event.dataTransfer.dropEffect = "copy";
+        showFileDropPreview(event);
+      });
+
+      gridScroll.addEventListener("dragover", (event) => {
+        if (!hasDraggedFiles(event) || !getCards().length) return;
+        event.preventDefault();
+        if (fileDragLeaveTimer) clearTimeout(fileDragLeaveTimer);
+        fileDragLeaveTimer = null;
+        event.dataTransfer.dropEffect = "copy";
+        showFileDropPreview(event);
+      });
+
+      gridScroll.addEventListener("dragleave", (event) => {
+        if (!hasDraggedFiles(event)) return;
+        if (event.relatedTarget && gridScroll.contains(event.relatedTarget)) return;
+        if (fileDragLeaveTimer) clearTimeout(fileDragLeaveTimer);
+        fileDragLeaveTimer = setTimeout(clearFileDropPreview, 70);
+      });
+
+      gridScroll.addEventListener("drop", (event) => {
+        if (!hasDraggedFiles(event) || !getCards().length) return;
+        event.preventDefault();
+        event.stopPropagation();
+
+        // A helyőrző a beszúrás pontos DOM-pozícióját tartja, ezért a képeket
+        // közvetlenül elé szúrjuk, majd eltávolítjuk a jelölést.
+        const insertionMarker = fileDropPlaceholder;
+        const orderedItems = insertionMarker
+          ? [...grid.children].filter((element) => element === insertionMarker || element.classList?.contains("card"))
+          : [];
+        const insertionPosition = insertionMarker ? orderedItems.indexOf(insertionMarker) + 1 : getCards().length + 1;
+        const added = addFiles(event.dataTransfer.files, { beforeNode: insertionMarker });
+        clearFileDropPreview();
+        status.textContent = added
+          ? `${added} kép hozzáadva a(z) ${insertionPosition}. helytől.`
+          : "A behúzott fájlok között nem volt támogatott kép.";
+      });
+
+      document.addEventListener("dragover", (event) => {
+        if (hasDraggedFiles(event) && getCards().length) event.preventDefault();
+      });
+
+      document.addEventListener("drop", (event) => {
+        if (!hasDraggedFiles(event) || !getCards().length) return;
+        if (!gridScroll.contains(event.target) && !dropZone.contains(event.target)) {
+          event.preventDefault();
+          clearFileDropPreview();
+          status.textContent = "A képeket a rács kívánt helyére húzd.";
+        }
+      });
+
+      window.addEventListener("dragend", clearFileDropPreview);
+
+      clearButton.addEventListener("click", () => {
+        clearCurrentProject();
+      });
+
+      globalRatio.addEventListener("change", applyGlobalRatio);
+      customRatioWidth.addEventListener("input", applyGlobalRatio);
+      customRatioHeight.addEventListener("input", applyGlobalRatio);
+      saveProjectButton.addEventListener("click", saveProject);
+      loadProjectButton.addEventListener("click", () => projectInput.click());
+      projectInput.addEventListener("change", () => {
+        const file = projectInput.files && projectInput.files[0];
+        if (file) loadProjectFile(file);
+      });
+      [titleTextColor, titleBackgroundColor, exportBackgroundColor].forEach((input) => {
+        input.addEventListener("input", applyColorSettings);
+        input.addEventListener("change", applyColorSettings);
+      });
+      exportButton.addEventListener("click", exportGridAsPng);
+
+      columnRange.addEventListener("input", () => {
+        const columns = columnRange.value;
+        document.documentElement.style.setProperty("--columns", columns);
+        columnValue.textContent = columns;
+        updateGridLayout();
+        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+      });
+
+      window.addEventListener("resize", () => {
+        updateGridLayout();
+        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+      });
+
+      window.addEventListener("beforeunload", () => {
+        objectUrls.forEach((url) => URL.revokeObjectURL(url));
+      });
+
+      applyColorSettings();
+      applyGlobalRatio();
+      updateGridLayout();
+      updateEmptyState();
+      refreshMoveButtons();
+    })();
+  </script>
+</body>
+</html>
