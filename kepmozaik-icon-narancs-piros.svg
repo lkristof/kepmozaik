@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 260" role="img" aria-labelledby="title desc">
+  <title id="title">KépMozaik ikon</title>
+  <desc id="desc">Narancs-piros mozaikból kialakított fényképikon.</desc>
+
+  <defs>
+    <linearGradient id="tl" x1="20" y1="20" x2="145" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFB13B"/>
+      <stop offset="1" stop-color="#FF7A1A"/>
+    </linearGradient>
+    <linearGradient id="tr" x1="155" y1="20" x2="240" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF6527"/>
+      <stop offset="1" stop-color="#E53A20"/>
+    </linearGradient>
+    <linearGradient id="bl" x1="20" y1="106" x2="92" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF8A1F"/>
+      <stop offset="1" stop-color="#D92F25"/>
+    </linearGradient>
+    <linearGradient id="br" x1="102" y1="106" x2="240" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F05A24"/>
+      <stop offset="1" stop-color="#B91825"/>
+    </linearGradient>
+    <linearGradient id="wordmark" x1="285" y1="130" x2="948" y2="130" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF8A1F"/>
+      <stop offset="0.42" stop-color="#F4511E"/>
+      <stop offset="0.66" stop-color="#D93621"/>
+      <stop offset="1" stop-color="#A91524"/>
+    </linearGradient>
+  </defs>
+
+
+  <g aria-label="KépMozaik ikon">
+    <path d="M58 20H145V96H20V58A38 38 0 0 1 58 20Z" fill="url(#tl)"/>
+    <path d="M155 20H202A38 38 0 0 1 240 58V96H155Z" fill="url(#tr)"/>
+    <path d="M20 106H92V240H58A38 38 0 0 1 20 202Z" fill="url(#bl)"/>
+    <path d="M102 106H240V202A38 38 0 0 1 202 240H102Z" fill="url(#br)"/>
+    <circle cx="210" cy="132" r="12" fill="#461116"/>
+    <path d="M108 214L150 166L177 194L191 178L234 218H108Z" fill="#461116"/>
+  </g>
+
+</svg>

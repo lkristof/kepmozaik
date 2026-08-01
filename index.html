@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KépMozaik</title>
+  <link rel="icon" type="image/svg+xml" href="./kepmozaik-icon-narancs-piros.svg" />
   <style>
     :root {
       --bg: #f3f5f8;
@@ -55,6 +56,17 @@
       margin: 0 0 6px;
       font-size: clamp(1.55rem, 3vw, 2.25rem);
       line-height: 1.15;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .brand-logo {
+      display: block;
+      width: min(240px, 65vw);
+      height: auto;
     }
 
     .header-summary {
@@ -1221,7 +1233,13 @@
   <main class="app">
     <header class="header">
       <div>
-        <h1>KépMozaik</h1>
+        <h1 class="brand">
+          <img
+            class="brand-logo"
+            src="./kepmozaik-logo-narancs-piros.svg"
+            alt="KépMozaik"
+          />
+        </h1>
         <div class="header-summary">
           <p class="subtitle">Képek rendezése, vágása és exportálása.</p>
           <span class="image-count" id="imageCount" role="status" aria-live="polite">0 kép betöltve</span>
