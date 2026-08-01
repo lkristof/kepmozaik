@@ -1034,6 +1034,92 @@
       border: 0 !important;
     }
 
+    .button-label-short { display: none; }
+
+    /* Tablet: a negy fo muvelet egy sorban marad rovid feliratokkal.
+       Az exportbeallitasok egy atlathato, negyoszlopos racsba rendezodnek. */
+    @media (min-width: 761px) and (max-width: 1180px) {
+      .app {
+        width: min(100% - 20px, 2600px);
+        padding-top: 20px;
+      }
+
+      .header { margin-bottom: 16px; }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        align-items: stretch;
+      }
+
+      .toolbar > .toolbar-action-group {
+        grid-column: 1 / -1;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        min-height: 0;
+      }
+
+      .toolbar > .toolbar-action-group .button {
+        width: 100%;
+        min-width: 0;
+        padding-inline: 10px;
+      }
+
+      .toolbar > .inline-field,
+      .toolbar > .control-field {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .toolbar > .custom-ratio {
+        grid-column: span 2;
+        width: 100%;
+        min-width: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: end;
+      }
+
+      .toolbar > .custom-ratio[hidden] { display: none; }
+
+      .toolbar > .custom-ratio .ratio-number-field {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .export-panel {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        align-items: stretch;
+      }
+
+      .export-panel > .export-action-group {
+        width: 100%;
+        min-width: 0;
+        min-height: 68px;
+        display: flex;
+      }
+
+      .export-panel > .export-action-group .button {
+        width: 100%;
+        min-width: 0;
+        padding-inline: 10px;
+      }
+
+      .export-panel > .inline-field,
+      .export-panel > .control-field {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .export-panel .toolbar-spacer { display: none; }
+      .export-panel .status { grid-column: 1 / -1; }
+
+      .button-label-full { display: none; }
+      .button-label-short { display: inline; }
+    }
+
     @media (max-width: 760px) {
       .app {
         width: min(100% - 20px, 2600px);
@@ -1125,7 +1211,8 @@
             <path d="m21 15-4.5-4.5L7 20"></path>
             <path d="M17 3v6M14 6h6"></path>
           </svg>
-          <span>Képek tallózása</span>
+          <span class="button-label-full">Képek tallózása</span>
+          <span class="button-label-short">Tallózás</span>
         </button>
         <input class="visually-hidden" id="fileInput" type="file" accept="image/*" multiple />
 
@@ -1135,7 +1222,8 @@
             <path d="M8 4v6h8V4"></path>
             <path d="M8 20v-6h8v6"></path>
           </svg>
-          <span>Projekt mentése</span>
+          <span class="button-label-full">Projekt mentése</span>
+          <span class="button-label-short">Mentés</span>
         </button>
 
         <button class="button" id="loadProjectButton" type="button">
@@ -1144,7 +1232,8 @@
             <path d="m12 12-3 3 3 3"></path>
             <path d="M9 15h7"></path>
           </svg>
-          <span>Projekt betöltése</span>
+          <span class="button-label-full">Projekt betöltése</span>
+          <span class="button-label-short">Betöltés</span>
         </button>
         <input class="visually-hidden" id="projectInput" type="file" accept=".json,application/json" />
 
@@ -1155,7 +1244,8 @@
             <path d="m7 7 1 13h8l1-13"></path>
             <path d="M10 11v5M14 11v5"></path>
           </svg>
-          <span>Összes törlése</span>
+          <span class="button-label-full">Összes törlése</span>
+          <span class="button-label-short">Törlés</span>
         </button>
       </div>
 
@@ -1203,7 +1293,8 @@
             <path d="M5 21h14a2 2 0 0 0 2-2v-3"></path>
             <path d="M3 16v3a2 2 0 0 0 2 2"></path>
           </svg>
-          <span>PNG exportálás</span>
+          <span class="button-label-full">PNG exportálás</span>
+          <span class="button-label-short">PNG export</span>
         </button>
       </div>
 
