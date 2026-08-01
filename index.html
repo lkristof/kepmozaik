@@ -1081,7 +1081,7 @@
         width: 100%;
         min-width: 0;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         align-items: stretch;
       }
 
@@ -1160,7 +1160,7 @@
 
       .custom-ratio {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         align-items: stretch;
       }
 
@@ -1283,7 +1283,6 @@
           <span class="control-label">Szélesség</span>
           <input id="customRatioWidth" type="number" min="1" max="100" step="1" value="3" inputmode="numeric" />
         </label>
-        <span class="ratio-separator" aria-hidden="true">:</span>
         <label class="control-field ratio-number-field" for="customRatioHeight">
           <span class="control-label">Magasság</span>
           <input id="customRatioHeight" type="number" min="1" max="100" step="1" value="2" inputmode="numeric" />
