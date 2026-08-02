@@ -728,7 +728,161 @@
       text-align: center;
     }
 
+    .editor-empty-slot {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: var(--card-min-width);
+      aspect-ratio: var(--ratio, 4 / 3);
+      min-width: 0;
+      padding: 0;
+      overflow: hidden;
+      appearance: none;
+      border: 2px dashed #aeb8c7;
+      border-radius: 14px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(241, 244, 248, 0.92)),
+        var(--empty-slot-background, #000000);
+      color: var(--muted);
+      font: inherit;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+      transition:
+        transform 0.16s ease,
+        border-color 0.16s ease,
+        background 0.16s ease,
+        box-shadow 0.16s ease;
+    }
+
+    .editor-empty-slot:hover {
+      border-color: var(--accent);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(234, 239, 255, 0.96)),
+        var(--empty-slot-background, #000000);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.75),
+        0 8px 22px rgba(49, 94, 251, 0.13);
+      transform: translateY(-1px);
+    }
+
+    .editor-empty-slot:active {
+      transform: translateY(0);
+    }
+
+    .editor-empty-slot:focus-visible {
+      outline: 3px solid rgba(49, 94, 251, 0.3);
+      outline-offset: 3px;
+      border-color: var(--accent);
+    }
+
+    .editor-empty-slot::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(102, 112, 133, 0.2);
+      border-radius: 10px;
+    }
+
+    .editor-empty-slot-content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      justify-items: center;
+      gap: 7px;
+      padding: 18px;
+    }
+
+    .editor-empty-slot-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid #d4dae4;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.86);
+      color: #7b8798;
+      font-size: 1.45rem;
+      line-height: 1;
+      transition:
+        border-color 0.16s ease,
+        background 0.16s ease,
+        color 0.16s ease,
+        transform 0.16s ease;
+    }
+
+    .editor-empty-slot:hover .editor-empty-slot-icon,
+    .editor-empty-slot:focus-visible .editor-empty-slot-icon {
+      border-color: rgba(49, 94, 251, 0.35);
+      background: #ffffff;
+      color: var(--accent);
+      transform: scale(1.05);
+    }
+
+    .editor-empty-slot-title {
+      color: #4f5b6c;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .editor-empty-slot-description {
+      max-width: 210px;
+      font-size: 0.74rem;
+      line-height: 1.35;
+    }
+
+    /* Fájl behúzásakor maga a célkártya vagy az üres cella kap kiemelést.
+       Így nem kerül új rácselem az egér alá, tehát a célpont nem ugrik arrébb. */
+    .card.file-drop-target,
+    .editor-empty-slot.file-drop-target {
+      outline: 3px solid var(--accent);
+      outline-offset: -3px;
+      box-shadow:
+        0 0 0 4px rgba(255, 255, 255, 0.84),
+        0 14px 34px rgba(49, 94, 251, 0.24);
+      transform: translateY(-1px);
+    }
+
+    .card.file-drop-target::before {
+      content: attr(data-file-drop-label);
+      position: absolute;
+      z-index: 30;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(36, 72, 216, 0.82);
+      color: #ffffff;
+      font-size: 1.04rem;
+      font-weight: 850;
+      line-height: 1.25;
+      text-align: center;
+      pointer-events: none;
+      backdrop-filter: blur(3px);
+    }
+
+    .editor-empty-slot.file-drop-target {
+      border-style: solid;
+      border-color: var(--accent);
+      background:
+        linear-gradient(135deg, rgba(238, 242, 255, 0.97), rgba(220, 229, 255, 0.98)),
+        var(--empty-slot-background, #000000);
+      color: #2147cc;
+    }
+
+    .editor-empty-slot.file-drop-target .editor-empty-slot-icon {
+      border-color: rgba(49, 94, 251, 0.45);
+      background: #ffffff;
+      color: var(--accent);
+      transform: scale(1.08);
+    }
+
+    .editor-empty-slot.file-drop-target .editor-empty-slot-title {
+      color: #2147cc;
+    }
+
     .card {
+      position: relative;
       min-width: 0;
       overflow: hidden;
       container-type: inline-size;
@@ -1661,7 +1815,8 @@
       let dragOffsetY = 0;
       let lastTouchedReorderCard = null;
       let lastAnnouncedDropPosition = 0;
-      let fileDropPlaceholder = null;
+      let fileDropTarget = null;
+      let fileDropBeforeNode = null;
       let fileDragLeaveTimer = null;
       let pendingFileCount = 1;
       let activeCropGestureFrames = 0;
@@ -1712,10 +1867,54 @@
           "--title-background-color",
           hexToRgba(backgroundColor, EDITOR_TITLE_BACKGROUND_ALPHA)
         );
+        document.documentElement.style.setProperty("--empty-slot-background", finalBackgroundColor);
       }
 
       function getCards() {
         return [...grid.querySelectorAll(".card")];
+      }
+
+      function getFirstEditorPlaceholder() {
+        return grid.querySelector(".editor-empty-slot");
+      }
+
+      function clearEditorPlaceholders() {
+        if (fileDropTarget?.classList.contains("editor-empty-slot")) {
+          clearFileDropTarget();
+        }
+        grid.querySelectorAll(".editor-empty-slot").forEach((placeholder) => placeholder.remove());
+      }
+
+      function updateEditorPlaceholders() {
+        clearEditorPlaceholders();
+
+        const cardCount = getCards().length;
+        if (!cardCount) return;
+
+        const columns = Math.round(clamp(Number(columnRange.value) || 1, 1, 10));
+        const missingSlots = (columns - (cardCount % columns)) % columns;
+        if (!missingSlots) return;
+
+        const ratio = getGlobalRatioText();
+        for (let index = 0; index < missingSlots; index += 1) {
+          const placeholder = document.createElement("button");
+          placeholder.type = "button";
+          placeholder.className = "editor-empty-slot";
+          placeholder.style.setProperty("--ratio", ratio);
+          placeholder.title = "Kép hozzáadása";
+          placeholder.setAttribute("aria-label", "Kép hozzáadása a következő üres helyhez");
+          placeholder.innerHTML = `
+            <span class="editor-empty-slot-content">
+              <span class="editor-empty-slot-icon" aria-hidden="true">＋</span>
+              <span class="editor-empty-slot-title">Kép hozzáadása</span>
+              <span class="editor-empty-slot-description">Kattints ide, majd válassz egy vagy több képet.</span>
+            </span>
+          `;
+          placeholder.addEventListener("click", () => {
+            fileInput.click();
+          });
+          grid.appendChild(placeholder);
+        }
       }
 
       function getGlobalRatioText() {
@@ -1768,6 +1967,7 @@
         saveProjectButton.disabled = !hasCards;
         exportButton.disabled = !hasCards;
         imageCount.textContent = `${cardCount} kép betöltve`;
+        updateEditorPlaceholders();
         updateGridLayout();
       }
 
@@ -1894,6 +2094,7 @@
       function applyGlobalRatio() {
         customRatioFields.hidden = globalRatio.value !== "custom";
         getCards().forEach(setCardRatio);
+        updateEditorPlaceholders();
         requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
       }
 
@@ -1951,7 +2152,7 @@
 
       function placeDropPlaceholderBefore(referenceCard) {
         if (!dropPlaceholder) return;
-        grid.insertBefore(dropPlaceholder, referenceCard || null);
+        grid.insertBefore(dropPlaceholder, referenceCard || getFirstEditorPlaceholder() || null);
         updateDropPlaceholderLabel();
       }
 
@@ -2538,7 +2739,10 @@
           card._resizeObserver = observer;
         }
 
-        grid.insertBefore(fragment, beforeNode && beforeNode.parentNode === grid ? beforeNode : null);
+        const insertionNode = beforeNode && beforeNode.parentNode === grid
+          ? beforeNode
+          : getFirstEditorPlaceholder();
+        grid.insertBefore(fragment, insertionNode || null);
         prepareEditorPreview(card, frame, img, file, {
           reuseSource: state.storageOptimized === true
         });
@@ -2580,66 +2784,93 @@
         return Math.max(1, imageItems.length || Array.from(event.dataTransfer?.files || []).filter((file) => file.type.startsWith("image/")).length);
       }
 
-      function createFileDropPlaceholder(fileCount = 1) {
-        const placeholder = document.createElement("div");
-        const firstCard = getCards()[0];
-        const height = firstCard ? firstCard.getBoundingClientRect().height : 180;
-        placeholder.className = "drop-placeholder file-drop-placeholder";
-        placeholder.setAttribute("aria-hidden", "true");
-        placeholder.style.height = `${Math.max(120, Math.round(height))}px`;
-        placeholder.innerHTML = `
-          <span class="drop-placeholder-title">${fileCount > 1 ? `${fileCount} új kép ide kerül` : "Új kép ide kerül"}</span>
-          <span class="drop-placeholder-position"></span>
-        `;
-        return placeholder;
+      function restoreEditorEmptySlotContent(slot) {
+        if (!slot?.classList.contains("editor-empty-slot")) return;
+        const title = slot.querySelector(".editor-empty-slot-title");
+        const description = slot.querySelector(".editor-empty-slot-description");
+        if (title) title.textContent = "Kép hozzáadása";
+        if (description) description.textContent = "Kattints ide, majd válassz egy vagy több képet.";
+        slot.setAttribute("aria-label", "Kép hozzáadása a következő üres helyhez");
       }
 
-      function updateFileDropPlaceholderLabel() {
-        if (!fileDropPlaceholder) return;
-        const orderedItems = [...grid.children].filter((element) =>
-          element === fileDropPlaceholder ||
-          (element.classList && element.classList.contains("card"))
-        );
-        const position = orderedItems.indexOf(fileDropPlaceholder) + 1;
-        const label = fileDropPlaceholder.querySelector(".drop-placeholder-position");
-        if (label) {
-          label.textContent = pendingFileCount > 1
-            ? `${position}. helytől, ${pendingFileCount} kép`
-            : `${position}. hely`;
+      function clearFileDropTarget() {
+        if (!fileDropTarget) {
+          fileDropBeforeNode = null;
+          return;
         }
-        reorderStatus.textContent = pendingFileCount > 1
-          ? `${pendingFileCount} új kép a(z) ${position}. helytől kerül be.`
-          : `Az új kép a(z) ${position}. helyre kerül.`;
+
+        fileDropTarget.classList.remove("file-drop-target");
+        fileDropTarget.removeAttribute("data-file-drop-label");
+        restoreEditorEmptySlotContent(fileDropTarget);
+        fileDropTarget = null;
+        fileDropBeforeNode = null;
+      }
+
+      function setFileDropTarget(target, beforeNode) {
+        const validTarget = target && grid.contains(target) ? target : null;
+        const validBeforeNode = beforeNode && grid.contains(beforeNode) ? beforeNode : null;
+
+        if (fileDropTarget !== validTarget) {
+          clearFileDropTarget();
+          fileDropTarget = validTarget;
+        }
+        fileDropBeforeNode = validBeforeNode;
+
+        if (!fileDropTarget) return;
+
+        const label = pendingFileCount > 1
+          ? `${pendingFileCount} kép ide kerül`
+          : "Új kép ide kerül";
+        fileDropTarget.classList.add("file-drop-target");
+        fileDropTarget.setAttribute("data-file-drop-label", label);
+
+        if (fileDropTarget.classList.contains("editor-empty-slot")) {
+          const title = fileDropTarget.querySelector(".editor-empty-slot-title");
+          const description = fileDropTarget.querySelector(".editor-empty-slot-description");
+          if (title) title.textContent = "Ide kerül";
+          if (description) {
+            description.textContent = pendingFileCount > 1
+              ? `Engedd el: ${pendingFileCount} kép kerül be ettől a helytől.`
+              : "Engedd el a képet a beszúráshoz.";
+          }
+          fileDropTarget.setAttribute("aria-label", label);
+        }
+      }
+
+      function getFileDropInsertionPosition(beforeNode) {
+        if (beforeNode?.classList.contains("card")) {
+          const cardIndex = getCards().indexOf(beforeNode);
+          if (cardIndex >= 0) return cardIndex + 1;
+        }
+        return getCards().length + 1;
       }
 
       function showFileDropPreview(event) {
         if (!getCards().length) return;
         pendingFileCount = draggedImageCount(event);
 
-        if (!fileDropPlaceholder) {
-          fileDropPlaceholder = createFileDropPlaceholder(pendingFileCount);
-          grid.appendChild(fileDropPlaceholder);
+        // A teljes kártya és a teljes üres cella aktív célterület. Nincs
+        // bal/jobb félre osztás: amint az egér beleér, az lesz a beszúrás helye.
+        const directTarget = event.target.closest?.(".card, .editor-empty-slot");
+        let beforeNode = null;
+        let visualTarget = null;
+
+        if (directTarget && grid.contains(directTarget)) {
+          beforeNode = directTarget;
+          visualTarget = directTarget;
         } else {
-          const title = fileDropPlaceholder.querySelector(".drop-placeholder-title");
-          if (title) title.textContent = pendingFileCount > 1
-            ? `${pendingFileCount} új kép ide kerül`
-            : "Új kép ide kerül";
+          beforeNode = findDropReference(event.clientX, event.clientY) || getFirstEditorPlaceholder() || null;
+          visualTarget = beforeNode;
         }
 
-        const hoveredCard = event.target.closest && event.target.closest(".card");
-        let referenceCard = null;
-        if (hoveredCard) {
-          const rect = hoveredCard.getBoundingClientRect();
-          referenceCard = event.clientX < rect.left + rect.width / 2
-            ? hoveredCard
-            : nextSortableCard(hoveredCard);
-        } else {
-          referenceCard = findDropReference(event.clientX, event.clientY);
-        }
-
-        grid.insertBefore(fileDropPlaceholder, referenceCard || null);
+        setFileDropTarget(visualTarget, beforeNode);
         grid.classList.add("file-drop-active");
-        updateFileDropPlaceholderLabel();
+
+        const position = getFileDropInsertionPosition(beforeNode);
+        reorderStatus.textContent = pendingFileCount > 1
+          ? `${pendingFileCount} új kép a(z) ${position}. helytől kerül be.`
+          : `Az új kép a(z) ${position}. helyre kerül.`;
+
         autoScrollDuringReorder(event.clientX, event.clientY);
       }
 
@@ -2647,8 +2878,7 @@
         if (fileDragLeaveTimer) clearTimeout(fileDragLeaveTimer);
         fileDragLeaveTimer = null;
         pendingFileCount = 1;
-        if (fileDropPlaceholder) fileDropPlaceholder.remove();
-        fileDropPlaceholder = null;
+        clearFileDropTarget();
         grid.classList.remove("file-drop-active");
       }
 
@@ -3192,7 +3422,7 @@
           await Promise.all(cards.map((card) => card._previewPromise).filter(Boolean));
 
           const requestedColumns = Number(columnRange.value);
-          const columns = Math.max(1, Math.min(requestedColumns, cards.length));
+          const columns = Math.round(clamp(requestedColumns || 1, 1, 10));
           const cellWidth = Number(exportCellWidth.value);
           const cellHeight = Math.max(1, Math.round(cellWidth / getGlobalAspectRatio()));
           const gap = Number(exportGap.value);
@@ -3263,7 +3493,10 @@
         }
       });
 
-      fileInput.addEventListener("change", () => addFiles(fileInput.files));
+      fileInput.addEventListener("change", () => {
+        const added = addFiles(fileInput.files);
+        if (added) status.textContent = `${added} kép hozzáadva.`;
+      });
 
       window.addEventListener("pointermove", handleReorderPointerMove, { passive: false });
       window.addEventListener("pointerup", handleReorderPointerEnd, { passive: false });
@@ -3325,13 +3558,12 @@
         event.preventDefault();
         event.stopPropagation();
 
-        // A helyőrző a beszúrás pontos DOM-pozícióját tartja, ezért a képeket
-        // közvetlenül elé szúrjuk, majd eltávolítjuk a jelölést.
-        const insertionMarker = fileDropPlaceholder;
-        const orderedItems = insertionMarker
-          ? [...grid.children].filter((element) => element === insertionMarker || element.classList?.contains("card"))
-          : [];
-        const insertionPosition = insertionMarker ? orderedItems.indexOf(insertionMarker) + 1 : getCards().length + 1;
+        // A kiemelt kártya vagy üres cella a közvetlen beszúrási referencia.
+        // A célzás közben nem kerül új elem a rácsba, ezért semmi nem ugrik el.
+        const insertionMarker = fileDropBeforeNode && grid.contains(fileDropBeforeNode)
+          ? fileDropBeforeNode
+          : null;
+        const insertionPosition = getFileDropInsertionPosition(insertionMarker);
         const added = addFiles(event.dataTransfer.files, { beforeNode: insertionMarker });
         clearFileDropPreview();
         status.textContent = added
@@ -3377,6 +3609,7 @@
         const columns = columnRange.value;
         document.documentElement.style.setProperty("--columns", columns);
         columnValue.textContent = columns;
+        updateEditorPlaceholders();
         updateGridLayout();
         requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
       });
