@@ -642,12 +642,55 @@
       display: none !important;
     }
 
+    .drop-zone-content {
+      display: grid;
+      justify-items: center;
+      gap: 7px;
+      max-width: 440px;
+    }
+
+    .drop-zone-icon {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 2px;
+      border: 1px solid #d4dae4;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--accent);
+      font-size: 1.65rem;
+      font-weight: 500;
+      line-height: 1;
+      box-shadow: 0 6px 18px rgba(20, 30, 50, 0.08);
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .drop-zone:hover .drop-zone-icon,
+    .drop-zone.dragover .drop-zone-icon {
+      border-color: rgba(49, 94, 251, 0.42);
+      background: #ffffff;
+      transform: translateY(-2px) scale(1.04);
+    }
+
     .drop-zone strong {
       display: block;
-      margin-bottom: 5px;
       color: var(--text);
       font-size: 1.05rem;
     }
+
+    .drop-zone-description {
+      line-height: 1.45;
+    }
+
+    .drop-zone-note {
+      font-size: 0.78rem;
+      opacity: 0.82;
+    }
+
+    .drop-zone-drag-message { display: none; }
+    .drop-zone.dragover .drop-zone-default-message { display: none; }
+    .drop-zone.dragover .drop-zone-drag-message { display: inline; }
 
     .grid-scroll-hint {
       display: flex;
@@ -763,11 +806,11 @@
       box-shadow:
         inset 0 0 0 1px rgba(255, 255, 255, 0.75),
         0 8px 22px rgba(49, 94, 251, 0.13);
-      transform: translateY(-1px);
+      transform: none;
     }
 
     .editor-empty-slot:active {
-      transform: translateY(0);
+      transform: none;
     }
 
     .editor-empty-slot:focus-visible {
@@ -803,20 +846,24 @@
       background: rgba(255, 255, 255, 0.86);
       color: #7b8798;
       font-size: 1.45rem;
+      font-weight: 500;
       line-height: 1;
+      box-shadow: 0 4px 14px rgba(20, 30, 50, 0.07);
       transition:
-        border-color 0.16s ease,
-        background 0.16s ease,
-        color 0.16s ease,
-        transform 0.16s ease;
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
     }
 
     .editor-empty-slot:hover .editor-empty-slot-icon,
     .editor-empty-slot:focus-visible .editor-empty-slot-icon {
-      border-color: rgba(49, 94, 251, 0.35);
+      border-color: rgba(49, 94, 251, 0.42);
       background: #ffffff;
       color: var(--accent);
-      transform: scale(1.05);
+      box-shadow: 0 6px 18px rgba(20, 30, 50, 0.08);
+      transform: translateY(-2px) scale(1.04);
     }
 
     .editor-empty-slot-title {
@@ -1671,9 +1718,15 @@
       <div class="status" id="status" role="status" aria-live="polite"></div>
     </section>
 
-    <section class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Képek feltöltése">
-      <div>
-        <strong>Képek tallózása</strong>
+    <section class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Képek hozzáadása kattintással vagy behúzással">
+      <div class="drop-zone-content">
+        <span class="drop-zone-icon" aria-hidden="true">＋</span>
+        <strong>
+          <span class="drop-zone-default-message">Képek hozzáadása</span>
+          <span class="drop-zone-drag-message">Engedd el a képeket itt</span>
+        </strong>
+        <span class="drop-zone-description">Kattints ide a tallózáshoz, vagy húzd ide a képeket.</span>
+        <span class="drop-zone-note">Egyszerre több képet is hozzáadhatsz.</span>
       </div>
     </section>
 
@@ -1907,7 +1960,7 @@
             <span class="editor-empty-slot-content">
               <span class="editor-empty-slot-icon" aria-hidden="true">＋</span>
               <span class="editor-empty-slot-title">Kép hozzáadása</span>
-              <span class="editor-empty-slot-description">Kattints ide, majd válassz egy vagy több képet.</span>
+              <span class="editor-empty-slot-description">Kattints ide, vagy húzd ide a képeket.</span>
             </span>
           `;
           placeholder.addEventListener("click", () => {
@@ -2789,7 +2842,7 @@
         const title = slot.querySelector(".editor-empty-slot-title");
         const description = slot.querySelector(".editor-empty-slot-description");
         if (title) title.textContent = "Kép hozzáadása";
-        if (description) description.textContent = "Kattints ide, majd válassz egy vagy több képet.";
+        if (description) description.textContent = "Kattints ide, vagy húzd ide a képeket.";
         slot.setAttribute("aria-label", "Kép hozzáadása a következő üres helyhez");
       }
 
