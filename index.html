@@ -669,14 +669,16 @@
 
     .grid-scroll-hint[hidden] { display: none; }
 
-    /* A kártyák megtartják a kényelmes minimumszélességet. Ha a kiválasztott
-       oszlopszám nem fér el, a szerkesztőrács vízszintesen görgethető. */
+    /* Minden oszlop a 300 px-es munkaméretet tartja. Kevés oszlopnál a
+       szerkesztőfelület a rácshoz szűkül és középre kerül; sok oszlopnál
+       legfeljebb a rendelkezésre álló szélességet foglalja el, majd görgethető. */
     .grid-scroll {
-      width: 100%;
+      width: min(100%, calc(var(--editor-grid-width, 100%) + 16px));
+      max-width: 100%;
       overflow-x: auto;
       overflow-y: visible;
       padding: 8px 8px 16px;
-      margin: -8px -8px 0;
+      margin: -8px auto 0;
       scrollbar-gutter: stable;
       overscroll-behavior-inline: contain;
       -webkit-overflow-scrolling: touch;
@@ -709,9 +711,9 @@
 
     .grid {
       display: grid;
-      width: 100%;
-      min-width: 100%;
-      grid-template-columns: repeat(var(--columns), minmax(var(--card-min-width), 1fr));
+      width: var(--editor-grid-width, 100%);
+      min-width: var(--editor-grid-width, 100%);
+      grid-template-columns: repeat(var(--columns), var(--card-min-width));
       gap: var(--grid-gap);
       align-items: start;
     }
@@ -1734,7 +1736,8 @@
         const columns = Math.round(clamp(Number(columnRange.value) || 1, 1, 10));
         const hasCards = getCards().length > 0;
         const minimumWidth = (columns * MIN_CARD_WIDTH) + (Math.max(0, columns - 1) * GRID_GAP);
-        grid.style.minWidth = hasCards ? `${minimumWidth}px` : "100%";
+        const editorGridWidth = hasCards ? `${minimumWidth}px` : "100%";
+        gridScroll.style.setProperty("--editor-grid-width", editorGridWidth);
 
         requestAnimationFrame(() => {
           const hasHorizontalOverflow = hasCards && gridScroll.scrollWidth > gridScroll.clientWidth + 2;
