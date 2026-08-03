@@ -1904,6 +1904,12 @@
       const PROJECT_IMAGE_QUALITY = 0.82;
       const MIN_CARD_WIDTH = 300;
       const GRID_GAP = 16;
+      // Ha a legutolso oszlopbol legalabb egy fel kartya kiférne, eloszor
+      // az osszes kartyat aranyosan osszenyomjuk, es csak nagyobb hianynal
+      // valtunk vizszintes gorgetesre.
+      const MIN_FITTED_CARD_WIDTH = MIN_CARD_WIDTH / 2;
+      const MAX_GRID_FIT_SHORTAGE = MIN_CARD_WIDTH / 2;
+      const GRID_FIT_SAFETY_MARGIN = 1;
       const DEFAULT_TITLE_TEXT_COLOR = "#ffffff";
       const DEFAULT_TITLE_BACKGROUND_COLOR = "#121821";
       const DEFAULT_EXPORT_BACKGROUND_COLOR = "#000000";
@@ -2010,8 +2016,34 @@
       function updateGridLayout() {
         const columns = Math.round(clamp(Number(columnRange.value) || 1, 1, 10));
         const hasCards = getCards().length > 0;
-        const minimumWidth = (columns * MIN_CARD_WIDTH) + (Math.max(0, columns - 1) * GRID_GAP);
-        const editorGridWidth = hasCards ? `${minimumWidth}px` : "100%";
+        const totalGapWidth = Math.max(0, columns - 1) * GRID_GAP;
+        const preferredGridWidth = (columns * MIN_CARD_WIDTH) + totalGapWidth;
+        const scrollStyles = getComputedStyle(gridScroll);
+        const horizontalPadding =
+          (parseFloat(scrollStyles.paddingLeft) || 0) +
+          (parseFloat(scrollStyles.paddingRight) || 0);
+        const availableGridWidth = Math.max(0, gridScroll.parentElement.clientWidth - horizontalPadding);
+        const widthShortage = Math.max(0, preferredGridWidth - availableGridWidth);
+        const allowedShrink = Math.min(
+          MAX_GRID_FIT_SHORTAGE,
+          columns * (MIN_CARD_WIDTH - MIN_FITTED_CARD_WIDTH)
+        );
+        const canFitWithMinorShrink =
+          hasCards &&
+          widthShortage > 0 &&
+          widthShortage <= allowedShrink;
+        const fittedGridWidth = canFitWithMinorShrink
+          ? Math.max(
+              totalGapWidth + columns,
+              availableGridWidth - GRID_FIT_SAFETY_MARGIN
+            )
+          : preferredGridWidth;
+        const cardWidth = canFitWithMinorShrink
+          ? (fittedGridWidth - totalGapWidth) / columns
+          : MIN_CARD_WIDTH;
+        const editorGridWidth = hasCards ? `${fittedGridWidth}px` : "100%";
+
+        gridScroll.style.setProperty("--card-min-width", `${cardWidth}px`);
         gridScroll.style.setProperty("--editor-grid-width", editorGridWidth);
 
         requestAnimationFrame(() => {
@@ -2022,6 +2054,10 @@
             gridScroll.scrollLeft = 0;
           }
           gridScrollHint.hidden = !hasHorizontalOverflow;
+          gridScroll.setAttribute(
+            "aria-label",
+            hasHorizontalOverflow ? "Vízszintesen görgethető képrács" : "Képrács"
+          );
           gridScroll.setAttribute("aria-description", hasHorizontalOverflow
             ? "A rács szélesebb a képernyőnél, ezért vízszintesen görgethető."
             : "A teljes képrács látható vízszintes görgetés nélkül.");
