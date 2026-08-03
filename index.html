@@ -710,6 +710,13 @@
       text-align: center;
     }
 
+    .grid-scroll-hint svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      stroke-width: 2;
+    }
+
     .grid-scroll-hint[hidden] { display: none; }
 
     /* Minden oszlop a 300 px-es munkaméretet tartja. Kevés oszlopnál a
@@ -1731,8 +1738,22 @@
     </section>
 
     <div class="grid-scroll-hint" id="gridScrollHint" hidden>
-      <span aria-hidden="true">↔</span>
-      <span>A teljes rács vízszintesen görgethető.</span>
+      <svg
+        class="lucide lucide-move-horizontal"
+        aria-hidden="true"
+        focusable="false"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m18 8 4 4-4 4"></path>
+        <path d="M2 12h20"></path>
+        <path d="m6 8-4 4 4 4"></path>
+      </svg>
+      <span>További oszlopokért görgess oldalra.</span>
     </div>
     <div class="grid-scroll" id="gridScroll" tabindex="0" aria-label="Vízszintesen görgethető képrács" hidden>
       <section class="grid" id="grid" aria-live="polite">
