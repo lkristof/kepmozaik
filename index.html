@@ -692,10 +692,175 @@
       font-weight: 800;
     }
 
+    .toast-region {
+      position: fixed;
+      z-index: 10050;
+      left: 50%;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      width: min(520px, calc(100% - 24px));
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
     .status {
-      min-height: 1.35em;
-      color: var(--muted);
+      --toast-accent: var(--accent);
+      position: relative;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 54px;
+      padding: 10px 9px 10px 12px;
+      overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--toast-accent) 32%, var(--line));
+      border-left: 4px solid var(--toast-accent);
+      border-radius: 15px;
+      background: color-mix(in srgb, var(--panel) 94%, transparent);
+      color: var(--text);
+      box-shadow: 0 18px 46px rgba(16, 24, 40, 0.22);
+      opacity: 0;
+      transform: translateY(14px) scale(0.985);
+      pointer-events: auto;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .status[hidden] { display: none; }
+
+    .status.is-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .status::before {
+      content: "i";
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--toast-accent) 14%, transparent);
+      color: var(--toast-accent);
+      font-size: 0.86rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .status[data-tone="success"] {
+      --toast-accent: var(--success);
+    }
+
+    .status[data-tone="success"]::before { content: "✓"; }
+
+    .status[data-tone="error"] {
+      --toast-accent: var(--danger);
+    }
+
+    .status[data-tone="error"]::before,
+    .status[data-tone="warning"]::before { content: "!"; }
+
+    .status[data-tone="warning"] {
+      --toast-accent: #b4690e;
+    }
+
+    .status[data-tone="progress"]::before {
+      content: "";
+      width: 24px;
+      height: 24px;
+      border: 3px solid color-mix(in srgb, var(--toast-accent) 22%, transparent);
+      border-top-color: var(--toast-accent);
+      background: transparent;
+      animation: toast-spin 0.8s linear infinite;
+    }
+
+    .toast-message {
+      min-width: 0;
       font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .toast-close {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1.25rem;
+      line-height: 1;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .toast-close:hover {
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+      color: var(--text);
+    }
+
+    .toast-close:focus-visible {
+      outline: 3px solid rgba(49, 94, 251, 0.24);
+      outline-offset: 1px;
+    }
+
+    .toast-timer {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--toast-accent);
+      opacity: 0;
+      transform: scaleX(1);
+      transform-origin: left;
+      pointer-events: none;
+    }
+
+    .status.has-timer .toast-timer {
+      opacity: 0.72;
+      animation: toast-countdown var(--toast-duration, 3600ms) linear forwards;
+    }
+
+    @keyframes toast-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes toast-countdown {
+      to { transform: scaleX(0); }
+    }
+
+    @media (max-width: 430px) {
+      .toast-region {
+        bottom: max(10px, env(safe-area-inset-bottom));
+        width: calc(100% - 16px);
+      }
+
+      .status {
+        min-height: 52px;
+        padding-left: 10px;
+        border-radius: 14px;
+      }
+
+      .toast-message {
+        font-size: 0.84rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .status {
+        transition: none;
+      }
+
+      .status[data-tone="progress"]::before,
+      .status.has-timer .toast-timer {
+        animation: none;
+      }
     }
 
     .drop-zone {
@@ -2234,6 +2399,19 @@
       transition: transform 0.11s ease-out !important;
     }
 
+    /* A témaváltás alatti globális animációtiltás ne nullázza le a már futó
+       toast-visszaszámlálást. A számított animation érték így változatlan marad,
+       ezért a csík ugyanonnan folytatódik, és a JS-időzítővel szinkronban marad. */
+    @media (prefers-reduced-motion: no-preference) {
+      :root.theme-updating .status[data-tone="progress"]::before {
+        animation: toast-spin 0.8s linear infinite !important;
+      }
+
+      :root.theme-updating .status.has-timer .toast-timer {
+        animation: toast-countdown var(--toast-duration, 3600ms) linear forwards !important;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       body,
       .toolbar,
@@ -2446,7 +2624,13 @@
       </label>
 
       <div class="toolbar-spacer"></div>
-      <div class="status" id="status" role="status" aria-live="polite"></div>
+      <div class="toast-region" aria-live="polite" aria-atomic="true">
+        <div class="status" id="status" role="status" data-tone="info" hidden>
+          <span class="toast-message" id="statusMessage"></span>
+          <button class="toast-close" id="statusClose" type="button" aria-label="Értesítés bezárása">×</button>
+          <span class="toast-timer" aria-hidden="true"></span>
+        </div>
+      </div>
     </section>
 
     <section class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Képek hozzáadása kattintással vagy behúzással">
@@ -2591,6 +2775,8 @@
       const titleBackgroundColorValue = document.getElementById("titleBackgroundColorValue");
       const exportBackgroundColorValue = document.getElementById("exportBackgroundColorValue");
       const status = document.getElementById("status");
+      const statusMessage = document.getElementById("statusMessage");
+      const statusClose = document.getElementById("statusClose");
       const dropZone = document.getElementById("dropZone");
       const gridScroll = document.getElementById("gridScroll");
       const gridScrollHint = document.getElementById("gridScrollHint");
@@ -2648,6 +2834,67 @@
       // feliratok és élek nagyításkor is lényegesen tisztábbak maradnak.
 
       const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      let statusHideTimer = null;
+      let statusTransitionTimer = null;
+
+      function hideStatusToast({ immediate = false } = {}) {
+        if (statusHideTimer) clearTimeout(statusHideTimer);
+        if (statusTransitionTimer) clearTimeout(statusTransitionTimer);
+        statusHideTimer = null;
+        statusTransitionTimer = null;
+        status.classList.remove("is-visible", "has-timer");
+
+        const finish = () => {
+          status.hidden = true;
+          statusMessage.textContent = "";
+        };
+
+        if (immediate) finish();
+        else statusTransitionTimer = setTimeout(finish, 190);
+      }
+
+      function showStatusToast(message, {
+        tone = "info",
+        persistent = false,
+        duration = 3600
+      } = {}) {
+        const text = String(message || "").trim();
+        if (!text) {
+          hideStatusToast();
+          return;
+        }
+
+        if (statusHideTimer) clearTimeout(statusHideTimer);
+        if (statusTransitionTimer) clearTimeout(statusTransitionTimer);
+        statusHideTimer = null;
+        statusTransitionTimer = null;
+
+        const wasVisible = !status.hidden && status.classList.contains("is-visible");
+        status.hidden = false;
+        status.dataset.tone = tone;
+        status.setAttribute("role", tone === "error" ? "alert" : "status");
+        status.parentElement.setAttribute("aria-live", tone === "error" ? "assertive" : "polite");
+        statusMessage.textContent = text;
+        status.style.setProperty("--toast-duration", `${duration}ms`);
+        status.classList.remove("has-timer");
+
+        if (!wasVisible) {
+          requestAnimationFrame(() => status.classList.add("is-visible"));
+        } else {
+          status.classList.add("is-visible");
+        }
+
+        if (!persistent) {
+          void status.offsetWidth;
+          status.classList.add("has-timer");
+          statusHideTimer = setTimeout(() => hideStatusToast(), duration);
+        }
+      }
+
+      statusClose.addEventListener("click", () => hideStatusToast());
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !status.hidden) hideStatusToast();
+      });
 
       function updateColumnStepperState() {
         const value = Math.round(clamp(Number(columnRange.value) || 1, 1, 10));
@@ -3796,7 +4043,7 @@
       function clearCurrentProject({ clearStatus = true } = {}) {
         getCards().forEach(revokeCardResources);
         getCards().forEach((card) => card.remove());
-        if (clearStatus) status.textContent = "";
+        if (clearStatus) hideStatusToast({ immediate: true });
         updateEmptyState();
         refreshMoveButtons();
       }
@@ -4044,7 +4291,7 @@
         if (!cards.length) return;
 
         saveProjectButton.disabled = true;
-        status.textContent = "JSON-projekt mentése folyamatban…";
+        showStatusToast("JSON-projekt mentése folyamatban…", { tone: "progress", persistent: true });
 
         try {
           const images = [];
@@ -4054,7 +4301,7 @@
           for (let index = 0; index < cards.length; index += 1) {
             const card = cards[index];
             if (!card._imageBlob) throw new Error("Az egyik kép forrása nem érhető el.");
-            status.textContent = `Képek tömörítése és mentése: ${index + 1} / ${cards.length}…`;
+            showStatusToast(`Képek tömörítése és mentése: ${index + 1} / ${cards.length}…`, { tone: "progress", persistent: true });
             const meta = card._fileMeta || {};
             const projectImage = await getProjectImage(card);
             const sourceSize = Number(meta.size || card._imageBlob.size || 0);
@@ -4112,10 +4359,10 @@
           const reduction = originalBytes > 0
             ? Math.max(0, Math.round((1 - optimizedBytes / originalBytes) * 100))
             : 0;
-          status.textContent = `JSON elmentve: ${images.length} kép, ${formatBytes(blob.size)}. Képadatok: ${formatBytes(originalBytes)} → ${formatBytes(optimizedBytes)} (${reduction}% csökkenés).`;
+          showStatusToast(`JSON elmentve: ${images.length} kép, ${formatBytes(blob.size)}. Képadatok: ${formatBytes(originalBytes)} → ${formatBytes(optimizedBytes)} (${reduction}% csökkenés).`, { tone: "success", duration: 6500 });
         } catch (error) {
           console.error(error);
-          status.textContent = error instanceof Error ? error.message : "A projekt mentése sikertelen volt.";
+          showStatusToast(error instanceof Error ? error.message : "A projekt mentése sikertelen volt.", { tone: "error", duration: 6500 });
         } finally {
           saveProjectButton.disabled = getCards().length === 0;
         }
@@ -4124,7 +4371,7 @@
       async function loadProjectFile(file) {
         loadProjectButton.disabled = true;
         saveProjectButton.disabled = true;
-        status.textContent = "Projektfájl ellenőrzése…";
+        showStatusToast("Projektfájl ellenőrzése…", { tone: "progress", persistent: true });
 
         try {
           const textContent = await file.text();
@@ -4145,14 +4392,14 @@
 
           const preparedImages = [];
           for (let index = 0; index < project.images.length; index += 1) {
-            status.textContent = `Projekt betöltése: ${index + 1} / ${project.images.length} kép előkészítése…`;
+            showStatusToast(`Projekt betöltése: ${index + 1} / ${project.images.length} kép előkészítése…`, { tone: "progress", persistent: true });
             const item = project.images[index] || {};
             const blob = await dataUrlToBlob(item.dataUrl);
             preparedImages.push({ blob, state: item });
           }
 
           if (getCards().length && !window.confirm("A projekt betöltése lecseréli a jelenlegi munkát. Folytatod?")) {
-            status.textContent = "A projekt betöltése megszakítva.";
+            showStatusToast("A projekt betöltése megszakítva.", { tone: "info" });
             return;
           }
 
@@ -4163,10 +4410,10 @@
           updateEmptyState();
           refreshMoveButtons();
           requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
-          status.textContent = `JSON-projekt betöltve: ${preparedImages.length} kép.`;
+          showStatusToast(`JSON-projekt betöltve: ${preparedImages.length} kép.`, { tone: "success" });
         } catch (error) {
           console.error(error);
-          status.textContent = error instanceof Error ? error.message : "A projekt betöltése sikertelen volt.";
+          showStatusToast(error instanceof Error ? error.message : "A projekt betöltése sikertelen volt.", { tone: "error", duration: 6500 });
         } finally {
           projectInput.value = "";
           loadProjectButton.disabled = false;
@@ -4324,7 +4571,7 @@
         if (!cards.length) return;
 
         exportButton.disabled = true;
-        status.textContent = "Exportálás folyamatban…";
+        showStatusToast("Exportálás folyamatban…", { tone: "progress", persistent: true });
 
         try {
           await Promise.all(cards.map((card) => card._previewPromise).filter(Boolean));
@@ -4365,7 +4612,7 @@
             const posY = Number(card.dataset.posY || 50);
             const zoom = Number(card.dataset.zoom || 1);
 
-            status.textContent = `Exportálás: ${index + 1} / ${cards.length} kép…`;
+            showStatusToast(`Exportálás: ${index + 1} / ${cards.length} kép…`, { tone: "progress", persistent: true });
             const decoded = await decodeImageBlob(card._imageBlob);
             try {
               drawCroppedImage(ctx, decoded.source, x, y, cellWidth, cellHeight, posX, posY, zoom);
@@ -4382,10 +4629,10 @@
           if (!blob) throw new Error("A PNG-fájl létrehozása sikertelen volt.");
 
           downloadBlob(blob, timestampFilename());
-          status.textContent = `Elkészült: ${canvasWidth} × ${canvasHeight} px`;
+          showStatusToast(`Elkészült: ${canvasWidth} × ${canvasHeight} px`, { tone: "success", duration: 4800 });
         } catch (error) {
           console.error(error);
-          status.textContent = error instanceof Error ? error.message : "Az exportálás sikertelen volt.";
+          showStatusToast(error instanceof Error ? error.message : "Az exportálás sikertelen volt.", { tone: "error", duration: 6500 });
         } finally {
           exportButton.disabled = getCards().length === 0;
         }
@@ -4403,7 +4650,7 @@
 
       fileInput.addEventListener("change", () => {
         const added = addFiles(fileInput.files);
-        if (added) status.textContent = `${added} kép hozzáadva.`;
+        if (added) showStatusToast(`${added} kép hozzáadva.`, { tone: "success" });
       });
 
       window.addEventListener("pointermove", handleReorderPointerMove, { passive: false });
@@ -4433,7 +4680,7 @@
         if (!hasDraggedFiles(event)) return;
         event.preventDefault();
         const added = addFiles(event.dataTransfer.files);
-        status.textContent = added ? `${added} kép hozzáadva.` : "A behúzott fájlok között nem volt támogatott kép.";
+        showStatusToast(added ? `${added} kép hozzáadva.` : "A behúzott fájlok között nem volt támogatott kép.", { tone: added ? "success" : "warning", duration: added ? 3600 : 5200 });
       });
 
       gridScroll.addEventListener("dragenter", (event) => {
@@ -4474,9 +4721,12 @@
         const insertionPosition = getFileDropInsertionPosition(insertionMarker);
         const added = addFiles(event.dataTransfer.files, { beforeNode: insertionMarker });
         clearFileDropPreview();
-        status.textContent = added
-          ? `${added} kép hozzáadva a(z) ${insertionPosition}. helytől.`
-          : "A behúzott fájlok között nem volt támogatott kép.";
+        showStatusToast(
+          added
+            ? `${added} kép hozzáadva a(z) ${insertionPosition}. helytől.`
+            : "A behúzott fájlok között nem volt támogatott kép.",
+          { tone: added ? "success" : "warning", duration: added ? 4000 : 5200 }
+        );
       });
 
       document.addEventListener("dragover", (event) => {
@@ -4488,7 +4738,7 @@
         if (!gridScroll.contains(event.target) && !dropZone.contains(event.target)) {
           event.preventDefault();
           clearFileDropPreview();
-          status.textContent = "A képeket a rács kívánt helyére húzd.";
+          showStatusToast("A képeket a rács kívánt helyére húzd.", { tone: "warning", duration: 4800 });
         }
       });
 
