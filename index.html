@@ -36,6 +36,28 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
   <meta name="apple-mobile-web-app-title" content="KépMozaik" />
   <link rel="manifest" href="./site.webmanifest" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" id="themeColorMeta" content="#f3f5f8" />
+  <script>
+    (() => {
+      const storageKey = "kepmozaik-theme";
+      let storedTheme = null;
+      try {
+        const candidate = localStorage.getItem(storageKey);
+        if (candidate === "light" || candidate === "dark") storedTheme = candidate;
+      } catch (_) {}
+
+      const systemTheme = window.matchMedia?.("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      const initialTheme = storedTheme || systemTheme;
+
+      document.documentElement.dataset.theme = initialTheme;
+      document.documentElement.dataset.themePreference = storedTheme ? "manual" : "system";
+      const themeColorMeta = document.getElementById("themeColorMeta");
+      if (themeColorMeta) themeColorMeta.content = initialTheme === "dark" ? "#0d1219" : "#f3f5f8";
+    })();
+  </script>
   <style>
     :root {
       --bg: #f3f5f8;
@@ -52,9 +74,46 @@
       --grid-gap: 16px;
       --title-text-color: #ffffff;
       --title-background-color: rgba(18, 24, 33, 0.72);
+      --scrollbar-track: #e8edf3;
+      --scrollbar-thumb: #a5afbd;
+      --scrollbar-thumb-hover: #858f9f;
+    }
+
+    html {
+      /* Windows alatt mindig ugyanakkora hely marad a függőleges scrollbar számára. */
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
     }
 
     * { box-sizing: border-box; }
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    }
+
+    *::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+    }
+
+    *::-webkit-scrollbar-thumb {
+      min-width: 36px;
+      min-height: 36px;
+      border: 3px solid var(--scrollbar-track);
+      border-radius: 999px;
+      background: var(--scrollbar-thumb);
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background: var(--scrollbar-thumb-hover);
+    }
 
     body {
       margin: 0;
@@ -1562,6 +1621,433 @@
       align-self: stretch;
     }
 
+    /* Automatikus világos/sötét téma és kézi felülbírálás. */
+    :root[data-theme="light"] {
+      color-scheme: light;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0d1219;
+      --panel: #171e28;
+      --text: #edf2f7;
+      --muted: #a5b0bf;
+      --line: #303a48;
+      --accent: #6f8cff;
+      --danger: #ff8585;
+      --success: #4fd195;
+      --shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
+      --scrollbar-track: #111821;
+      --scrollbar-thumb: #465367;
+      --scrollbar-thumb-hover: #5b687c;
+    }
+
+    .theme-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      padding: 5px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      box-shadow: 0 4px 14px rgba(20, 30, 50, 0.06);
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .theme-switch:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    }
+
+    .theme-switch:focus-within {
+      outline: 3px solid rgba(49, 94, 251, 0.22);
+      outline-offset: 2px;
+    }
+
+    .theme-switch-icon {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+      stroke-width: 2;
+      transition: color 0.1s linear, opacity 0.1s linear;
+    }
+
+    .theme-switch input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .theme-switch-track {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: #c8d0dc;
+      box-shadow: inset 0 0 0 1px rgba(16, 24, 40, 0.08);
+      transition: background-color 0.11s linear, box-shadow 0.11s linear;
+    }
+
+    .theme-switch-track::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 2px 5px rgba(16, 24, 40, 0.28);
+      transition: transform 0.11s ease-out;
+    }
+
+    .theme-switch input:checked + .theme-switch-track {
+      background: var(--accent);
+    }
+
+    .theme-switch input:checked + .theme-switch-track::after {
+      transform: translateX(18px);
+    }
+
+
+    :root[data-theme="light"] .theme-switch-icon-sun,
+    :root[data-theme="dark"] .theme-switch-icon-moon {
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    :root[data-theme="light"] .theme-switch-icon-moon,
+    :root[data-theme="dark"] .theme-switch-icon-sun {
+      opacity: 0.5;
+    }
+
+    :root[data-theme="dark"] .toolbar-action-group {
+      border-color: #2b3543;
+      background: #121923;
+    }
+
+    :root[data-theme="dark"] .button {
+      border-color: #3a4657;
+      background: linear-gradient(180deg, #222c39 0%, #1b2430 100%);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 5px 14px rgba(0, 0, 0, 0.18);
+    }
+
+    :root[data-theme="dark"] .button:hover:not(:disabled) {
+      border-color: #5a687b;
+      background: #273241;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.32), 0 8px 20px rgba(0, 0, 0, 0.22);
+    }
+
+    :root[data-theme="dark"] .button.primary {
+      border-color: #6582ff;
+      background: linear-gradient(135deg, #5e7cff 0%, #3e60e8 100%);
+      color: #ffffff;
+    }
+
+    :root[data-theme="dark"] .button.primary:hover:not(:disabled) {
+      border-color: #7e97ff;
+      background: linear-gradient(135deg, #718cff 0%, #4a69ed 100%);
+      box-shadow: 0 8px 20px rgba(74, 105, 237, 0.3);
+    }
+
+    :root[data-theme="dark"] .button.export {
+      border-color: #35a86f;
+      background: linear-gradient(135deg, #248b5d 0%, #176c47 100%);
+      color: #ffffff;
+    }
+
+    :root[data-theme="dark"] .button.export:hover:not(:disabled) {
+      border-color: #48bd82;
+      background: linear-gradient(135deg, #2b9b68 0%, #1c7950 100%);
+      box-shadow: 0 8px 20px rgba(36, 139, 93, 0.3);
+    }
+
+    :root[data-theme="dark"] .button.danger {
+      border-color: #633d43;
+      background: #2b1d22;
+      color: #ff9b9b;
+    }
+
+    :root[data-theme="dark"] .button.danger:hover:not(:disabled) {
+      border-color: #8a5058;
+      background: #3a242a;
+      color: #ffc0c0;
+    }
+
+    :root[data-theme="dark"] .inline-field,
+    :root[data-theme="dark"] .control-field {
+      border-color: #2b3543;
+      background: #121923;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    :root[data-theme="dark"] .inline-field select,
+    :root[data-theme="dark"] .range-control,
+    :root[data-theme="dark"] .color-control,
+    :root[data-theme="dark"] .toggle-control,
+    :root[data-theme="dark"] .custom-ratio input[type="number"] {
+      border-color: #3a4657;
+      background-color: #1c2531;
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+    }
+
+    :root[data-theme="dark"] .inline-field select {
+      background-image:
+        linear-gradient(45deg, transparent 50%, #a5b0bf 50%),
+        linear-gradient(135deg, #a5b0bf 50%, transparent 50%);
+    }
+
+    :root[data-theme="dark"] .inline-field select:hover,
+    :root[data-theme="dark"] .custom-ratio input[type="number"]:hover {
+      border-color: #5a687b;
+      background-color: #222d3a;
+    }
+
+    :root[data-theme="dark"] .range-control input[type="range"] {
+      background: #3b4655;
+    }
+
+    :root[data-theme="dark"] .range-control output {
+      background: #263456;
+      color: #cbd6ff;
+    }
+
+    :root[data-theme="dark"] .toggle-track {
+      background: #526073;
+    }
+
+    :root[data-theme="dark"] .drop-zone {
+      border-color: #536075;
+      background: rgba(23, 30, 40, 0.74);
+    }
+
+    :root[data-theme="dark"] .drop-zone:hover,
+    :root[data-theme="dark"] .drop-zone.dragover {
+      border-color: var(--accent);
+      background: #1b2844;
+    }
+
+    :root[data-theme="dark"] .drop-zone-icon,
+    :root[data-theme="dark"] .editor-empty-slot-icon {
+      border-color: #3a4657;
+      background: rgba(28, 37, 49, 0.94);
+    }
+
+    :root[data-theme="dark"] .drop-zone:hover .drop-zone-icon,
+    :root[data-theme="dark"] .drop-zone.dragover .drop-zone-icon,
+    :root[data-theme="dark"] .editor-empty-slot:hover .editor-empty-slot-icon,
+    :root[data-theme="dark"] .editor-empty-slot:focus-visible .editor-empty-slot-icon {
+      background: #222d3a;
+    }
+
+    :root[data-theme="dark"] .grid-scroll-hint {
+      border-color: rgba(111, 140, 255, 0.32);
+      background: rgba(111, 140, 255, 0.12);
+      color: #cbd6ff;
+    }
+
+    :root[data-theme="dark"] .editor-empty-slot {
+      border-color: #536075;
+      background:
+        linear-gradient(135deg, rgba(28, 37, 49, 0.92), rgba(18, 25, 35, 0.97)),
+        var(--empty-slot-background, #000000);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+    }
+
+    :root[data-theme="dark"] .editor-empty-slot:hover {
+      border-color: var(--accent);
+      background:
+        linear-gradient(135deg, rgba(31, 44, 72, 0.97), rgba(24, 34, 56, 0.98)),
+        var(--empty-slot-background, #000000);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 8px 22px rgba(0, 0, 0, 0.25);
+    }
+
+    :root[data-theme="dark"] .editor-empty-slot::before {
+      border-color: rgba(165, 176, 191, 0.24);
+    }
+
+    :root[data-theme="dark"] .editor-empty-slot-title {
+      color: #c5cfdd;
+    }
+
+    :root[data-theme="dark"] .card.file-drop-target,
+    :root[data-theme="dark"] .editor-empty-slot.file-drop-target {
+      box-shadow:
+        0 0 0 4px rgba(13, 18, 25, 0.88),
+        0 14px 34px rgba(75, 105, 230, 0.32);
+    }
+
+    :root[data-theme="dark"] .editor-empty-slot.file-drop-target {
+      background:
+        linear-gradient(135deg, rgba(36, 51, 87, 0.98), rgba(27, 41, 73, 0.99)),
+        var(--empty-slot-background, #000000);
+      color: #cbd6ff;
+    }
+
+    :root[data-theme="dark"] .editor-empty-slot.file-drop-target .editor-empty-slot-icon {
+      background: #25324a;
+    }
+
+    :root[data-theme="dark"] .editor-empty-slot.file-drop-target .editor-empty-slot-title,
+    :root[data-theme="dark"] .drop-placeholder {
+      color: #d3dcff;
+    }
+
+    :root[data-theme="dark"] .grid.reordering {
+      background: rgba(111, 140, 255, 0.055);
+    }
+
+    :root[data-theme="dark"] .drop-placeholder {
+      background: rgba(111, 140, 255, 0.16);
+      box-shadow:
+        inset 0 0 0 2px rgba(13, 18, 25, 0.62),
+        0 10px 28px rgba(0, 0, 0, 0.25);
+      animation-name: drop-placeholder-pulse-dark;
+    }
+
+    @keyframes drop-placeholder-pulse-dark {
+      from {
+        border-color: rgba(111, 140, 255, 0.66);
+        background: rgba(111, 140, 255, 0.11);
+      }
+      to {
+        border-color: rgba(139, 161, 255, 1);
+        background: rgba(111, 140, 255, 0.22);
+      }
+    }
+
+    :root[data-theme="dark"] .grid.file-drop-active {
+      background: rgba(111, 140, 255, 0.06);
+    }
+
+    :root[data-theme="dark"] .icon-button {
+      border-color: #3a4657;
+      background: #1c2531;
+    }
+
+    :root[data-theme="dark"] .icon-button:hover:not(:disabled) {
+      border-color: #5a687b;
+      background: #24303e;
+    }
+
+    :root[data-theme="dark"] .icon-button.reset-crop {
+      border-color: #3d4c7e;
+      background: #1e2945;
+      color: #cbd6ff;
+    }
+
+    :root[data-theme="dark"] .icon-button.reset-crop:hover:not(:disabled) {
+      border-color: #5a70b5;
+      background: #27365b;
+    }
+
+    :root[data-theme="dark"] .icon-button.delete {
+      border-color: #633d43;
+      background: #2b1d22;
+      color: #ff9b9b;
+    }
+
+    :root[data-theme="dark"] .icon-button.delete:hover:not(:disabled) {
+      border-color: #8a5058;
+      background: #3a242a;
+    }
+
+    :root[data-theme="dark"] .theme-switch {
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+    }
+
+    :root[data-theme="dark"] .theme-switch-track {
+      background: #526073;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    :root[data-theme="dark"] .theme-switch-track::after {
+      background: #f5f7fb;
+    }
+
+
+    @media (max-width: 760px) {
+      .header {
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .header > div:first-child {
+        min-width: 0;
+      }
+
+      .theme-switch {
+        margin-top: 2px;
+      }
+
+    }
+
+    @media (max-width: 430px) {
+      .theme-switch {
+        gap: 4px;
+        padding-inline: 6px;
+      }
+
+      .theme-switch-icon {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    /* A téma színei egyetlen képkockában frissülnek. Így sok kártyánál sem
+       indul el egyszerre több tucat háttér-, keret- és árnyékátmenet. */
+    :root.theme-updating .app,
+    :root.theme-updating .app *,
+    :root.theme-updating .app *::before,
+    :root.theme-updating .app *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    /* Csak maga a kapcsoló marad röviden animált kézi váltáskor. */
+    :root.theme-updating.theme-toggle-animating .theme-switch-icon {
+      transition: color 0.1s linear, opacity 0.1s linear !important;
+    }
+
+    :root.theme-updating.theme-toggle-animating .theme-switch-track {
+      transition: background-color 0.11s linear, box-shadow 0.11s linear !important;
+    }
+
+    :root.theme-updating.theme-toggle-animating .theme-switch-track::after {
+      transition: transform 0.11s ease-out !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body,
+      .toolbar,
+      .export-panel,
+      .card,
+      .button,
+      .inline-field,
+      .control-field,
+      .drop-zone,
+      .editor-empty-slot,
+      .icon-button,
+      .image-count,
+      .theme-switch,
+      .theme-switch-icon,
+      .theme-switch-track,
+      .theme-switch-track::after {
+        transition: none !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1577,6 +2063,25 @@
           <span class="image-count" id="imageCount" role="status" aria-live="polite">0 kép betöltve</span>
         </div>
       </div>
+
+      <label class="theme-switch" for="themeToggle" title="Megjelenési téma váltása">
+        <svg class="theme-switch-icon theme-switch-icon-sun lucide lucide-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2"></path>
+          <path d="M12 20v2"></path>
+          <path d="m4.93 4.93 1.41 1.41"></path>
+          <path d="m17.66 17.66 1.41 1.41"></path>
+          <path d="M2 12h2"></path>
+          <path d="M20 12h2"></path>
+          <path d="m6.34 17.66-1.41 1.41"></path>
+          <path d="m19.07 4.93-1.41 1.41"></path>
+        </svg>
+        <input id="themeToggle" type="checkbox" role="switch" aria-label="Sötét téma bekapcsolása" />
+        <span class="theme-switch-track" aria-hidden="true"></span>
+        <svg class="theme-switch-icon theme-switch-icon-moon lucide lucide-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+        </svg>
+      </label>
     </header>
 
     <section class="toolbar" aria-label="Szerkesztő eszköztár">
@@ -1882,6 +2387,10 @@
       const customRatioFields = document.getElementById("customRatioFields");
       const customRatioWidth = document.getElementById("customRatioWidth");
       const customRatioHeight = document.getElementById("customRatioHeight");
+      const themeToggle = document.getElementById("themeToggle");
+      const themeColorMeta = document.getElementById("themeColorMeta");
+      const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const THEME_STORAGE_KEY = "kepmozaik-theme";
 
       let draggedCard = null;
       let dropPlaceholder = null;
@@ -1919,6 +2428,51 @@
       // feliratok és élek nagyításkor is lényegesen tisztábbak maradnak.
 
       const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+      function getStoredTheme() {
+        try {
+          const value = localStorage.getItem(THEME_STORAGE_KEY);
+          return value === "light" || value === "dark" ? value : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function resolvePreferredTheme() {
+        return getStoredTheme() || (systemThemeQuery.matches ? "dark" : "light");
+      }
+
+      function applyTheme(theme, { animateToggle = false } = {}) {
+        const nextTheme = theme === "dark" ? "dark" : "light";
+        const isDark = nextTheme === "dark";
+        const storedTheme = getStoredTheme();
+        const root = document.documentElement;
+
+        root.classList.add("theme-updating");
+        root.classList.toggle("theme-toggle-animating", animateToggle);
+        root.dataset.theme = nextTheme;
+        root.dataset.themePreference = storedTheme ? "manual" : "system";
+        themeToggle.checked = isDark;
+        themeToggle.setAttribute(
+          "aria-label",
+          isDark ? "Világos téma bekapcsolása" : "Sötét téma bekapcsolása"
+        );
+        if (themeColorMeta) {
+          themeColorMeta.content = isDark ? "#0d1219" : "#f3f5f8";
+        }
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            root.classList.remove("theme-updating", "theme-toggle-animating");
+          });
+        });
+      }
+
+      function storeTheme(theme) {
+        try {
+          localStorage.setItem(THEME_STORAGE_KEY, theme);
+        } catch (_) {}
+      }
 
       function normalizeHexColor(value, fallback) {
         const candidate = String(value || "").trim();
@@ -3717,6 +4271,25 @@
       });
       exportButton.addEventListener("click", exportGridAsPng);
 
+      themeToggle.addEventListener("change", () => {
+        const selectedTheme = themeToggle.checked ? "dark" : "light";
+        storeTheme(selectedTheme);
+        applyTheme(selectedTheme, { animateToggle: true });
+      });
+
+      const handleSystemThemeChange = () => {
+        if (!getStoredTheme()) applyTheme(systemThemeQuery.matches ? "dark" : "light");
+      };
+      if (typeof systemThemeQuery.addEventListener === "function") {
+        systemThemeQuery.addEventListener("change", handleSystemThemeChange);
+      } else if (typeof systemThemeQuery.addListener === "function") {
+        systemThemeQuery.addListener(handleSystemThemeChange);
+      }
+
+      window.addEventListener("storage", (event) => {
+        if (event.key === THEME_STORAGE_KEY) applyTheme(resolvePreferredTheme());
+      });
+
       columnRange.addEventListener("input", () => {
         const columns = columnRange.value;
         document.documentElement.style.setProperty("--columns", columns);
@@ -3735,6 +4308,7 @@
         objectUrls.forEach((url) => URL.revokeObjectURL(url));
       });
 
+      applyTheme(resolvePreferredTheme());
       applyColorSettings();
       applyGlobalRatio();
       updateGridLayout();
