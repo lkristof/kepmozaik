@@ -420,71 +420,96 @@
       box-shadow: 0 0 0 3px rgba(49, 94, 251, 0.16);
     }
 
-    .range-field {
-      min-width: 205px;
+    .column-stepper-field {
+      min-width: 174px;
     }
 
-    .range-control {
-      display: flex;
+    .column-stepper {
+      display: grid;
+      grid-template-columns: 42px minmax(42px, 1fr) 42px;
       align-items: center;
-      gap: 10px;
       min-height: 38px;
-      padding: 8px 9px 8px 11px;
+      overflow: hidden;
       border: 1px solid #d8dee8;
       border-radius: 10px;
       background: #fff;
       box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+      touch-action: manipulation;
       transition: border-color 0.16s ease, box-shadow 0.16s ease;
     }
 
-    .range-field:focus-within .range-control {
+    .column-stepper-field:focus-within .column-stepper {
       border-color: #315efb;
       box-shadow: 0 0 0 3px rgba(49, 94, 251, 0.16);
     }
 
-    .range-control input[type="range"] {
-      flex: 1 1 auto;
-      min-width: 112px;
-      height: 6px;
-      margin: 0;
-      appearance: none;
-      border-radius: 999px;
-      outline: none;
-      background: #dfe5ee;
-      cursor: pointer;
-    }
-
-    .range-control input[type="range"]::-webkit-slider-thumb {
-      width: 18px;
-      height: 18px;
-      appearance: none;
-      border: 3px solid #fff;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 1px 5px rgba(49, 94, 251, 0.38);
-    }
-
-    .range-control input[type="range"]::-moz-range-thumb {
-      width: 12px;
-      height: 12px;
-      border: 3px solid #fff;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 1px 5px rgba(49, 94, 251, 0.38);
-    }
-
-    .range-control output {
+    .column-stepper-button {
       display: inline-grid;
       place-items: center;
-      min-width: 34px;
-      height: 28px;
-      padding: 0 8px;
-      border-radius: 8px;
+      width: 100%;
+      min-width: 0;
+      min-height: 38px;
+      padding: 0;
+      border: 0;
+      background: #f7f9fc;
+      color: var(--text);
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.16s ease, color 0.16s ease;
+    }
+
+    .column-stepper-button:first-of-type {
+      border-right: 1px solid #e3e7ee;
+    }
+
+    .column-stepper-button:last-of-type {
+      border-left: 1px solid #e3e7ee;
+    }
+
+    .column-stepper-button:hover:not(:disabled) {
       background: #eef2ff;
       color: #2948a8;
-      font-size: 0.86rem;
-      font-weight: 800;
+    }
+
+    .column-stepper-button:active:not(:disabled) {
+      background: #e1e8ff;
+    }
+
+    .column-stepper-button:focus-visible {
+      position: relative;
+      z-index: 1;
+      outline: 2px solid var(--accent);
+      outline-offset: -3px;
+    }
+
+    .column-stepper-button:disabled {
+      color: #aab2bf;
+      cursor: not-allowed;
+      opacity: 0.48;
+    }
+
+    .column-stepper-button svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.4;
+    }
+
+    .column-stepper-value {
+      display: inline-grid;
+      place-items: center;
+      min-width: 0;
+      height: 100%;
+      padding: 0 8px;
+      color: #2948a8;
+      font-size: 1rem;
+      font-weight: 850;
       font-variant-numeric: tabular-nums;
+      line-height: 1;
+      user-select: none;
     }
 
     .color-field {
@@ -1548,59 +1573,219 @@
       }
 
       .header { display: block; }
-      .toolbar, .export-panel { align-items: stretch; }
+
+      /* Mobilon ne egy hosszú függőleges lista legyen: a szerkesztő két,
+         az exportpanel hat virtuális oszlopot használ. Így a kisebb mezők
+         egymás mellé kerülnek, miközben a fontos műveletek teljes szélességűek. */
+      .toolbar {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        align-items: stretch;
+        gap: 8px;
+        padding: 10px;
+      }
+
+      .export-panel {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        align-items: stretch;
+        gap: 8px;
+        padding: 10px;
+      }
+
+      .toolbar > .toolbar-action-group {
+        grid-column: 1 / -1;
+      }
+
+      .toolbar > label[for="globalRatio"],
+      .toolbar > .column-stepper-field {
+        grid-column: span 3;
+      }
+
       .toolbar-action-group {
         width: 100%;
+        min-height: 0;
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        padding: 4px;
       }
+
       .toolbar-action-group .button {
         width: 100%;
         min-width: 0;
+        min-height: 44px;
+        padding-inline: 9px;
         white-space: normal;
-        line-height: 1.2;
-      }
-      .export-action-group {
-        display: flex;
-        width: 100%;
-      }
-      .export-action-group .button {
-        width: 100%;
-      }
-      .toolbar-spacer { display: none; }
-
-      .inline-field,
-      .control-field,
-      .custom-ratio {
-        width: 100%;
+        line-height: 1.15;
       }
 
-      .custom-ratio {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        align-items: stretch;
+      .button-label-full { display: none; }
+      .button-label-short { display: inline; }
+
+      .toolbar > .inline-field,
+      .toolbar > .control-field,
+      .export-panel > .inline-field,
+      .export-panel > .control-field {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .toolbar > .custom-ratio {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-width: 0;
       }
 
       .custom-ratio[hidden] { display: none; }
+
+      /* Egyéni képaránynál a két aránymező és az oszlopszám közös sorba kerül.
+         A display: contents miatt a két belső mező közvetlen grid-elemként viselkedik. */
+      .toolbar.custom-ratio-active > label[for="globalRatio"] {
+        grid-column: 1 / -1;
+      }
+
+      .toolbar.custom-ratio-active > .custom-ratio {
+        display: contents;
+      }
+
+      .toolbar.custom-ratio-active > .custom-ratio > .ratio-number-field,
+      .toolbar.custom-ratio-active > .column-stepper-field {
+        grid-column: span 2;
+      }
 
       .custom-ratio .ratio-number-field {
         min-width: 0;
         width: 100%;
       }
 
-      .inline-field,
-      .control-field {
-        min-width: 0;
+      .export-panel > .export-action-group {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-height: 0;
+        display: flex;
       }
 
-      .range-control input[type="range"] {
-        min-width: 0;
+      .export-action-group .button {
+        width: 100%;
+      }
+
+      .export-panel > .inline-field {
+        grid-column: span 3;
+      }
+
+      .export-panel > .toggle-field {
+        grid-column: 1 / -1;
+      }
+
+      /* A három keskeny színválasztó ugyanabban a sorban fér el. */
+      .export-panel > .color-field {
+        grid-column: span 2;
+      }
+
+      .export-panel .status {
+        grid-column: 1 / -1;
+      }
+
+      .toolbar-spacer { display: none; }
+
+      .column-stepper {
+        min-height: 44px;
+      }
+
+      .column-stepper-button {
+        min-height: 44px;
+      }
+
+      .toolbar.custom-ratio-active .ratio-number-field,
+      .toolbar.custom-ratio-active .column-stepper-field {
+        padding-inline: 5px;
+      }
+
+      .toolbar.custom-ratio-active .ratio-number-field input[type="number"] {
+        padding-inline: 5px;
+        text-align: center;
+      }
+
+      .toolbar.custom-ratio-active .column-stepper {
+        grid-template-columns: 32px minmax(24px, 1fr) 32px;
+      }
+
+      .toolbar.custom-ratio-active .column-stepper-value {
+        padding-inline: 2px;
       }
     }
 
-    @media (max-width: 430px) {
-      .toolbar-action-group { grid-template-columns: 1fr; }
-      .button { width: 100%; }
+    @media (max-width: 520px) {
+      .toolbar,
+      .export-panel {
+        gap: 7px;
+        padding: 9px;
+      }
+
+      .toolbar-action-group {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .toolbar.custom-ratio-active .ratio-number-field,
+      .toolbar.custom-ratio-active .column-stepper-field {
+        padding-inline: 4px;
+      }
+
+      .toolbar.custom-ratio-active .control-label {
+        padding-left: 0;
+        font-size: 0.63rem;
+        text-align: center;
+      }
+
+      .toolbar.custom-ratio-active .column-stepper {
+        grid-template-columns: 29px minmax(22px, 1fr) 29px;
+      }
+
+      .toolbar.custom-ratio-active .column-stepper-button svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .button {
+        width: 100%;
+        gap: 6px;
+        padding-inline: 7px;
+        font-size: 0.84rem;
+      }
+
+      .button svg {
+        width: 17px;
+        height: 17px;
+      }
+
+      .export-panel > .color-field {
+        min-height: 66px;
+        padding: 5px 4px 6px;
+      }
+
+      .export-panel > .color-field .control-label {
+        min-height: 2.3em;
+        padding-left: 0;
+        font-size: 0.62rem;
+        line-height: 1.15;
+        text-align: center;
+      }
+
+      .export-panel > .color-field .color-control {
+        justify-content: center;
+        min-height: 40px;
+        padding: 3px;
+      }
+
+      .export-panel > .color-field input[type="color"] {
+        width: 100%;
+        height: 34px;
+      }
+
+      .export-panel > .color-field .color-code {
+        display: none;
+      }
     }
 
     .move-icon {
@@ -1790,7 +1975,7 @@
     }
 
     :root[data-theme="dark"] .inline-field select,
-    :root[data-theme="dark"] .range-control,
+    :root[data-theme="dark"] .column-stepper,
     :root[data-theme="dark"] .color-control,
     :root[data-theme="dark"] .toggle-control,
     :root[data-theme="dark"] .custom-ratio input[type="number"] {
@@ -1812,12 +1997,33 @@
       background-color: #222d3a;
     }
 
-    :root[data-theme="dark"] .range-control input[type="range"] {
-      background: #3b4655;
+    :root[data-theme="dark"] .column-stepper-button {
+      background: #202a37;
+      color: var(--text);
     }
 
-    :root[data-theme="dark"] .range-control output {
+    :root[data-theme="dark"] .column-stepper-button:first-of-type {
+      border-right-color: #3a4657;
+    }
+
+    :root[data-theme="dark"] .column-stepper-button:last-of-type {
+      border-left-color: #3a4657;
+    }
+
+    :root[data-theme="dark"] .column-stepper-button:hover:not(:disabled) {
       background: #263456;
+      color: #cbd6ff;
+    }
+
+    :root[data-theme="dark"] .column-stepper-button:active:not(:disabled) {
+      background: #30416b;
+    }
+
+    :root[data-theme="dark"] .column-stepper-button:disabled {
+      color: #6f7b8d;
+    }
+
+    :root[data-theme="dark"] .column-stepper-value {
       color: #cbd6ff;
     }
 
@@ -2154,13 +2360,24 @@
         </label>
       </div>
 
-      <label class="control-field range-field" for="columnRange">
-        <span class="control-label">Oszlopok</span>
-        <span class="range-control">
-          <input id="columnRange" type="range" min="1" max="10" value="4" />
-          <output id="columnValue" for="columnRange">4</output>
+      <div class="control-field column-stepper-field" role="group" aria-labelledby="columnStepperLabel">
+        <span class="control-label" id="columnStepperLabel">Oszlopok</span>
+        <span class="column-stepper">
+          <button class="column-stepper-button" id="columnDecrease" type="button" aria-label="Oszlopok számának csökkentése">
+            <svg class="lucide lucide-minus" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"></path>
+            </svg>
+          </button>
+          <output class="column-stepper-value" id="columnValue" for="columnRange" aria-live="polite">4</output>
+          <button class="column-stepper-button" id="columnIncrease" type="button" aria-label="Oszlopok számának növelése">
+            <svg class="lucide lucide-plus" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"></path>
+              <path d="M12 5v14"></path>
+            </svg>
+          </button>
+          <input class="visually-hidden" id="columnRange" type="range" min="1" max="10" value="4" tabindex="-1" aria-hidden="true" />
         </span>
-      </label>
+      </div>
     </section>
 
     <section class="export-panel" aria-label="Exportálási beállítások">
@@ -2383,7 +2600,10 @@
       const cardTemplate = document.getElementById("cardTemplate");
       const columnRange = document.getElementById("columnRange");
       const columnValue = document.getElementById("columnValue");
+      const columnDecrease = document.getElementById("columnDecrease");
+      const columnIncrease = document.getElementById("columnIncrease");
       const globalRatio = document.getElementById("globalRatio");
+      const toolbar = globalRatio.closest(".toolbar");
       const customRatioFields = document.getElementById("customRatioFields");
       const customRatioWidth = document.getElementById("customRatioWidth");
       const customRatioHeight = document.getElementById("customRatioHeight");
@@ -2428,6 +2648,29 @@
       // feliratok és élek nagyításkor is lényegesen tisztábbak maradnak.
 
       const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+      function updateColumnStepperState() {
+        const value = Math.round(clamp(Number(columnRange.value) || 1, 1, 10));
+        const min = Number(columnRange.min) || 1;
+        const max = Number(columnRange.max) || 10;
+        columnValue.textContent = String(value);
+        columnValue.setAttribute("aria-label", `${value} oszlop`);
+        columnDecrease.disabled = value <= min;
+        columnIncrease.disabled = value >= max;
+      }
+
+      function setColumnCount(value, { announce = true } = {}) {
+        const nextValue = Math.round(clamp(Number(value) || 1, 1, 10));
+        columnRange.value = String(nextValue);
+        document.documentElement.style.setProperty("--columns", String(nextValue));
+        updateColumnStepperState();
+        updateEditorPlaceholders();
+        updateGridLayout();
+        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+        if (announce) {
+          reorderStatus.textContent = `${nextValue} oszlop beállítva.`;
+        }
+      }
 
       function getStoredTheme() {
         try {
@@ -2758,7 +3001,9 @@
       }
 
       function applyGlobalRatio() {
-        customRatioFields.hidden = globalRatio.value !== "custom";
+        const customRatioActive = globalRatio.value === "custom";
+        customRatioFields.hidden = !customRatioActive;
+        toolbar?.classList.toggle("custom-ratio-active", customRatioActive);
         getCards().forEach(setCardRatio);
         updateEditorPlaceholders();
         requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
@@ -3780,10 +4025,7 @@
         customRatioHeight.value = String(clamp(Number(settings.customRatioHeight) || 2, 1, 100));
 
         const columns = Math.round(clamp(Number(settings.columns) || 4, 1, 10));
-        columnRange.value = String(columns);
-        columnValue.textContent = String(columns);
-        document.documentElement.style.setProperty("--columns", String(columns));
-        updateGridLayout();
+        setColumnCount(columns, { announce: false });
 
         const cellWidth = String(settings.exportCellWidth || "480");
         exportCellWidth.value = selectHasValue(exportCellWidth, cellWidth) ? cellWidth : "480";
@@ -4290,14 +4532,26 @@
         if (event.key === THEME_STORAGE_KEY) applyTheme(resolvePreferredTheme());
       });
 
-      columnRange.addEventListener("input", () => {
-        const columns = columnRange.value;
-        document.documentElement.style.setProperty("--columns", columns);
-        columnValue.textContent = columns;
-        updateEditorPlaceholders();
-        updateGridLayout();
-        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+      columnDecrease.addEventListener("click", () => {
+        setColumnCount(Number(columnRange.value) - 1);
       });
+
+      columnIncrease.addEventListener("click", () => {
+        setColumnCount(Number(columnRange.value) + 1);
+      });
+
+      // A touch-action: manipulation letiltja a mobilos dupla koppintásos
+      // nagyítást, miközben a gyors egymás utáni gombnyomások megmaradnak.
+      // A dblclick tiltás régebbi mobilböngészőkben ad további védelmet.
+      [columnDecrease, columnIncrease].forEach((button) => {
+        button.addEventListener("dblclick", (event) => event.preventDefault());
+      });
+
+      columnRange.addEventListener("input", () => {
+        setColumnCount(columnRange.value, { announce: false });
+      });
+
+      updateColumnStepperState();
 
       window.addEventListener("resize", () => {
         updateGridLayout();
