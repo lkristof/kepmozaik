@@ -729,7 +729,9 @@
       overflow-y: visible;
       padding: 8px 8px 16px;
       margin: -8px auto 0;
-      scrollbar-gutter: stable;
+      /* Windows Chrome alatt a stable gutter akkor is elvesz a clientWidth-bol,
+         amikor nincs tenyleges tulcsordulas. Ez hamis gorgetesi jelzest okozott. */
+      scrollbar-gutter: auto;
       overscroll-behavior-inline: contain;
       -webkit-overflow-scrolling: touch;
     }
