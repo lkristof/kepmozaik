@@ -197,16 +197,68 @@
     .image-count {
       display: inline-flex;
       align-items: center;
-      min-height: 30px;
-      padding: 5px 10px;
+      gap: 7px;
+      min-height: 34px;
+      padding: 4px 10px 4px 5px;
       border: 1px solid var(--line);
       border-radius: 999px;
       background: var(--panel);
       color: var(--text);
-      font-size: 0.86rem;
-      font-weight: 700;
       white-space: nowrap;
       box-shadow: 0 4px 14px rgba(20, 30, 50, 0.05);
+      transition:
+        border-color 0.18s ease,
+        background-color 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+
+    .image-count-icon {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      flex: 0 0 auto;
+      border-radius: 9px;
+      background: color-mix(in srgb, var(--muted) 11%, transparent);
+      color: var(--muted);
+      transition: background-color 0.18s ease, color 0.18s ease;
+    }
+
+    .image-count-icon svg {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2;
+    }
+
+    .image-count-value {
+      color: var(--text);
+      font-size: 0.94rem;
+      font-weight: 850;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.015em;
+    }
+
+    .image-count-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 750;
+      line-height: 1;
+    }
+
+    .image-count[data-empty="false"] {
+      border-color: color-mix(in srgb, var(--accent) 27%, var(--line));
+      background: color-mix(in srgb, var(--accent) 7%, var(--panel));
+      box-shadow: 0 5px 16px color-mix(in srgb, var(--accent) 10%, transparent);
+    }
+
+    .image-count[data-empty="false"] .image-count-icon {
+      background: color-mix(in srgb, var(--accent) 14%, transparent);
+      color: var(--accent);
+    }
+
+    .image-count[data-empty="true"] .image-count-label {
+      padding-right: 1px;
     }
 
     .toolbar,
@@ -2567,7 +2619,18 @@
         </div>
         <div class="header-summary">
           <p class="subtitle">Képek rendezése, vágása és exportálása.</p>
-          <span class="image-count" id="imageCount" role="status" aria-live="polite">0 kép betöltve</span>
+          <span class="image-count" id="imageCount" data-empty="true" role="status" aria-live="polite" aria-atomic="true" aria-label="Üres projekt">
+            <span class="image-count-icon" aria-hidden="true">
+              <svg class="lucide lucide-images-icon lucide-images" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16"></path>
+                <path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2"></path>
+                <circle cx="13" cy="7" r="1" fill="currentColor"></circle>
+                <rect x="8" y="2" width="14" height="14" rx="2"></rect>
+              </svg>
+            </span>
+            <strong class="image-count-value" id="imageCountValue" hidden>0</strong>
+            <span class="image-count-label" id="imageCountLabel">Üres projekt</span>
+          </span>
         </div>
       </div>
 
@@ -2920,6 +2983,8 @@
       const clearDialogCancel = document.getElementById("clearDialogCancel");
       const clearDialogConfirm = document.getElementById("clearDialogConfirm");
       const imageCount = document.getElementById("imageCount");
+      const imageCountValue = document.getElementById("imageCountValue");
+      const imageCountLabel = document.getElementById("imageCountLabel");
       const exportButton = document.getElementById("exportButton");
       const exportCellWidth = document.getElementById("exportCellWidth");
       const exportGap = document.getElementById("exportGap");
@@ -3279,7 +3344,14 @@
         clearButton.disabled = !hasCards;
         saveProjectButton.disabled = !hasCards;
         exportButton.disabled = !hasCards;
-        imageCount.textContent = `${cardCount} kép betöltve`;
+        imageCount.dataset.empty = String(!hasCards);
+        imageCountValue.hidden = !hasCards;
+        imageCountValue.textContent = String(cardCount);
+        imageCountLabel.textContent = hasCards ? "kép" : "Üres projekt";
+        imageCount.setAttribute(
+          "aria-label",
+          hasCards ? `${cardCount} kép a projektben` : "Üres projekt"
+        );
         updateEditorPlaceholders();
         updateGridLayout();
       }
