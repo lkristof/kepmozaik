@@ -442,8 +442,6 @@
       box-shadow: none;
     }
 
-    .toolbar-spacer { flex: 1 1 18px; }
-
     .range-group {
       display: flex;
       align-items: center;
@@ -1871,38 +1869,46 @@
 
     .button-label-short { display: none; }
 
-    /* Asztali és keskeny asztali nézetben az exportbeállítások egyetlen
-       stabil rácssorban maradnak. Így a flex sortörése nem növeli meg a
-       panel magasságát 1270 px körüli ablakszélességnél. */
+    /* Asztalon az exportpanel ugyanazt a folyamatos flex-logikát használja,
+       mint a szerkesztő toolbar. A nowrap megakadályozza a köztes sortörést,
+       ezért az exportpanel magassága ablakszűkítés közben is stabil marad. */
     @media (min-width: 1181px) {
       .export-panel {
-        display: grid;
-        grid-template-columns:
-          minmax(150px, auto)
-          repeat(2, minmax(130px, 146px))
-          minmax(170px, 190px)
-          repeat(3, minmax(135px, 154px))
-          minmax(0, 1fr);
+        display: flex;
+        flex-wrap: nowrap;
         align-items: stretch;
       }
 
       .export-panel > .export-action-group,
       .export-panel > .inline-field,
       .export-panel > .control-field {
-        width: 100%;
+        width: auto;
         min-width: 0;
       }
 
       .export-panel > .export-action-group {
+        /* Az exportgomb megtartja a korábbi, tartalomhoz igazodó szélességét.
+           A többi mező szükség esetén enyhén összehúzódhat, a gomb viszont nem. */
+        flex: 0 0 max-content;
+        width: max-content;
+        min-width: 150px;
         min-height: 68px;
+      }
+
+      .export-panel > .inline-field {
+        flex: 0 1 146px;
+      }
+
+      .export-panel > .toggle-field {
+        flex: 0 1 190px;
+      }
+
+      .export-panel > .color-field {
+        flex: 0 1 154px;
       }
 
       .export-panel > .export-action-group .button {
         width: 100%;
-        min-width: 0;
-      }
-
-      .export-panel > .toolbar-spacer {
         min-width: 0;
       }
     }
@@ -1984,7 +1990,6 @@
         min-width: 0;
       }
 
-      .export-panel .toolbar-spacer { display: none; }
       .export-panel .status { grid-column: 1 / -1; }
 
       .button-label-full { display: none; }
@@ -2110,8 +2115,6 @@
         grid-column: 1 / -1;
       }
 
-      .toolbar-spacer { display: none; }
-
       .column-stepper {
         min-height: 44px;
       }
@@ -2188,7 +2191,7 @@
       }
 
       .export-panel > .color-field .control-label {
-        min-height: 2.3em;
+        min-height: 0;
         padding-left: 0;
         font-size: 0.62rem;
         line-height: 1.15;
@@ -3021,7 +3024,6 @@
         </span>
       </label>
 
-      <div class="toolbar-spacer"></div>
       <div class="toast-region" aria-live="polite" aria-atomic="true">
         <div class="status" id="status" role="status" data-tone="info" hidden>
           <span class="toast-message" id="statusMessage"></span>
@@ -4332,7 +4334,6 @@
         if (typeof ResizeObserver !== "undefined") {
           const observer = new ResizeObserver(() => {
             updateImageGeometry(card);
-            resizeTitleInput(titleInput);
           });
           observer.observe(frame);
           card._resizeObserver = observer;
@@ -4346,7 +4347,6 @@
           reuseSource: state.storageOptimized === true
         });
         requestAnimationFrame(() => {
-          resizeTitleInput(titleInput);
           updateImageGeometry(card);
         });
       }
@@ -5290,9 +5290,20 @@
 
       updateColumnStepperState();
 
+      let resizeLayoutFrame = null;
       window.addEventListener("resize", () => {
-        updateGridLayout();
-        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+        if (resizeLayoutFrame !== null) return;
+
+        resizeLayoutFrame = requestAnimationFrame(() => {
+          resizeLayoutFrame = null;
+          updateGridLayout();
+
+          // Modern böngészőkben a kártyák saját ResizeObservere frissíti a
+          // képek geometriáját. Csak régi böngészőben kell kézzel végigmenni rajtuk.
+          if (typeof ResizeObserver === "undefined") {
+            getCards().forEach(updateImageGeometry);
+          }
+        });
       });
 
       window.addEventListener("beforeunload", () => {
