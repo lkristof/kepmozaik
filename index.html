@@ -40,18 +40,34 @@
   <meta name="theme-color" id="themeColorMeta" content="#f3f5f8" />
   <script>
     (() => {
-      const storageKey = "kepmozaik-theme";
+      const themeStorageKey = "kepmozaik-theme";
+      const languageStorageKey = "kepmozaik-language";
       let storedTheme = null;
+      let storedLanguage = null;
+
       try {
-        const candidate = localStorage.getItem(storageKey);
-        if (candidate === "light" || candidate === "dark") storedTheme = candidate;
+        const themeCandidate = localStorage.getItem(themeStorageKey);
+        if (themeCandidate === "light" || themeCandidate === "dark") storedTheme = themeCandidate;
+
+        const languageCandidate = localStorage.getItem(languageStorageKey);
+        if (languageCandidate === "hu" || languageCandidate === "en") storedLanguage = languageCandidate;
       } catch (_) {}
 
       const systemTheme = window.matchMedia?.("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
+      const browserLanguages = Array.isArray(navigator.languages) && navigator.languages.length
+        ? navigator.languages
+        : [navigator.language || "en"];
+      const systemLanguage = String(browserLanguages[0] || "en").toLowerCase().startsWith("hu")
+        ? "hu"
+        : "en";
       const initialTheme = storedTheme || systemTheme;
+      const initialLanguage = storedLanguage || systemLanguage;
 
+      document.documentElement.lang = initialLanguage;
+      document.documentElement.dataset.language = initialLanguage;
+      document.documentElement.dataset.languagePreference = storedLanguage ? "manual" : "system";
       document.documentElement.dataset.theme = initialTheme;
       document.documentElement.dataset.themePreference = storedTheme ? "manual" : "system";
       const themeColorMeta = document.getElementById("themeColorMeta");
@@ -328,6 +344,14 @@
       min-width: 0;
     }
 
+    .appearance-controls {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 7px;
+      flex: 0 0 auto;
+    }
+
     .image-count {
       display: inline-flex;
       align-items: center;
@@ -466,6 +490,7 @@
     .button:hover:not(:disabled) {
       border-color: #b8c2d1;
       background: #ffffff;
+      isolation: isolate;
       box-shadow: 0 2px 5px rgba(16, 24, 40, 0.08), 0 8px 18px rgba(16, 24, 40, 0.07);
       transform: translateY(-1px);
     }
@@ -834,6 +859,8 @@
 
     .toggle-state::before { content: "Kikapcsolva"; }
     .toggle-control input:checked ~ .toggle-state::before { content: "Bekapcsolva"; }
+    :root[lang="en"] .toggle-state::before { content: "Off"; }
+    :root[lang="en"] .toggle-control input:checked ~ .toggle-state::before { content: "On"; }
 
     .custom-ratio[hidden] { display: none; }
 
@@ -1645,6 +1672,10 @@
       backdrop-filter: blur(5px);
     }
 
+    :root[lang="en"] .image-frame.preview-loading::before {
+      content: "Creating preview…";
+    }
+
     .image-frame img {
       position: absolute;
       z-index: 1;
@@ -1959,6 +1990,8 @@
 
     .button-label-short { display: none; }
 
+    .responsive-label-mobile { display: none; }
+
     /* Asztalon az exportpanel ugyanazt a folyamatos flex-logikát használja,
        mint a szerkesztő toolbar. A nowrap megakadályozza a köztes sortörést,
        ezért az exportpanel magassága ablakszűkítés közben is stabil marad. */
@@ -2087,6 +2120,9 @@
     }
 
     @media (max-width: 760px) {
+      .responsive-label-desktop { display: none; }
+      .responsive-label-mobile { display: inline; }
+
       .app {
         width: min(100% - 20px, 2600px);
         padding-top: 10px;
@@ -2263,21 +2299,11 @@
         height: 16px;
       }
 
-      .button {
-        width: 100%;
-        gap: 6px;
-        padding-inline: 7px;
-        font-size: 0.84rem;
-      }
-
-      .button svg {
-        width: 17px;
-        height: 17px;
-      }
+      /* A műveleti gombok belső mérete a hexakódok eltűnésekor sem változik. */
 
       .export-panel > .color-field {
         min-height: 66px;
-        padding: 5px 4px 6px;
+        padding: 5px 8px 6px;
       }
 
       .export-panel > .color-field .control-label {
@@ -2291,7 +2317,7 @@
       .export-panel > .color-field .color-control {
         justify-content: center;
         min-height: 40px;
-        padding: 3px;
+        padding: 5px;
       }
 
       .export-panel > .color-field input[type="color"] {
@@ -2341,6 +2367,113 @@
       --scrollbar-track: #111821;
       --scrollbar-thumb: #465367;
       --scrollbar-thumb-hover: #5b687c;
+    }
+
+
+    .language-switch {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 102px;
+      min-width: 102px;
+      max-width: 102px;
+      flex: 0 0 102px;
+      gap: 6px;
+      min-height: 38px;
+      padding: 5px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      box-shadow: 0 4px 14px rgba(20, 30, 50, 0.06);
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      transition:
+        border-color 0.16s ease,
+        box-shadow 0.16s ease;
+    }
+
+    .language-switch-label {
+      width: 16px;
+      flex: 0 0 16px;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 850;
+      line-height: 1;
+      letter-spacing: -0.01em;
+      text-align: center;
+      opacity: 0.5;
+      transition: color 0.11s linear, opacity 0.11s linear;
+    }
+
+    .language-switch-track {
+      --language-thumb-x: 0px;
+      position: relative;
+      width: 42px;
+      height: 24px;
+      flex: 0 0 auto;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #c8d0dc;
+      box-shadow: inset 0 0 0 1px rgba(16, 24, 40, 0.08);
+      transition: background-color 0.11s linear, box-shadow 0.11s linear;
+    }
+
+    .language-switch-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(16, 24, 40, 0.14);
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow:
+        0 2px 5px rgba(16, 24, 40, 0.3),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+      transform: translateX(var(--language-thumb-x));
+      transition: transform 0.14s ease-out, box-shadow 0.16s ease;
+    }
+
+    .language-flag {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .language-flag-en { display: none; }
+
+    /* Magyar állás: a gombóc bal oldalon, a magyar SVG-zászló látható. */
+    :root[lang="hu"] .language-flag-hu { display: block; }
+    :root[lang="hu"] .language-flag-en { display: none; }
+
+    /* Angol állás: a gombóc jobbra csúszik, az Egyesült Királyság SVG-zászlajával. */
+    :root[lang="en"] .language-switch-track {
+      --language-thumb-x: 18px;
+    }
+
+    :root[lang="en"] .language-flag-hu { display: none; }
+    :root[lang="en"] .language-flag-en { display: block; }
+
+    :root[lang="hu"] .language-switch-label-hu,
+    :root[lang="en"] .language-switch-label-en {
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    .language-switch:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    }
+
+    .language-switch:focus-visible {
+      outline: 3px solid rgba(49, 94, 251, 0.22);
+      outline-offset: 2px;
     }
 
     .theme-switch {
@@ -2700,8 +2833,21 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
 
+    :root[data-theme="dark"] .language-switch,
     :root[data-theme="dark"] .theme-switch {
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+    }
+
+    :root[data-theme="dark"] .language-switch-track {
+      background: #526073;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    :root[data-theme="dark"] .language-switch-thumb {
+      border-color: rgba(255, 255, 255, 0.16);
+      box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.45),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.14);
     }
 
     :root[data-theme="dark"] .theme-switch-track {
@@ -2719,20 +2865,23 @@
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
         align-items: start;
-        gap: 12px 10px;
+        gap: 8px 10px;
         padding-top: 2px;
       }
 
       .brand-lockup {
         grid-column: 1;
-        grid-row: 1 / span 2;
+        grid-row: 1 / span 3;
       }
 
       .subtitle {
         max-width: 440px;
       }
 
-      .header-controls {
+      /* Mobilon a jobb oldali elemek egymás alatt jelennek meg. Így a
+         nyelvváltó nem vesz el vízszintes helyet a KépMozaik emblémától. */
+      .header-controls,
+      .appearance-controls {
         display: contents;
       }
 
@@ -2741,17 +2890,24 @@
         grid-row: 1;
         justify-self: end;
         align-self: start;
-        margin-top: 2px;
+        margin-top: 0;
       }
 
-      .image-count {
+      .language-switch {
         grid-column: 2;
         grid-row: 2;
         justify-self: end;
         align-self: start;
+      }
+
+      .image-count {
+        grid-column: 2;
+        grid-row: 3;
+        justify-self: end;
+        align-self: start;
         max-width: none;
         min-height: 30px;
-        margin: -2px 0 0;
+        margin: 0;
         padding: 3px 9px 3px 4px;
       }
 
@@ -2777,8 +2933,8 @@
       }
 
     }
-
     @media (max-width: 430px) {
+
       .header {
         gap: 10px 8px;
       }
@@ -2795,8 +2951,8 @@
         padding-right: 8px;
       }
     }
-
     @media (max-width: 360px) {
+
       .image-count {
         padding-right: 7px;
       }
@@ -2855,6 +3011,10 @@
       .editor-empty-slot,
       .icon-button,
       .image-count,
+      .language-switch,
+      .language-switch-label,
+      .language-switch-track,
+      .language-switch-thumb,
       .theme-switch,
       .theme-switch-icon,
       .theme-switch-track,
@@ -2899,13 +3059,92 @@
         margin-top: 0;
       }
 
-      .theme-switch {
+      .theme-switch,
+      .language-switch {
         margin-top: 0;
       }
 
       .image-count {
-        align-self: end;
+        align-self: start;
         margin-top: 0;
+      }
+    }
+
+
+    /* Mobil fejléc: a képszámláló, a nyelvváltó és a témaváltó egyetlen
+       felső sorban jelenik meg. A számláló kompakt ikon + szám formát kap,
+       ezért keskeny telefonon is kiférnek egymás mellett. */
+    @media (max-width: 760px) {
+      .header {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        row-gap: 8px;
+      }
+
+      .header-controls {
+        display: flex;
+        grid-column: 1;
+        grid-row: 1;
+        width: 100%;
+        min-width: 0;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 7px;
+      }
+
+      /* A burkoló mobilon nem hoz létre külön flex-elemet, így mindhárom
+         vezérlő ugyanannak a felső sornak a közvetlen eleme lesz. */
+      .appearance-controls {
+        display: contents;
+      }
+
+      .language-switch {
+        order: 2;
+      }
+
+      .theme-switch {
+        order: 3;
+      }
+
+      .language-switch,
+      .theme-switch {
+        grid-column: auto;
+        grid-row: auto;
+        justify-self: auto;
+        align-self: auto;
+        margin: 0;
+      }
+
+      .image-count {
+        order: 1;
+        grid-column: auto;
+        grid-row: auto;
+        flex: 0 0 auto;
+        min-height: 38px;
+        margin: 0;
+        padding: 3px 7px 3px 4px;
+        gap: 4px;
+        justify-self: auto;
+        align-self: auto;
+      }
+
+      /* Mobilon a teljes felirat helyett az ikon és a darabszám látszik.
+         Az aria-label továbbra is közli a teljes projektállapotot. */
+      .image-count-label {
+        display: none;
+      }
+
+      .image-count-value,
+      .image-count-value[hidden] {
+        display: inline !important;
+        font-size: 0.86rem;
+      }
+
+      .brand-lockup {
+        grid-column: 1;
+        grid-row: 2;
+        width: 100%;
+        min-height: 76px;
       }
     }
 
@@ -2938,24 +3177,47 @@
             <span class="image-count-label" id="imageCountLabel">Üres projekt</span>
         </span>
 
-        <label class="theme-switch" for="themeToggle" title="Megjelenési téma váltása">
-        <svg class="theme-switch-icon theme-switch-icon-sun lucide lucide-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4"></circle>
-          <path d="M12 2v2"></path>
-          <path d="M12 20v2"></path>
-          <path d="m4.93 4.93 1.41 1.41"></path>
-          <path d="m17.66 17.66 1.41 1.41"></path>
-          <path d="M2 12h2"></path>
-          <path d="M20 12h2"></path>
-          <path d="m6.34 17.66-1.41 1.41"></path>
-          <path d="m19.07 4.93-1.41 1.41"></path>
-        </svg>
-        <input id="themeToggle" type="checkbox" role="switch" aria-label="Sötét téma bekapcsolása" />
-        <span class="theme-switch-track" aria-hidden="true"></span>
-        <svg class="theme-switch-icon theme-switch-icon-moon lucide lucide-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-        </svg>
-        </label>
+        <div class="appearance-controls">
+          <button class="language-switch" id="languageSwitch" type="button" role="switch" aria-checked="false" aria-label="Váltás angol nyelvre" title="Váltás angol nyelvre">
+            <span class="language-switch-label language-switch-label-hu" aria-hidden="true">HU</span>
+            <span class="language-switch-track" aria-hidden="true">
+              <span class="language-switch-thumb">
+                <svg class="language-flag language-flag-hu" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" focusable="false">
+                  <rect width="300" height="300" fill="#ffffff"></rect>
+                  <rect width="300" height="100" y="0" fill="#ce2939"></rect>
+                  <rect width="300" height="100" y="200" fill="#477050"></rect>
+                </svg>
+                <svg class="language-flag language-flag-en" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" focusable="false">
+                  <rect width="300" height="300" fill="#012169"></rect>
+                  <path d="M0 0 300 300M300 0 0 300" stroke="#ffffff" stroke-width="60"></path>
+                  <path d="m-14 0 150 150 160-160M0 314l164-164 150 150" fill="none" stroke="#c8102e" stroke-width="20"></path>
+                  <path d="M150 0v300M0 150h300" stroke="#ffffff" stroke-width="100"></path>
+                  <path d="M150 0v300M0 150h300" stroke="#c8102e" stroke-width="60"></path>
+                </svg>
+              </span>
+            </span>
+            <span class="language-switch-label language-switch-label-en" aria-hidden="true">EN</span>
+          </button>
+
+          <label class="theme-switch" for="themeToggle" title="Megjelenési téma váltása">
+          <svg class="theme-switch-icon theme-switch-icon-sun lucide lucide-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="m4.93 4.93 1.41 1.41"></path>
+            <path d="m17.66 17.66 1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="m6.34 17.66-1.41 1.41"></path>
+            <path d="m19.07 4.93-1.41 1.41"></path>
+          </svg>
+          <input id="themeToggle" type="checkbox" role="switch" aria-label="Sötét téma bekapcsolása" />
+          <span class="theme-switch-track" aria-hidden="true"></span>
+          <svg class="theme-switch-icon theme-switch-icon-moon lucide lucide-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+          </svg>
+          </label>
+        </div>
       </div>
     </header>
 
@@ -3099,7 +3361,10 @@
       </label>
 
       <label class="control-field color-field" for="titleBackgroundColor">
-        <span class="control-label">Felirat háttere</span>
+        <span class="control-label">
+          <span class="responsive-label-desktop">Felirat háttere</span>
+          <span class="responsive-label-mobile">Felirat háttere</span>
+        </span>
         <span class="color-control">
           <input id="titleBackgroundColor" type="color" value="#121821" aria-label="A képcím hátterének színe" />
           <span class="color-code" id="titleBackgroundColorValue">#121821</span>
@@ -3107,7 +3372,10 @@
       </label>
 
       <label class="control-field color-field" for="exportBackgroundColor">
-        <span class="control-label">Mozaik háttere</span>
+        <span class="control-label">
+          <span class="responsive-label-desktop">Mozaik háttere</span>
+          <span class="responsive-label-mobile">Mozaik háttere</span>
+        </span>
         <span class="color-control">
           <input id="exportBackgroundColor" type="color" value="#000000" aria-label="Az exportált képrács háttérszíne" />
           <span class="color-code" id="exportBackgroundColorValue">#000000</span>
@@ -3318,12 +3586,491 @@
       const customRatioFields = document.getElementById("customRatioFields");
       const customRatioWidth = document.getElementById("customRatioWidth");
       const customRatioHeight = document.getElementById("customRatioHeight");
+      const languageSwitch = document.getElementById("languageSwitch");
       const themeToggle = document.getElementById("themeToggle");
       const themeColorMeta = document.getElementById("themeColorMeta");
       const brandIconShell = document.querySelector(".brand-icon-shell");
       const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
       const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
       const THEME_STORAGE_KEY = "kepmozaik-theme";
+      const LANGUAGE_STORAGE_KEY = "kepmozaik-language";
+
+      const translations = {
+        hu: {
+          "brand.base": "Kép",
+          "brand.accent": "Mozaik",
+          "page.siteName": "KépMozaik",
+          "page.title": "KépMozaik - Készíts látványos képmozaikot",
+          "page.description": "Rendezd, vágd és exportáld képeidet egyetlen látványos mozaikként, közvetlenül a böngészőből.",
+          "page.twitterDescription": "Rendezd, vágd és exportáld képeidet egyetlen látványos mozaikként.",
+          "page.imageAlt": "KépMozaik - képek rendezése és mozaikként történő exportálása",
+          "subtitle": "Képekből látványos mozaik, közvetlenül a böngészőben.",
+          "language.switch": "Váltás angol nyelvre",
+          "theme.switch": "Megjelenési téma váltása",
+          "theme.enableDark": "Sötét téma bekapcsolása",
+          "theme.enableLight": "Világos téma bekapcsolása",
+          "project.empty": "Üres projekt",
+          "image.one": "kép",
+          "image.many": "kép",
+          "toolbar.label": "Szerkesztő eszköztár",
+          "toolbar.fileActions": "Fájl- és projektműveletek",
+          "browse.full": "Képek tallózása",
+          "browse.short": "Tallózás",
+          "save.full": "Projekt mentése",
+          "save.short": "Mentés",
+          "load.full": "Projekt betöltése",
+          "load.short": "Betöltés",
+          "clear.full": "Összes törlése",
+          "clear.short": "Törlés",
+          "aspectRatio": "Képarány",
+          "custom": "Egyéni",
+          "customRatio": "Egyéni képarány",
+          "width": "Szélesség",
+          "height": "Magasság",
+          "columns": "Oszlopok",
+          "columns.decrease": "Oszlopok számának csökkentése",
+          "columns.increase": "Oszlopok számának növelése",
+          "columns.count": "{count} oszlop",
+          "columns.set": "{count} oszlop beállítva.",
+          "export.label": "Exportálási beállítások",
+          "export.action": "Exportálási művelet",
+          "export.full": "PNG exportálás",
+          "export.short": "PNG export",
+          "quality": "Minőség",
+          "quality.compact": "Kompakt",
+          "quality.large": "Nagy",
+          "quality.extraLarge": "Extra nagy",
+          "gridGap": "Rácsköz",
+          "titles.show": "Feliratok megjelenítése",
+          "titles.color": "Felirat színe",
+          "titles.background": "Felirat háttere",
+          "titles.backgroundShort": "Felirat háttere",
+          "mosaic.background": "Mozaik háttere",
+          "mosaic.backgroundShort": "Mozaik háttere",
+          "titles.colorAria": "A képcím szövegszíne",
+          "titles.backgroundAria": "A képcím hátterének színe",
+          "mosaic.backgroundAria": "Az exportált képrács háttérszíne",
+          "toast.close": "Értesítés bezárása",
+          "clear.title": "Összes kép törlése?",
+          "clear.description": "A projekt összes betöltött képe és minden szerkesztés eltávolításra kerül. Ez nem vonható vissza.",
+          "clear.descriptionCount": "A projekt {count} betöltött képe és minden szerkesztés eltávolításra kerül. Ez nem vonható vissza.",
+          "clear.cancel": "Mégse",
+          "clear.confirm": "Összes törlése",
+          "clear.fallback": "Összes kép törlése?\n\n{description}",
+          "clear.deleted": "{count} {noun} törölve.",
+          "drop.aria": "Képek hozzáadása kattintással vagy behúzással",
+          "drop.add": "Képek hozzáadása",
+          "drop.release": "Engedd el a képeket itt",
+          "drop.description": "Kattints ide a tallózáshoz, vagy húzd ide a képeket.",
+          "drop.note": "Egyszerre több képet is hozzáadhatsz.",
+          "grid.scrollHint": "További oszlopokért görgess oldalra.",
+          "grid.scrollable": "Vízszintesen görgethető képrács",
+          "grid.label": "Képrács",
+          "grid.descriptionScrollable": "A rács szélesebb a képernyőnél, ezért vízszintesen görgethető.",
+          "grid.descriptionVisible": "A teljes képrács látható vízszintes görgetés nélkül.",
+          "grid.empty": "Még nincs feltöltött kép.",
+          "card.frameAria": "Kép kivágásának pozicionálása",
+          "card.titlePlaceholder": "Kép neve",
+          "card.titleAria": "Kép neve, több sor is megadható",
+          "card.dragTitle": "Fogd meg és húzd. A kék helyőrző mutatja a pontos új helyet.",
+          "card.dragAria": "Kártya átrendezése. A kék helyőrző mutatja a pontos új helyet.",
+          "card.panMouse": "Húzd a képet a vágáshoz",
+          "card.panTouch": "Egy ujjal mozgasd, két ujjal nagyítsd",
+          "card.zoom": "Nagyítás",
+          "card.zoomAria": "Kép nagyítása",
+          "card.previous": "Előző",
+          "card.previousTitle": "Kártya mozgatása az előző helyre",
+          "card.next": "Következő",
+          "card.nextTitle": "Kártya mozgatása a következő helyre",
+          "card.resetAria": "Nagyítás és képpozíció visszaállítása",
+          "card.resetAvailable": "Nagyítás és képpozíció visszaállítása",
+          "card.resetDisabled": "A kép már alaphelyzetben van",
+          "card.reset": "Alaphelyzet",
+          "card.delete": "Törlés",
+          "card.deleteTitle": "Kép törlése",
+          "card.uploadedImage": "Feltöltött kép",
+          "slot.addTitle": "Kép hozzáadása",
+          "slot.addDescription": "Kattints ide, vagy húzd ide a képeket.",
+          "slot.addAria": "Kép hozzáadása a következő üres helyhez",
+          "reorder.placeholder": "Ide kerül",
+          "reorder.position": "{position}. hely a(z) {total} közül",
+          "reorder.willMove": "A kép a(z) {position}. helyre kerül.",
+          "reorder.inProgress": "Áthelyezés folyamatban. A kék helyőrző mutatja az új pozíciót.",
+          "reorder.moved": "A kép új helyre került.",
+          "reorder.cancelled": "Az áthelyezés megszakadt.",
+          "reorder.movedTo": "A kép a(z) {position}. helyre került.",
+          "fileDrop.multipleHere": "{count} kép ide kerül",
+          "fileDrop.singleHere": "Új kép ide kerül",
+          "fileDrop.placeHere": "Ide kerül",
+          "fileDrop.releaseMultiple": "Engedd el: {count} kép kerül be ettől a helytől.",
+          "fileDrop.releaseSingle": "Engedd el a képet a beszúráshoz.",
+          "fileDrop.multiplePosition": "{count} új kép a(z) {position}. helytől kerül be.",
+          "fileDrop.singlePosition": "Az új kép a(z) {position}. helyre kerül.",
+          "error.imageRead": "A kép beolvasása sikertelen.",
+          "error.compress": "A projektkép tömörítése sikertelen volt.",
+          "error.decode": "A kép nem dekódolható.",
+          "error.dimensions": "Az egyik kép mérete nem állapítható meg.",
+          "error.prepare": "A böngésző nem tudta előkészíteni a képet.",
+          "error.projectImage": "A projekt egyik képe hibás vagy nem támogatott.",
+          "error.restoreImage": "A projekt egyik képét nem lehetett visszaállítani.",
+          "save.start": "JSON-projekt mentése folyamatban…",
+          "save.sourceUnavailable": "Az egyik kép forrása nem érhető el.",
+          "save.progress": "Képek tömörítése és mentése: {current} / {total}…",
+          "save.success": "JSON elmentve: {count} {noun}, {size}. Képadatok: {original} → {optimized} ({reduction}% csökkenés).",
+          "save.failed": "A projekt mentése sikertelen volt.",
+          "load.check": "Projektfájl ellenőrzése…",
+          "load.unsupported": "Ez nem támogatott képrács JSON-projektfájl.",
+          "load.noImages": "A projektfájl nem tartalmaz képeket.",
+          "load.progress": "Projekt betöltése: {current} / {total} kép előkészítése…",
+          "load.replaceConfirm": "A projekt betöltése lecseréli a jelenlegi munkát. Folytatod?",
+          "load.cancelled": "A projekt betöltése megszakítva.",
+          "load.success": "JSON-projekt betöltve: {count} {noun}.",
+          "load.failed": "A projekt betöltése sikertelen volt.",
+          "export.start": "Exportálás folyamatban…",
+          "export.tooLarge": "A létrejövő kép túl nagy. Válassz kisebb exportminőséget vagy kevesebb oszlopot.",
+          "export.canvasFailed": "A böngésző nem tudta létrehozni az exportvásznat.",
+          "export.progress": "Exportálás: {current} / {total} kép…",
+          "export.pngFailed": "A PNG-fájl létrehozása sikertelen volt.",
+          "export.done": "Elkészült: {width} × {height} px",
+          "export.failed": "Az exportálás sikertelen volt.",
+          "images.added": "{count} {noun} hozzáadva.",
+          "images.unsupported": "A behúzott fájlok között nem volt támogatott kép.",
+          "images.addedAt": "{count} {noun} hozzáadva a(z) {position}. helytől.",
+          "images.dragToGrid": "A képeket a rács kívánt helyére húzd."
+        },
+        en: {
+          "brand.base": "Picture",
+          "brand.accent": "Mosaic",
+          "page.siteName": "PictureMosaic",
+          "page.title": "PictureMosaic - Create a striking photo mosaic",
+          "page.description": "Arrange, crop and export your images as a single striking mosaic directly in your browser.",
+          "page.twitterDescription": "Arrange, crop and export your images as a single striking mosaic.",
+          "page.imageAlt": "PictureMosaic - arrange images and export them as a mosaic",
+          "subtitle": "Create a striking photo mosaic directly in your browser.",
+          "language.switch": "Switch to Hungarian",
+          "theme.switch": "Change appearance theme",
+          "theme.enableDark": "Enable dark theme",
+          "theme.enableLight": "Enable light theme",
+          "project.empty": "Empty project",
+          "image.one": "image",
+          "image.many": "images",
+          "toolbar.label": "Editor toolbar",
+          "toolbar.fileActions": "File and project actions",
+          "browse.full": "Browse images",
+          "browse.short": "Browse",
+          "save.full": "Save project",
+          "save.short": "Save",
+          "load.full": "Load project",
+          "load.short": "Load",
+          "clear.full": "Clear all",
+          "clear.short": "Clear",
+          "aspectRatio": "Aspect ratio",
+          "custom": "Custom",
+          "customRatio": "Custom aspect ratio",
+          "width": "Width",
+          "height": "Height",
+          "columns": "Columns",
+          "columns.decrease": "Decrease the number of columns",
+          "columns.increase": "Increase the number of columns",
+          "columns.count": "{count} {noun}",
+          "columns.set": "Set to {count} {noun}.",
+          "export.label": "Export settings",
+          "export.action": "Export action",
+          "export.full": "Export PNG",
+          "export.short": "PNG export",
+          "quality": "Quality",
+          "quality.compact": "Compact",
+          "quality.large": "Large",
+          "quality.extraLarge": "Extra large",
+          "gridGap": "Grid gap",
+          "titles.show": "Show captions",
+          "titles.color": "Caption color",
+          "titles.background": "Caption background",
+          "titles.backgroundShort": "Caption BG",
+          "mosaic.background": "Mosaic background",
+          "mosaic.backgroundShort": "Mosaic BG",
+          "titles.colorAria": "Caption text color",
+          "titles.backgroundAria": "Caption background color",
+          "mosaic.backgroundAria": "Exported mosaic background color",
+          "toast.close": "Close notification",
+          "clear.title": "Clear all images?",
+          "clear.description": "All loaded images and edits in the project will be removed. This cannot be undone.",
+          "clear.descriptionCount": "All {count} loaded images and edits in the project will be removed. This cannot be undone.",
+          "clear.cancel": "Cancel",
+          "clear.confirm": "Clear all",
+          "clear.fallback": "Clear all images?\n\n{description}",
+          "clear.deleted": "Deleted {count} {noun}.",
+          "drop.aria": "Add images by clicking or dragging them here",
+          "drop.add": "Add images",
+          "drop.release": "Drop the images here",
+          "drop.description": "Click to browse, or drag images here.",
+          "drop.note": "You can add multiple images at once.",
+          "grid.scrollHint": "Scroll sideways to see more columns.",
+          "grid.scrollable": "Horizontally scrollable image grid",
+          "grid.label": "Image grid",
+          "grid.descriptionScrollable": "The grid is wider than the screen and can be scrolled horizontally.",
+          "grid.descriptionVisible": "The complete image grid is visible without horizontal scrolling.",
+          "grid.empty": "No images have been uploaded yet.",
+          "card.frameAria": "Position the image crop",
+          "card.titlePlaceholder": "Image name",
+          "card.titleAria": "Image name; multiple lines are allowed",
+          "card.dragTitle": "Drag to reorder. The blue placeholder shows the exact new position.",
+          "card.dragAria": "Reorder card. The blue placeholder shows the exact new position.",
+          "card.panMouse": "Drag the image to adjust the crop",
+          "card.panTouch": "Move with one finger, zoom with two",
+          "card.zoom": "Zoom",
+          "card.zoomAria": "Zoom image",
+          "card.previous": "Previous",
+          "card.previousTitle": "Move card to the previous position",
+          "card.next": "Next",
+          "card.nextTitle": "Move card to the next position",
+          "card.resetAria": "Reset zoom and image position",
+          "card.resetAvailable": "Reset zoom and image position",
+          "card.resetDisabled": "The image is already at its default position",
+          "card.reset": "Reset",
+          "card.delete": "Delete",
+          "card.deleteTitle": "Delete image",
+          "card.uploadedImage": "Uploaded image",
+          "slot.addTitle": "Add image",
+          "slot.addDescription": "Click here, or drag images here.",
+          "slot.addAria": "Add an image to the next empty slot",
+          "reorder.placeholder": "Place here",
+          "reorder.position": "Position {position} of {total}",
+          "reorder.willMove": "The image will be placed at position {position}.",
+          "reorder.inProgress": "Reordering in progress. The blue placeholder shows the new position.",
+          "reorder.moved": "The image was moved to its new position.",
+          "reorder.cancelled": "Reordering was cancelled.",
+          "reorder.movedTo": "The image was moved to position {position}.",
+          "fileDrop.multipleHere": "{count} images will be placed here",
+          "fileDrop.singleHere": "The new image will be placed here",
+          "fileDrop.placeHere": "Place here",
+          "fileDrop.releaseMultiple": "Drop to insert {count} images starting here.",
+          "fileDrop.releaseSingle": "Drop the image to insert it here.",
+          "fileDrop.multiplePosition": "{count} new images will be inserted starting at position {position}.",
+          "fileDrop.singlePosition": "The new image will be inserted at position {position}.",
+          "error.imageRead": "The image could not be read.",
+          "error.compress": "The project image could not be compressed.",
+          "error.decode": "The image could not be decoded.",
+          "error.dimensions": "The dimensions of one image could not be determined.",
+          "error.prepare": "The browser could not prepare the image.",
+          "error.projectImage": "One of the project images is invalid or unsupported.",
+          "error.restoreImage": "One of the project images could not be restored.",
+          "save.start": "Saving JSON project…",
+          "save.sourceUnavailable": "The source of one image is unavailable.",
+          "save.progress": "Compressing and saving images: {current} / {total}…",
+          "save.success": "JSON saved: {count} {noun}, {size}. Image data: {original} → {optimized} ({reduction}% reduction).",
+          "save.failed": "The project could not be saved.",
+          "load.check": "Checking project file…",
+          "load.unsupported": "This is not a supported image-grid JSON project file.",
+          "load.noImages": "The project file contains no images.",
+          "load.progress": "Loading project: preparing image {current} of {total}…",
+          "load.replaceConfirm": "Loading the project will replace your current work. Continue?",
+          "load.cancelled": "Project loading was cancelled.",
+          "load.success": "JSON project loaded: {count} {noun}.",
+          "load.failed": "The project could not be loaded.",
+          "export.start": "Exporting…",
+          "export.tooLarge": "The resulting image is too large. Choose a lower export quality or fewer columns.",
+          "export.canvasFailed": "The browser could not create the export canvas.",
+          "export.progress": "Exporting image {current} of {total}…",
+          "export.pngFailed": "The PNG file could not be created.",
+          "export.done": "Done: {width} × {height} px",
+          "export.failed": "The export failed.",
+          "images.added": "Added {count} {noun}.",
+          "images.unsupported": "The dropped files did not include any supported images.",
+          "images.addedAt": "Added {count} {noun} starting at position {position}.",
+          "images.dragToGrid": "Drag the images to the desired position in the grid."
+        }
+      };
+
+      let currentLanguage = document.documentElement.lang === "en" ? "en" : "hu";
+
+      function t(key, variables = {}) {
+        const fallback = translations.hu[key] ?? key;
+        const template = translations[currentLanguage]?.[key] ?? fallback;
+        return String(template).replace(/\{(\w+)\}/g, (_, name) =>
+          Object.prototype.hasOwnProperty.call(variables, name) ? String(variables[name]) : `{${name}}`
+        );
+      }
+
+      function imageNoun(count) {
+        return t(Number(count) === 1 ? "image.one" : "image.many");
+      }
+
+      function columnNoun(count) {
+        if (currentLanguage === "hu") return "oszlop";
+        return Number(count) === 1 ? "column" : "columns";
+      }
+
+      function getStoredLanguage() {
+        try {
+          const value = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+          return value === "hu" || value === "en" ? value : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function detectSystemLanguage() {
+        const languages = Array.isArray(navigator.languages) && navigator.languages.length
+          ? navigator.languages
+          : [navigator.language || "en"];
+        return String(languages[0] || "en").toLowerCase().startsWith("hu")
+          ? "hu"
+          : "en";
+      }
+
+      function resolvePreferredLanguage() {
+        return getStoredLanguage() || detectSystemLanguage();
+      }
+
+      function storeLanguage(language) {
+        try {
+          localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+        } catch (_) {}
+      }
+
+      function setText(root, selector, key, variables) {
+        const element = root.querySelector(selector);
+        if (element) element.textContent = t(key, variables);
+      }
+
+      function setAttribute(root, selector, attribute, key, variables) {
+        const element = root.querySelector(selector);
+        if (element) element.setAttribute(attribute, t(key, variables));
+      }
+
+      function translateCardRoot(root) {
+        setAttribute(root, ".image-frame", "aria-label", "card.frameAria");
+        setAttribute(root, ".title-input", "placeholder", "card.titlePlaceholder");
+        setAttribute(root, ".title-input", "aria-label", "card.titleAria");
+        setAttribute(root, ".drag-badge", "title", "card.dragTitle");
+        setAttribute(root, ".drag-badge", "aria-label", "card.dragAria");
+        setText(root, ".mouse-crop-hint", "card.panMouse");
+        setText(root, ".touch-crop-hint", "card.panTouch");
+        setText(root, ".crop-control label span", "card.zoom");
+        setAttribute(root, ".zoom-range", "aria-label", "card.zoomAria");
+        setAttribute(root, ".move-left", "title", "card.previousTitle");
+        setAttribute(root, ".move-left", "aria-label", "card.previousTitle");
+        setText(root, ".move-left span", "card.previous");
+        setAttribute(root, ".move-right", "title", "card.nextTitle");
+        setAttribute(root, ".move-right", "aria-label", "card.nextTitle");
+        setText(root, ".move-right span", "card.next");
+        setAttribute(root, ".reset-crop", "aria-label", "card.resetAria");
+        setText(root, ".reset-crop span", "card.reset");
+        setAttribute(root, ".delete", "title", "card.deleteTitle");
+        setAttribute(root, ".delete", "aria-label", "card.deleteTitle");
+        setText(root, ".delete span", "card.delete");
+      }
+
+      function applyStaticTranslations() {
+        document.title = t("page.title");
+        const metaValues = [
+          ['meta[name="description"]', "page.description"],
+          ['meta[property="og:title"]', "page.title"],
+          ['meta[property="og:site_name"]', "page.siteName"],
+          ['meta[property="og:description"]', "page.description"],
+          ['meta[property="og:image:alt"]', "page.imageAlt"],
+          ['meta[name="twitter:title"]', "page.title"],
+          ['meta[name="twitter:description"]', "page.twitterDescription"],
+          ['meta[name="apple-mobile-web-app-title"]', "page.siteName"]
+        ];
+        metaValues.forEach(([selector, key]) => {
+          const element = document.querySelector(selector);
+          if (element) element.content = t(key);
+        });
+
+        setText(document, ".brand-name-base", "brand.base");
+        setText(document, ".brand-name-accent", "brand.accent");
+        setText(document, ".subtitle", "subtitle");
+        setAttribute(document, ".theme-switch", "title", "theme.switch");
+        setAttribute(document, ".toolbar", "aria-label", "toolbar.label");
+        setAttribute(document, ".toolbar-action-group", "aria-label", "toolbar.fileActions");
+        setText(document, "#browseButton .button-label-full", "browse.full");
+        setText(document, "#browseButton .button-label-short", "browse.short");
+        setText(document, "#saveProjectButton .button-label-full", "save.full");
+        setText(document, "#saveProjectButton .button-label-short", "save.short");
+        setText(document, "#loadProjectButton .button-label-full", "load.full");
+        setText(document, "#loadProjectButton .button-label-short", "load.short");
+        setText(document, "#clearButton .button-label-full", "clear.full");
+        setText(document, "#clearButton .button-label-short", "clear.short");
+        setText(document, 'label[for="globalRatio"] > span', "aspectRatio");
+        setText(document, '#globalRatio option[value="custom"]', "custom");
+        setAttribute(document, "#customRatioFields", "aria-label", "customRatio");
+        setText(document, 'label[for="customRatioWidth"] .control-label', "width");
+        setText(document, 'label[for="customRatioHeight"] .control-label', "height");
+        setText(document, "#columnStepperLabel", "columns");
+        setAttribute(document, "#columnDecrease", "aria-label", "columns.decrease");
+        setAttribute(document, "#columnIncrease", "aria-label", "columns.increase");
+
+        setAttribute(document, ".export-panel", "aria-label", "export.label");
+        setAttribute(document, ".export-action-group", "aria-label", "export.action");
+        setText(document, "#exportButton .button-label-full", "export.full");
+        setText(document, "#exportButton .button-label-short", "export.short");
+        setText(document, 'label[for="exportCellWidth"] > span', "quality");
+        setText(document, '#exportCellWidth option[value="240"]', "quality.compact");
+        setText(document, '#exportCellWidth option[value="480"]', "quality.large");
+        setText(document, '#exportCellWidth option[value="720"]', "quality.extraLarge");
+        setText(document, 'label[for="exportGap"] > span', "gridGap");
+        setText(document, 'label[for="exportTitles"] .control-label', "titles.show");
+        setText(document, 'label[for="titleTextColor"] .control-label', "titles.color");
+        setText(document, 'label[for="titleBackgroundColor"] .responsive-label-desktop', "titles.background");
+        setText(document, 'label[for="titleBackgroundColor"] .responsive-label-mobile', "titles.backgroundShort");
+        setText(document, 'label[for="exportBackgroundColor"] .responsive-label-desktop', "mosaic.background");
+        setText(document, 'label[for="exportBackgroundColor"] .responsive-label-mobile', "mosaic.backgroundShort");
+        setAttribute(document, "#titleTextColor", "aria-label", "titles.colorAria");
+        setAttribute(document, "#titleBackgroundColor", "aria-label", "titles.backgroundAria");
+        setAttribute(document, "#exportBackgroundColor", "aria-label", "mosaic.backgroundAria");
+        setAttribute(document, "#statusClose", "aria-label", "toast.close");
+
+        setText(document, "#clearDialogTitle", "clear.title");
+        setText(document, "#clearDialogDescription", "clear.description");
+        setText(document, "#clearDialogCancel", "clear.cancel");
+        setText(document, "#clearDialogConfirm", "clear.confirm");
+        setAttribute(document, "#dropZone", "aria-label", "drop.aria");
+        setText(document, ".drop-zone-default-message", "drop.add");
+        setText(document, ".drop-zone-drag-message", "drop.release");
+        setText(document, ".drop-zone-description", "drop.description");
+        setText(document, ".drop-zone-note", "drop.note");
+        setText(document, "#gridScrollHint span", "grid.scrollHint");
+        setText(document, "#emptyState", "grid.empty");
+
+        translateCardRoot(cardTemplate.content);
+        getCards().forEach((card) => {
+          translateCardRoot(card);
+          updateResetCropButton(card);
+          const title = card.querySelector(".title-input")?.value.trim().replace(/\s+/g, " ");
+          const image = card.querySelector("img");
+          if (image) image.alt = title || t("card.uploadedImage");
+        });
+      }
+
+      function applyLanguage(language) {
+        currentLanguage = language === "en" ? "en" : "hu";
+        const root = document.documentElement;
+        root.lang = currentLanguage;
+        root.dataset.language = currentLanguage;
+        root.dataset.languagePreference = getStoredLanguage() ? "manual" : "system";
+
+        const switchLabel = t("language.switch");
+        const targetLanguage = currentLanguage === "hu" ? "en" : "hu";
+        languageSwitch.setAttribute("aria-label", switchLabel);
+        languageSwitch.setAttribute("aria-checked", String(currentLanguage === "en"));
+        languageSwitch.title = switchLabel;
+        languageSwitch.dataset.targetLanguage = targetLanguage;
+
+        applyStaticTranslations();
+        updateColumnStepperState();
+        updateEmptyState();
+        refreshMoveButtons();
+        applyTheme(root.dataset.theme || resolvePreferredTheme());
+
+        if (clearDialog.open) {
+          const count = getCards().length;
+          clearDialogDescription.textContent = count
+            ? t("clear.descriptionCount", { count })
+            : t("clear.description");
+        }
+      }
 
       let draggedCard = null;
       let dropPlaceholder = null;
@@ -3429,7 +4176,7 @@
         const min = Number(columnRange.min) || 1;
         const max = Number(columnRange.max) || 10;
         columnValue.textContent = String(value);
-        columnValue.setAttribute("aria-label", `${value} oszlop`);
+        columnValue.setAttribute("aria-label", t("columns.count", { count: value, noun: columnNoun(value) }));
         columnDecrease.disabled = value <= min;
         columnIncrease.disabled = value >= max;
       }
@@ -3443,7 +4190,7 @@
         updateGridLayout();
         requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
         if (announce) {
-          reorderStatus.textContent = `${nextValue} oszlop beállítva.`;
+          reorderStatus.textContent = t("columns.set", { count: nextValue, noun: columnNoun(nextValue) });
         }
       }
 
@@ -3473,7 +4220,7 @@
         themeToggle.checked = isDark;
         themeToggle.setAttribute(
           "aria-label",
-          isDark ? "Világos téma bekapcsolása" : "Sötét téma bekapcsolása"
+          isDark ? t("theme.enableLight") : t("theme.enableDark")
         );
         if (themeColorMeta) {
           themeColorMeta.content = isDark ? "#0d1219" : "#f3f5f8";
@@ -3555,13 +4302,13 @@
           placeholder.type = "button";
           placeholder.className = "editor-empty-slot";
           placeholder.style.setProperty("--ratio", ratio);
-          placeholder.title = "Kép hozzáadása";
-          placeholder.setAttribute("aria-label", "Kép hozzáadása a következő üres helyhez");
+          placeholder.title = t("slot.addTitle");
+          placeholder.setAttribute("aria-label", t("slot.addAria"));
           placeholder.innerHTML = `
             <span class="editor-empty-slot-content">
               <span class="editor-empty-slot-icon" aria-hidden="true">＋</span>
-              <span class="editor-empty-slot-title">Kép hozzáadása</span>
-              <span class="editor-empty-slot-description">Kattints ide, vagy húzd ide a képeket.</span>
+              <span class="editor-empty-slot-title">${t("slot.addTitle")}</span>
+              <span class="editor-empty-slot-description">${t("slot.addDescription")}</span>
             </span>
           `;
           placeholder.addEventListener("click", () => {
@@ -3628,11 +4375,11 @@
           gridScrollHint.hidden = !hasHorizontalOverflow;
           gridScroll.setAttribute(
             "aria-label",
-            hasHorizontalOverflow ? "Vízszintesen görgethető képrács" : "Képrács"
+            hasHorizontalOverflow ? t("grid.scrollable") : t("grid.label")
           );
           gridScroll.setAttribute("aria-description", hasHorizontalOverflow
-            ? "A rács szélesebb a képernyőnél, ezért vízszintesen görgethető."
-            : "A teljes képrács látható vízszintes görgetés nélkül.");
+            ? t("grid.descriptionScrollable")
+            : t("grid.descriptionVisible"));
         });
       }
 
@@ -3653,10 +4400,10 @@
         imageCount.dataset.empty = String(!hasCards);
         imageCountValue.hidden = !hasCards;
         imageCountValue.textContent = String(cardCount);
-        imageCountLabel.textContent = hasCards ? "kép" : "Üres projekt";
+        imageCountLabel.textContent = hasCards ? imageNoun(cardCount) : t("project.empty");
         imageCount.setAttribute(
           "aria-label",
-          hasCards ? `${cardCount} kép` : "Üres projekt"
+          hasCards ? `${cardCount} ${imageNoun(cardCount)}` : t("project.empty")
         );
         updateEditorPlaceholders();
         updateGridLayout();
@@ -3755,8 +4502,8 @@
 
         resetButton.disabled = !hasCropChanges;
         resetButton.title = hasCropChanges
-          ? "Nagyítás és képpozíció visszaállítása"
-          : "A kép már alaphelyzetben van";
+          ? t("card.resetAvailable")
+          : t("card.resetDisabled");
       }
 
       function setCardPosition(card, x, y) {
@@ -3806,7 +4553,7 @@
         placeholder.setAttribute("aria-hidden", "true");
         placeholder.style.height = `${Math.max(96, Math.round(rect.height))}px`;
         placeholder.innerHTML = `
-          <span class="drop-placeholder-title">Ide kerül</span>
+          <span class="drop-placeholder-title">${t("reorder.placeholder")}</span>
           <span class="drop-placeholder-position"></span>
         `;
         return placeholder;
@@ -3834,11 +4581,11 @@
         const positionLabel = dropPlaceholder.querySelector(".drop-placeholder-position");
 
         if (positionLabel) {
-          positionLabel.textContent = `${position}. hely a(z) ${total} közül`;
+          positionLabel.textContent = t("reorder.position", { position, total });
         }
 
         if (position > 0 && position !== lastAnnouncedDropPosition) {
-          reorderStatus.textContent = `A kép a(z) ${position}. helyre kerül.`;
+          reorderStatus.textContent = t("reorder.willMove", { position });
           lastAnnouncedDropPosition = position;
         }
       }
@@ -3980,7 +4727,7 @@
         document.body.classList.add("reorder-dragging");
         card.classList.add("dragging", "dragging-source-hidden");
         updateDropPlaceholderLabel();
-        reorderStatus.textContent = "Áthelyezés folyamatban. A kék helyőrző mutatja az új pozíciót.";
+        reorderStatus.textContent = t("reorder.inProgress");
       }
 
       function pointIsInsideGrid(clientX, clientY) {
@@ -4029,7 +4776,7 @@
         if (dragGhost) dragGhost.remove();
         grid.classList.remove("reordering");
         document.body.classList.remove("reorder-dragging");
-        reorderStatus.textContent = commit ? "A kép új helyre került." : "Az áthelyezés megszakadt.";
+        reorderStatus.textContent = commit ? t("reorder.moved") : t("reorder.cancelled");
 
         draggedCard = null;
         dropPlaceholder = null;
@@ -4342,7 +5089,7 @@
         titleInput.value = state.title !== undefined
           ? String(state.title).slice(0, 300)
           : filenameWithoutExtension(fileName);
-        img.alt = titleInput.value.trim().replace(/\s+/g, " ") || "Feltöltött kép";
+        img.alt = titleInput.value.trim().replace(/\s+/g, " ") || t("card.uploadedImage");
         img.decoding = "async";
         frame.classList.add("preview-loading");
         fileNameElement.textContent = fileName;
@@ -4363,7 +5110,7 @@
         });
 
         titleInput.addEventListener("input", () => {
-          img.alt = titleInput.value.trim().replace(/\s+/g, " ") || "Feltöltött kép";
+          img.alt = titleInput.value.trim().replace(/\s+/g, " ") || t("card.uploadedImage");
           resizeTitleInput(titleInput);
         });
 
@@ -4418,7 +5165,7 @@
             grid.insertBefore(card, cards[nextIndex].nextSibling);
           }
           refreshMoveButtons();
-          reorderStatus.textContent = `A kép a(z) ${nextIndex + 1}. helyre került.`;
+          reorderStatus.textContent = t("reorder.movedTo", { position: nextIndex + 1 });
         });
 
         installImageCropping(card, frame, img);
@@ -4479,9 +5226,9 @@
         if (!slot?.classList.contains("editor-empty-slot")) return;
         const title = slot.querySelector(".editor-empty-slot-title");
         const description = slot.querySelector(".editor-empty-slot-description");
-        if (title) title.textContent = "Kép hozzáadása";
-        if (description) description.textContent = "Kattints ide, vagy húzd ide a képeket.";
-        slot.setAttribute("aria-label", "Kép hozzáadása a következő üres helyhez");
+        if (title) title.textContent = t("slot.addTitle");
+        if (description) description.textContent = t("slot.addDescription");
+        slot.setAttribute("aria-label", t("slot.addAria"));
       }
 
       function clearFileDropTarget() {
@@ -4510,19 +5257,19 @@
         if (!fileDropTarget) return;
 
         const label = pendingFileCount > 1
-          ? `${pendingFileCount} kép ide kerül`
-          : "Új kép ide kerül";
+          ? t("fileDrop.multipleHere", { count: pendingFileCount })
+          : t("fileDrop.singleHere");
         fileDropTarget.classList.add("file-drop-target");
         fileDropTarget.setAttribute("data-file-drop-label", label);
 
         if (fileDropTarget.classList.contains("editor-empty-slot")) {
           const title = fileDropTarget.querySelector(".editor-empty-slot-title");
           const description = fileDropTarget.querySelector(".editor-empty-slot-description");
-          if (title) title.textContent = "Ide kerül";
+          if (title) title.textContent = t("fileDrop.placeHere");
           if (description) {
             description.textContent = pendingFileCount > 1
-              ? `Engedd el: ${pendingFileCount} kép kerül be ettől a helytől.`
-              : "Engedd el a képet a beszúráshoz.";
+              ? t("fileDrop.releaseMultiple", { count: pendingFileCount })
+              : t("fileDrop.releaseSingle");
           }
           fileDropTarget.setAttribute("aria-label", label);
         }
@@ -4559,8 +5306,8 @@
 
         const position = getFileDropInsertionPosition(beforeNode);
         reorderStatus.textContent = pendingFileCount > 1
-          ? `${pendingFileCount} új kép a(z) ${position}. helytől kerül be.`
-          : `Az új kép a(z) ${position}. helyre kerül.`;
+          ? t("fileDrop.multiplePosition", { count: pendingFileCount, position })
+          : t("fileDrop.singlePosition", { position });
 
         autoScrollDuringReorder(event.clientX, event.clientY);
       }
@@ -4590,7 +5337,7 @@
 
         if (clearDialog.open) clearDialog.close("confirm");
         clearCurrentProject({ clearStatus: false });
-        showStatusToast(`${cardCount} kép törölve.`, {
+        showStatusToast(t("clear.deleted", { count: cardCount, noun: imageNoun(cardCount) }), {
           tone: "success",
           duration: 3000
         });
@@ -4601,11 +5348,11 @@
         if (!cardCount) return;
 
         clearDialogDescription.textContent =
-          `A projekt ${cardCount} betöltött képe és minden szerkesztés eltávolításra kerül. Ez nem vonható vissza.`;
+          t("clear.descriptionCount", { count: cardCount });
 
         if (typeof clearDialog.showModal !== "function") {
           const confirmed = window.confirm(
-            `Összes kép törlése?\n\nA projekt ${cardCount} betöltött képe és minden szerkesztés eltávolításra kerül. Ez nem vonható vissza.`
+            t("clear.fallback", { description: t("clear.descriptionCount", { count: cardCount }) })
           );
           if (confirmed) confirmClearProject();
           return;
@@ -4633,7 +5380,7 @@
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.addEventListener("load", () => resolve(String(reader.result)));
-          reader.addEventListener("error", () => reject(reader.error || new Error("A kép beolvasása sikertelen.")));
+          reader.addEventListener("error", () => reject(reader.error || new Error(t("error.imageRead"))));
           reader.readAsDataURL(blob);
         });
       }
@@ -4642,7 +5389,7 @@
         return new Promise((resolve, reject) => {
           canvas.toBlob((blob) => {
             if (blob) resolve(blob);
-            else reject(new Error("A projektkép tömörítése sikertelen volt."));
+            else reject(new Error(t("error.compress")));
           }, type, quality);
         });
       }
@@ -4668,7 +5415,7 @@
         try {
           await new Promise((resolve, reject) => {
             image.addEventListener("load", resolve, { once: true });
-            image.addEventListener("error", () => reject(new Error("A kép nem dekódolható.")), { once: true });
+            image.addEventListener("error", () => reject(new Error(t("error.decode"))), { once: true });
           });
           return {
             source: image,
@@ -4689,7 +5436,7 @@
           const originalWidth = Number(decoded.width || 0);
           const originalHeight = Number(decoded.height || 0);
           if (!originalWidth || !originalHeight) {
-            throw new Error("Az egyik kép mérete nem állapítható meg.");
+            throw new Error(t("error.dimensions"));
           }
 
           const longestSide = Math.max(originalWidth, originalHeight);
@@ -4700,7 +5447,7 @@
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext("2d", { alpha: true });
-          if (!ctx) throw new Error("A böngésző nem tudta előkészíteni a képet.");
+          if (!ctx) throw new Error(t("error.prepare"));
 
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
@@ -4793,7 +5540,7 @@
 
             assignPreviewUrl(card, img, preview.blob);
           } catch (error) {
-            console.error("Az előnézet létrehozása sikertelen, az eredeti kép lesz használva.", error);
+            console.error("Editor preview creation failed; the original image will be used.", error);
             if (!assignPreviewUrl(card, img, sourceBlob)) {
               frame.classList.remove("preview-loading");
             }
@@ -4829,17 +5576,18 @@
 
       async function dataUrlToBlob(dataUrl) {
         if (typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
-          throw new Error("A projekt egyik képe hibás vagy nem támogatott.");
+          throw new Error(t("error.projectImage"));
         }
         const response = await fetch(dataUrl);
-        if (!response.ok) throw new Error("A projekt egyik képét nem lehetett visszaállítani.");
+        if (!response.ok) throw new Error(t("error.restoreImage"));
         return response.blob();
       }
 
       function projectTimestampFilename() {
         const date = new Date();
         const pad = (value) => String(value).padStart(2, "0");
-        return `kepmozaik-projekt-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}.json`;
+        const prefix = currentLanguage === "en" ? "picturemosaic-project" : "kepmozaik-projekt";
+        return `${prefix}-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}.json`;
       }
 
       function selectHasValue(select, value) {
@@ -4872,7 +5620,7 @@
         if (!cards.length) return;
 
         saveProjectButton.disabled = true;
-        showStatusToast("JSON-projekt mentése folyamatban…", { tone: "progress", persistent: true });
+        showStatusToast(t("save.start"), { tone: "progress", persistent: true });
 
         try {
           const images = [];
@@ -4881,8 +5629,8 @@
 
           for (let index = 0; index < cards.length; index += 1) {
             const card = cards[index];
-            if (!card._imageBlob) throw new Error("Az egyik kép forrása nem érhető el.");
-            showStatusToast(`Képek tömörítése és mentése: ${index + 1} / ${cards.length}…`, { tone: "progress", persistent: true });
+            if (!card._imageBlob) throw new Error(t("save.sourceUnavailable"));
+            showStatusToast(t("save.progress", { current: index + 1, total: cards.length }), { tone: "progress", persistent: true });
             const meta = card._fileMeta || {};
             const projectImage = await getProjectImage(card);
             const sourceSize = Number(meta.size || card._imageBlob.size || 0);
@@ -4940,10 +5688,10 @@
           const reduction = originalBytes > 0
             ? Math.max(0, Math.round((1 - optimizedBytes / originalBytes) * 100))
             : 0;
-          showStatusToast(`JSON elmentve: ${images.length} kép, ${formatBytes(blob.size)}. Képadatok: ${formatBytes(originalBytes)} → ${formatBytes(optimizedBytes)} (${reduction}% csökkenés).`, { tone: "success", duration: 6500 });
+          showStatusToast(t("save.success", { count: images.length, noun: imageNoun(images.length), size: formatBytes(blob.size), original: formatBytes(originalBytes), optimized: formatBytes(optimizedBytes), reduction }), { tone: "success", duration: 6500 });
         } catch (error) {
           console.error(error);
-          showStatusToast(error instanceof Error ? error.message : "A projekt mentése sikertelen volt.", { tone: "error", duration: 6500 });
+          showStatusToast(error instanceof Error ? error.message : t("save.failed"), { tone: "error", duration: 6500 });
         } finally {
           saveProjectButton.disabled = getCards().length === 0;
         }
@@ -4952,7 +5700,7 @@
       async function loadProjectFile(file) {
         loadProjectButton.disabled = true;
         saveProjectButton.disabled = true;
-        showStatusToast("Projektfájl ellenőrzése…", { tone: "progress", persistent: true });
+        showStatusToast(t("load.check"), { tone: "progress", persistent: true });
 
         try {
           const textContent = await file.text();
@@ -4964,23 +5712,23 @@
             ![1, 2].includes(project.version) ||
             !Array.isArray(project.images)
           ) {
-            throw new Error("Ez nem támogatott képrács JSON-projektfájl.");
+            throw new Error(t("load.unsupported"));
           }
 
           if (!project.images.length) {
-            throw new Error("A projektfájl nem tartalmaz képeket.");
+            throw new Error(t("load.noImages"));
           }
 
           const preparedImages = [];
           for (let index = 0; index < project.images.length; index += 1) {
-            showStatusToast(`Projekt betöltése: ${index + 1} / ${project.images.length} kép előkészítése…`, { tone: "progress", persistent: true });
+            showStatusToast(t("load.progress", { current: index + 1, total: project.images.length }), { tone: "progress", persistent: true });
             const item = project.images[index] || {};
             const blob = await dataUrlToBlob(item.dataUrl);
             preparedImages.push({ blob, state: item });
           }
 
-          if (getCards().length && !window.confirm("A projekt betöltése lecseréli a jelenlegi munkát. Folytatod?")) {
-            showStatusToast("A projekt betöltése megszakítva.", { tone: "info" });
+          if (getCards().length && !window.confirm(t("load.replaceConfirm"))) {
+            showStatusToast(t("load.cancelled"), { tone: "info" });
             return;
           }
 
@@ -4991,10 +5739,10 @@
           updateEmptyState();
           refreshMoveButtons();
           requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
-          showStatusToast(`JSON-projekt betöltve: ${preparedImages.length} kép.`, { tone: "success" });
+          showStatusToast(t("load.success", { count: preparedImages.length, noun: imageNoun(preparedImages.length) }), { tone: "success" });
         } catch (error) {
           console.error(error);
-          showStatusToast(error instanceof Error ? error.message : "A projekt betöltése sikertelen volt.", { tone: "error", duration: 6500 });
+          showStatusToast(error instanceof Error ? error.message : t("load.failed"), { tone: "error", duration: 6500 });
         } finally {
           projectInput.value = "";
           loadProjectButton.disabled = false;
@@ -5144,7 +5892,8 @@
       function timestampFilename() {
         const date = new Date();
         const pad = (value) => String(value).padStart(2, "0");
-        return `kepmozaik-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}.png`;
+        const prefix = currentLanguage === "en" ? "picturemosaic" : "kepmozaik";
+        return `${prefix}-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}.png`;
       }
 
       async function exportGridAsPng() {
@@ -5152,7 +5901,7 @@
         if (!cards.length) return;
 
         exportButton.disabled = true;
-        showStatusToast("Exportálás folyamatban…", { tone: "progress", persistent: true });
+        showStatusToast(t("export.start"), { tone: "progress", persistent: true });
 
         try {
           await Promise.all(cards.map((card) => card._previewPromise).filter(Boolean));
@@ -5169,14 +5918,14 @@
           const maxPixels = 180000000;
 
           if (canvasWidth > maxDimension || canvasHeight > maxDimension || canvasWidth * canvasHeight > maxPixels) {
-            throw new Error("A létrejövő kép túl nagy. Válassz kisebb exportminőséget vagy kevesebb oszlopot.");
+            throw new Error(t("export.tooLarge"));
           }
 
           const canvas = document.createElement("canvas");
           canvas.width = canvasWidth;
           canvas.height = canvasHeight;
           const ctx = canvas.getContext("2d", { alpha: false });
-          if (!ctx) throw new Error("A böngésző nem tudta létrehozni az exportvásznat.");
+          if (!ctx) throw new Error(t("export.canvasFailed"));
 
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
@@ -5193,7 +5942,7 @@
             const posY = Number(card.dataset.posY || 50);
             const zoom = Number(card.dataset.zoom || 1);
 
-            showStatusToast(`Exportálás: ${index + 1} / ${cards.length} kép…`, { tone: "progress", persistent: true });
+            showStatusToast(t("export.progress", { current: index + 1, total: cards.length }), { tone: "progress", persistent: true });
             const decoded = await decodeImageBlob(card._imageBlob);
             try {
               drawCroppedImage(ctx, decoded.source, x, y, cellWidth, cellHeight, posX, posY, zoom);
@@ -5207,13 +5956,13 @@
           }
 
           const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-          if (!blob) throw new Error("A PNG-fájl létrehozása sikertelen volt.");
+          if (!blob) throw new Error(t("export.pngFailed"));
 
           downloadBlob(blob, timestampFilename());
-          showStatusToast(`Elkészült: ${canvasWidth} × ${canvasHeight} px`, { tone: "success", duration: 4800 });
+          showStatusToast(t("export.done", { width: canvasWidth, height: canvasHeight }), { tone: "success", duration: 4800 });
         } catch (error) {
           console.error(error);
-          showStatusToast(error instanceof Error ? error.message : "Az exportálás sikertelen volt.", { tone: "error", duration: 6500 });
+          showStatusToast(error instanceof Error ? error.message : t("export.failed"), { tone: "error", duration: 6500 });
         } finally {
           exportButton.disabled = getCards().length === 0;
         }
@@ -5231,7 +5980,7 @@
 
       fileInput.addEventListener("change", () => {
         const added = addFiles(fileInput.files);
-        if (added) showStatusToast(`${added} kép hozzáadva.`, { tone: "success" });
+        if (added) showStatusToast(t("images.added", { count: added, noun: imageNoun(added) }), { tone: "success" });
       });
 
       window.addEventListener("pointermove", handleReorderPointerMove, { passive: false });
@@ -5261,7 +6010,7 @@
         if (!hasDraggedFiles(event)) return;
         event.preventDefault();
         const added = addFiles(event.dataTransfer.files);
-        showStatusToast(added ? `${added} kép hozzáadva.` : "A behúzott fájlok között nem volt támogatott kép.", { tone: added ? "success" : "warning", duration: added ? 3600 : 5200 });
+        showStatusToast(added ? t("images.added", { count: added, noun: imageNoun(added) }) : t("images.unsupported"), { tone: added ? "success" : "warning", duration: added ? 3600 : 5200 });
       });
 
       gridScroll.addEventListener("dragenter", (event) => {
@@ -5304,8 +6053,8 @@
         clearFileDropPreview();
         showStatusToast(
           added
-            ? `${added} kép hozzáadva a(z) ${insertionPosition}. helytől.`
-            : "A behúzott fájlok között nem volt támogatott kép.",
+            ? t("images.addedAt", { count: added, noun: imageNoun(added), position: insertionPosition })
+            : t("images.unsupported"),
           { tone: added ? "success" : "warning", duration: added ? 4000 : 5200 }
         );
       });
@@ -5319,7 +6068,7 @@
         if (!gridScroll.contains(event.target) && !dropZone.contains(event.target)) {
           event.preventDefault();
           clearFileDropPreview();
-          showStatusToast("A képeket a rács kívánt helyére húzd.", { tone: "warning", duration: 4800 });
+          showStatusToast(t("images.dragToGrid"), { tone: "warning", duration: 4800 });
         }
       });
 
@@ -5341,6 +6090,12 @@
         input.addEventListener("change", applyColorSettings);
       });
       exportButton.addEventListener("click", exportGridAsPng);
+
+      languageSwitch.addEventListener("click", () => {
+        const selectedLanguage = currentLanguage === "hu" ? "en" : "hu";
+        storeLanguage(selectedLanguage);
+        applyLanguage(selectedLanguage);
+      });
 
       themeToggle.addEventListener("change", () => {
         const selectedTheme = themeToggle.checked ? "dark" : "light";
@@ -5375,8 +6130,13 @@
         systemThemeQuery.addListener(handleSystemThemeChange);
       }
 
+      window.addEventListener("languagechange", () => {
+        if (!getStoredLanguage()) applyLanguage(detectSystemLanguage());
+      });
+
       window.addEventListener("storage", (event) => {
         if (event.key === THEME_STORAGE_KEY) applyTheme(resolvePreferredTheme());
+        if (event.key === LANGUAGE_STORAGE_KEY) applyLanguage(resolvePreferredLanguage());
       });
 
       columnDecrease.addEventListener("click", () => {
@@ -5420,6 +6180,7 @@
         objectUrls.forEach((url) => URL.revokeObjectURL(url));
       });
 
+      applyLanguage(resolvePreferredLanguage());
       applyTheme(resolvePreferredTheme());
       applyColorSettings();
       applyGlobalRatio();
