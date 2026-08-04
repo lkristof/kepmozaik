@@ -25,6 +25,7 @@ A képek átrendezhetők, kivághatók, nagyíthatók és feliratozhatók, majd 
 * Több exportminőség
 * Exportálás PNG-formátumban
 * Projekt mentése és visszatöltése JSON-fájlból
+* Automatikus helyreállítás véletlen oldalfrissítés után
 * Magyar és angol kezelőfelület
 * Világos és sötét megjelenés
 * Reszponzív asztali és mobil felület
@@ -63,6 +64,12 @@ A projektfájl tartalmazza:
 
 A mentett munka később a **Projekt betöltése** gombbal folytatható.
 
+### Automatikus helyreállítás
+
+Az alkalmazás a folyamatban lévő projektet automatikusan elmenti a böngésző helyi tárhelyére, így az oldal véletlen frissítése után a munka visszaállítható.
+
+Ez a helyreállítási mentés az adott böngészőhöz és eszközhöz kötött, és nem helyettesíti a **Projekt mentése** gombbal letölthető JSON-fájlt.
+
 > A projektfájl a beágyazott képek miatt nagy méretű lehet.
 
 ## Technológiák
@@ -73,7 +80,7 @@ A mentett munka később a **Projekt betöltése** gombbal folytatható.
 * Canvas API
 * File API és Blob API
 * Pointer Events
-* Local Storage
+* Local Storage és IndexedDB
 * GitHub Pages
 
 A projekt nem használ JavaScript frameworköt, csomagkezelőt vagy külső buildrendszert.
