@@ -77,6 +77,7 @@
       --scrollbar-track: #e8edf3;
       --scrollbar-thumb: #a5afbd;
       --scrollbar-thumb-hover: #858f9f;
+      --brand-icon-fill: 72%; /* Nagyobb érték = kisebb térköz az ikon és a keret között. */
     }
 
     html {
@@ -129,45 +130,84 @@
     .app {
       /* Szeles monitoron kihasznaljuk szinte a teljes kepernyoszelesseget.
          2560 px-es kijelzon igy 8 darab, legalabb 300 px-es kartya is kifer. */
-      width: min(2600px, calc(100% - 24px));
+      width: min(2600px, calc(100% - 20px));
       margin: 0 auto;
       padding: 10px 0 48px;
     }
 
     .header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 20px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 24px;
       margin-bottom: 20px;
+      padding: 2px 2px 0;
     }
 
-    .brand {
-      display: inline-flex;
+    .brand-lockup {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
       align-items: center;
-      gap: clamp(10px, 1.5vw, 16px);
-      margin: 0 0 6px;
+      gap: clamp(9px, calc(7px + 0.65vw), 18px);
+      min-width: 0;
+      min-height: 76px;
+    }
+
+    .brand-icon-shell {
+      display: grid;
+      place-items: center;
+      width: clamp(47px, calc(41.9px + 1.6vw), 62px);
+      height: clamp(47px, calc(41.9px + 1.6vw), 62px);
+      flex: 0 0 auto;
+      border: 1px solid rgba(217, 54, 33, 0.2);
+      border-radius: clamp(14px, calc(12.55px + 0.455vw), 18px);
+      background:
+        linear-gradient(145deg, rgba(255, 138, 31, 0.13), rgba(169, 21, 36, 0.07)),
+        var(--panel);
+      box-shadow:
+        0 9px 24px rgba(169, 21, 36, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
     }
 
     .brand-icon {
       display: block;
-      width: clamp(52px, 7vw, 76px);
-      height: auto;
-      flex: 0 0 auto;
+      width: var(--brand-icon-fill);
+      height: var(--brand-icon-fill);
+    }
+
+    .brand-copy {
+      display: grid;
+      align-content: center;
+      gap: clamp(4px, 0.32vw, 5px);
+      min-width: 0;
+      padding-top: 0;
     }
 
     .brand-name {
+      width: max-content;
+      max-width: 100%;
+      color: var(--text);
+      font-size: clamp(1.58rem, calc(1.277rem + 1.52vw), 2.8rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.045em;
+      padding-right: 0.06em;
+      white-space: nowrap;
+    }
+
+    .brand-name-base {
+      color: var(--text);
+    }
+
+    .brand-name-accent {
+      /* A jobb oldali belső tartalék megakadályozza, hogy a záró „k”
+         betű optikai túlnyúlása egyes böngészőkben levágódjon. */
+      display: inline-block;
+      padding-right: 0.09em;
+      margin-right: -0.09em;
+
       /* Fallback, ha a gradient text nem támogatott */
       color: #d93621;
-
-      font-size: clamp(1.9rem, 4vw, 3.25rem);
-      font-weight: 850;
-      line-height: 1;
-      letter-spacing: -0.035em;
-      padding-right: 0.05em;
-      white-space: nowrap;
-
-
       background: linear-gradient(
         90deg,
         #ff8a1f 0%,
@@ -175,23 +215,27 @@
         #d93621 66%,
         #a91524 100%
       );
-
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .header-summary {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px 12px;
-    }
-
     .subtitle {
+      max-width: 620px;
       margin: 0;
       color: var(--muted);
-      line-height: 1.4;
+      font-size: clamp(0.79rem, calc(0.711rem + 0.294vw), 0.94rem);
+      font-weight: 500;
+      line-height: 1.42;
+      text-wrap: pretty;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      min-width: 0;
     }
 
     .image-count {
@@ -205,10 +249,10 @@
       background: var(--panel);
       color: var(--text);
       white-space: nowrap;
-      box-shadow: 0 4px 14px rgba(20, 30, 50, 0.05);
+      box-shadow: none;
       transition:
         border-color 0.18s ease,
-        background-color 0.18s ease,
+        background 0.18s ease,
         box-shadow 0.18s ease;
     }
 
@@ -219,9 +263,11 @@
       height: 26px;
       flex: 0 0 auto;
       border-radius: 9px;
-      background: color-mix(in srgb, var(--muted) 11%, transparent);
+      background: color-mix(in srgb, var(--muted) 8%, transparent);
       color: var(--muted);
-      transition: background-color 0.18s ease, color 0.18s ease;
+      transition:
+        background 0.18s ease,
+        color 0.18s ease;
     }
 
     .image-count-icon svg {
@@ -247,14 +293,17 @@
     }
 
     .image-count[data-empty="false"] {
-      border-color: color-mix(in srgb, var(--accent) 27%, var(--line));
-      background: color-mix(in srgb, var(--accent) 7%, var(--panel));
-      box-shadow: 0 5px 16px color-mix(in srgb, var(--accent) 10%, transparent);
+      border-color: color-mix(in srgb, #d93621 18%, var(--line));
+      background:
+        linear-gradient(90deg, rgba(255, 138, 31, 0.045), rgba(217, 54, 33, 0.025)),
+        var(--panel);
+      box-shadow: none;
     }
 
     .image-count[data-empty="false"] .image-count-icon {
-      background: color-mix(in srgb, var(--accent) 14%, transparent);
-      color: var(--accent);
+      background: color-mix(in srgb, #d93621 10%, transparent);
+      color: #c73a25;
+      box-shadow: none;
     }
 
     .image-count[data-empty="true"] .image-count-label {
@@ -1830,7 +1879,7 @@
         padding-top: 10px;
       }
 
-      .header { margin-bottom: 16px; }
+      .header { margin-bottom: 20px; }
 
       .toolbar {
         display: grid;
@@ -1911,8 +1960,6 @@
         width: min(100% - 20px, 2600px);
         padding-top: 10px;
       }
-
-      .header { display: block; }
 
       /* Mobilon ne egy hosszú függőleges lista legyen: a szerkesztő két,
          az exportpanel hat virtuális oszlopot használ. Így a kisebb mezők
@@ -2170,6 +2217,11 @@
     .theme-switch {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
+      width: 102px;
+      min-width: 102px;
+      max-width: 102px;
+      flex: 0 0 102px;
       gap: 6px;
       min-height: 38px;
       padding: 5px 7px;
@@ -2509,6 +2561,16 @@
       background: #3a242a;
     }
 
+    :root[data-theme="dark"] .brand-icon-shell {
+      border-color: rgba(255, 117, 72, 0.24);
+      background:
+        linear-gradient(145deg, rgba(255, 138, 31, 0.12), rgba(169, 21, 36, 0.12)),
+        var(--panel);
+      box-shadow:
+        0 10px 26px rgba(0, 0, 0, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
     :root[data-theme="dark"] .theme-switch {
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
     }
@@ -2525,30 +2587,95 @@
 
     @media (max-width: 760px) {
       .header {
-        display: flex;
-        align-items: flex-start;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 12px 10px;
+        padding-top: 2px;
       }
 
-      .header > div:first-child {
-        min-width: 0;
+      .brand-lockup {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+      }
+
+      .subtitle {
+        max-width: 440px;
+      }
+
+      .header-controls {
+        display: contents;
       }
 
       .theme-switch {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+        align-self: start;
         margin-top: 2px;
+      }
+
+      .image-count {
+        grid-column: 2;
+        grid-row: 2;
+        justify-self: end;
+        align-self: start;
+        max-width: none;
+        min-height: 30px;
+        margin: -2px 0 0;
+        padding: 3px 9px 3px 4px;
+      }
+
+      .image-count-icon {
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+      }
+
+      .image-count-icon svg {
+        width: 12px;
+        height: 12px;
+        stroke-width: 2.15;
+      }
+
+      .image-count-value {
+        font-size: 0.86rem;
+      }
+
+      .image-count-label {
+        font-size: 0.76rem;
+        font-weight: 780;
       }
 
     }
 
     @media (max-width: 430px) {
-      .theme-switch {
-        gap: 4px;
-        padding-inline: 6px;
+      .header {
+        gap: 10px 8px;
       }
 
-      .theme-switch-icon {
-        width: 14px;
-        height: 14px;
+      /* A témaváltó minden mobilméreten azonos marad. Nem zsugorodik össze,
+         és a nap/hold ikonok keskeny kijelzőn sem tűnnek el. */
+      .theme-switch {
+        flex: 0 0 auto;
       }
+
+      .image-count {
+        max-width: none;
+        margin-left: 0;
+        padding-right: 8px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .image-count {
+        padding-right: 7px;
+      }
+
+      .image-count-label {
+        font-size: 0.72rem;
+      }
+
     }
 
     /* A téma színei egyetlen képkockában frissülnek. Így sok kártyánál sem
@@ -2607,19 +2734,69 @@
       }
     }
 
+
+    /* A márkaszöveg 760 px körül is ugyanabban a függőleges ritmusban marad.
+       A két szövegsor nem nyúlik szét; együtt, középre igazodva követi a jobb
+       oldali témaváltó + projektállapot oszlop teljes magasságát. */
+    @media (max-width: 760px) {
+      .header {
+        row-gap: 8px;
+      }
+
+      .brand-lockup {
+        align-self: stretch;
+        align-items: center;
+        min-height: 76px;
+      }
+
+      .brand-icon-shell {
+        align-self: center;
+      }
+
+      .brand-copy {
+        align-self: center;
+        height: auto;
+        min-height: 0;
+        grid-template-rows: none;
+        align-content: center;
+      }
+
+      .brand-name,
+      .subtitle {
+        align-self: auto;
+      }
+
+      .subtitle {
+        margin-top: 0;
+      }
+
+      .theme-switch {
+        margin-top: 0;
+      }
+
+      .image-count {
+        align-self: end;
+        margin-top: 0;
+      }
+    }
+
   </style>
 </head>
 <body>
   <main class="app">
     <header class="header">
-      <div>
-        <div class="brand">
-          <img class="brand-icon" src="./favicon.svg" alt="" aria-hidden="true"/>
-          <span class="brand-name">KépMozaik</span>
+      <div class="brand-lockup">
+        <span class="brand-icon-shell" aria-hidden="true">
+          <img class="brand-icon" src="./favicon.svg" alt="" />
+        </span>
+        <div class="brand-copy">
+          <span class="brand-name"><span class="brand-name-base">Kép</span><span class="brand-name-accent">Mozaik</span></span>
+          <p class="subtitle">Képekből látványos mozaik, közvetlenül a böngészőben.</p>
         </div>
-        <div class="header-summary">
-          <p class="subtitle">Képek rendezése, vágása és exportálása.</p>
-          <span class="image-count" id="imageCount" data-empty="true" role="status" aria-live="polite" aria-atomic="true" aria-label="Üres projekt">
+      </div>
+
+      <div class="header-controls">
+        <span class="image-count" id="imageCount" data-empty="true" role="status" aria-live="polite" aria-atomic="true" aria-label="Üres projekt">
             <span class="image-count-icon" aria-hidden="true">
               <svg class="lucide lucide-images" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16"></path>
@@ -2630,11 +2807,9 @@
             </span>
             <strong class="image-count-value" id="imageCountValue" hidden>0</strong>
             <span class="image-count-label" id="imageCountLabel">Üres projekt</span>
-          </span>
-        </div>
-      </div>
+        </span>
 
-      <label class="theme-switch" for="themeToggle" title="Megjelenési téma váltása">
+        <label class="theme-switch" for="themeToggle" title="Megjelenési téma váltása">
         <svg class="theme-switch-icon theme-switch-icon-sun lucide lucide-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="4"></circle>
           <path d="M12 2v2"></path>
@@ -2651,7 +2826,8 @@
         <svg class="theme-switch-icon theme-switch-icon-moon lucide lucide-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
         </svg>
-      </label>
+        </label>
+      </div>
     </header>
 
     <section class="toolbar" aria-label="Szerkesztő eszköztár">
@@ -3350,7 +3526,7 @@
         imageCountLabel.textContent = hasCards ? "kép" : "Üres projekt";
         imageCount.setAttribute(
           "aria-label",
-          hasCards ? `${cardCount} kép a projektben` : "Üres projekt"
+          hasCards ? `${cardCount} kép` : "Üres projekt"
         );
         updateEditorPlaceholders();
         updateGridLayout();
