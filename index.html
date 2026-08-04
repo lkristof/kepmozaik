@@ -195,22 +195,6 @@
       filter: blur(0.4px);
     }
 
-    /* A finom négyzetrács röviden felvillan, mintha a mozaik cellái reagálnának. */
-    .brand-icon-shell::after {
-      content: "";
-      position: absolute;
-      z-index: 3;
-      inset: 7px;
-      pointer-events: none;
-      opacity: 0;
-      border-radius: 9px;
-      background:
-        linear-gradient(rgba(255, 255, 255, 0.42) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.42) 1px, transparent 1px);
-      background-size: 9px 9px;
-      mix-blend-mode: screen;
-    }
-
     .brand-icon {
       position: relative;
       z-index: 1;
@@ -225,10 +209,6 @@
         animation: brand-logo-shimmer 720ms ease-out;
       }
 
-      .brand-icon-shell:hover::after {
-        animation: brand-logo-grid-flash 720ms ease-out;
-      }
-
       .brand-icon-shell:hover .brand-icon {
         animation: brand-logo-icon-flash 720ms ease-out;
       }
@@ -237,10 +217,6 @@
     /* Mobilon és érintőtollnál a JS rövid időre ezt az osztályt kapcsolja be. */
     .brand-icon-shell.is-animating::before {
       animation: brand-logo-shimmer 720ms ease-out;
-    }
-
-    .brand-icon-shell.is-animating::after {
-      animation: brand-logo-grid-flash 720ms ease-out;
     }
 
     .brand-icon-shell.is-animating .brand-icon {
@@ -257,14 +233,6 @@
         opacity: 0;
         transform: translateX(620%) rotate(18deg);
       }
-    }
-
-    @keyframes brand-logo-grid-flash {
-      0%, 18%, 100% { opacity: 0; }
-      28% { opacity: 0.18; }
-      39% { opacity: 0; }
-      52% { opacity: 0.13; }
-      66% { opacity: 0; }
     }
 
     @keyframes brand-logo-icon-flash {
@@ -290,10 +258,8 @@
 
     @media (prefers-reduced-motion: reduce) {
       .brand-icon-shell:hover::before,
-      .brand-icon-shell:hover::after,
       .brand-icon-shell:hover .brand-icon,
       .brand-icon-shell.is-animating::before,
-      .brand-icon-shell.is-animating::after,
       .brand-icon-shell.is-animating .brand-icon {
         animation: none;
       }
