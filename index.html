@@ -4905,6 +4905,63 @@
           frame.classList.add("panning", "pinching");
         }
 
+        function zoomAtClientPoint(clientX, clientY, nextZoom) {
+          const metrics = getRenderedMetrics(card);
+          if (!metrics) return;
+
+          const rect = frame.getBoundingClientRect();
+          const pointX = clamp(clientX - rect.left, 0, metrics.frameWidth);
+          const pointY = clamp(clientY - rect.top, 0, metrics.frameHeight);
+          const posX = clamp(Number(card.dataset.posX || 50), 0, 100);
+          const posY = clamp(Number(card.dataset.posY || 50), 0, 100);
+          const left = -metrics.overflowX * (posX / 100);
+          const top = -metrics.overflowY * (posY / 100);
+          const anchorX = clamp((pointX - left) / metrics.renderedWidth, 0, 1);
+          const anchorY = clamp((pointY - top) / metrics.renderedHeight, 0, 1);
+
+          setCardZoom(card, nextZoom);
+
+          const nextMetrics = getRenderedMetrics(card);
+          if (!nextMetrics) return;
+
+          const desiredLeft = pointX - anchorX * nextMetrics.renderedWidth;
+          const desiredTop = pointY - anchorY * nextMetrics.renderedHeight;
+          const clampedLeft = clamp(desiredLeft, -nextMetrics.overflowX, 0);
+          const clampedTop = clamp(desiredTop, -nextMetrics.overflowY, 0);
+          const nextX = nextMetrics.overflowX > 0.5
+            ? (-clampedLeft / nextMetrics.overflowX) * 100
+            : 50;
+          const nextY = nextMetrics.overflowY > 0.5
+            ? (-clampedTop / nextMetrics.overflowY) * 100
+            : 50;
+
+          setCardPosition(card, nextX, nextY);
+        }
+
+        frame.addEventListener("wheel", (event) => {
+          if (!event.ctrlKey && !event.metaKey) return;
+          if (event.target.closest("input, textarea, button, select, .drag-badge")) return;
+          if (!img.naturalWidth || !img.naturalHeight) return;
+
+          // A modositogombos gorgetest itt a kep nagyitasara hasznaljuk,
+          // ezert megakadalyozzuk a bongeszo sajat oldalnagyitasat.
+          event.preventDefault();
+
+          const deltaScale = event.deltaMode === 1
+            ? 16
+            : event.deltaMode === 2
+              ? Math.max(frame.clientHeight, 1)
+              : 1;
+          const normalizedDelta = clamp(event.deltaY * deltaScale, -240, 240);
+          if (Math.abs(normalizedDelta) < 0.01) return;
+
+          const currentZoom = clamp(Number(card.dataset.zoom || 1), 1, 4);
+          const zoomFactor = Math.exp(-normalizedDelta * 0.0015);
+          const nextZoom = clamp(currentZoom * zoomFactor, 1, 4);
+
+          zoomAtClientPoint(event.clientX, event.clientY, nextZoom);
+        }, { passive: false });
+
         frame.addEventListener("pointerdown", (event) => {
           if (event.button !== undefined && event.button !== 0) return;
           if (event.target.closest("input, textarea, button, select, .drag-badge")) return;
@@ -6388,6 +6445,73 @@
       grid.addEventListener("pointercancel", () => scheduleRecoverySave());
       grid.addEventListener("keyup", () => scheduleRecoverySave());
       grid.addEventListener("wheel", () => scheduleRecoverySave(), { passive: true });
+
+      // A vizszintesen gorgetheto racs egyes bongeszokben elnyelheti a
+      // fuggoleges egergorgot. A dominans fuggoleges gorgetest az oldalnak,
+      // a dominans vizszintes mozgasokat pedig a racsnak tovabbitjuk.
+      // Shift mellett a fuggoleges gorgojel is vizszintes racsgorgetes lesz;
+      // Ctrl/Command mellett a kepzoom marad aktiv.
+      gridScroll.addEventListener("wheel", (event) => {
+        if (event.ctrlKey || event.metaKey) return;
+
+        const lineScale = event.deltaMode === 1 ? 16 : 1;
+        const horizontalScale = event.deltaMode === 2
+          ? Math.max(gridScroll.clientWidth, 1)
+          : lineScale;
+        const verticalScale = event.deltaMode === 2
+          ? Math.max(window.innerHeight, 1)
+          : lineScale;
+
+        const scrollGridHorizontally = (horizontalDelta) => {
+          if (Math.abs(horizontalDelta) < 0.01) return false;
+
+          const maxScrollLeft = Math.max(0, gridScroll.scrollWidth - gridScroll.clientWidth);
+          const canScrollGrid = horizontalDelta > 0
+            ? gridScroll.scrollLeft < maxScrollLeft - 0.5
+            : gridScroll.scrollLeft > 0.5;
+
+          if (!canScrollGrid) return false;
+
+          event.preventDefault();
+          gridScroll.scrollBy({
+            left: horizontalDelta * horizontalScale,
+            behavior: "auto"
+          });
+          return true;
+        };
+
+        if (event.shiftKey) {
+          // Bongeszotol es egerdriver-tol fuggoen a Shift + gorgetes
+          // deltaX-kent vagy tovabbra is deltaY-kent erkezhet.
+          const horizontalDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY)
+            ? event.deltaX
+            : event.deltaY;
+          scrollGridHorizontally(horizontalDelta);
+          return;
+        }
+
+        // Trackpad, dontheto gorgo vagy mas natív vizszintes wheel-esemeny.
+        // Ezt explicit kezeljuk, hogy a kartya vagy a kepkeret folott se vesszen el.
+        if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+          scrollGridHorizontally(event.deltaX);
+          return;
+        }
+
+        if (!event.deltaY) return;
+
+        const scrollingElement = document.scrollingElement || document.documentElement;
+        const currentScrollTop = window.scrollY || scrollingElement.scrollTop || 0;
+        const maxScrollTop = Math.max(0, scrollingElement.scrollHeight - window.innerHeight);
+        const canScrollPage = event.deltaY > 0
+          ? currentScrollTop < maxScrollTop - 0.5
+          : currentScrollTop > 0.5;
+
+        if (!canScrollPage) return;
+
+        event.preventDefault();
+        window.scrollBy(0, event.deltaY * verticalScale);
+      }, { passive: false });
+
       columnDecrease.addEventListener("click", () => scheduleRecoverySave());
       columnIncrease.addEventListener("click", () => scheduleRecoverySave());
 
