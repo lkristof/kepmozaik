@@ -90,7 +90,7 @@ kepmozaik/
 ├── web-app-manifest-192x192.png
 ├── web-app-manifest-512x512.png
 ├── site.webmanifest
-└── og-image.png
+└── og-image.jpg
 ```
 
 Az alkalmazás HTML-, CSS- és JavaScript-kódja jelenleg az `index.html` fájlban található.
