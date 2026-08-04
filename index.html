@@ -154,11 +154,16 @@
     }
 
     .brand-icon-shell {
+      position: relative;
+      isolation: isolate;
       display: grid;
       place-items: center;
       width: 54px;
       height: 54px;
       flex: 0 0 auto;
+      overflow: hidden;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
       border: 1px solid rgba(217, 54, 33, 0.2);
       border-radius: 16px;
       background:
@@ -169,10 +174,129 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.72);
     }
 
+    /* Hoverkor egy rövid fénycsík fut át az ikonon. */
+    .brand-icon-shell::before {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      top: -35%;
+      bottom: -35%;
+      left: -52%;
+      width: 24%;
+      pointer-events: none;
+      opacity: 0;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.78),
+        transparent
+      );
+      transform: translateX(-180%) rotate(18deg);
+      filter: blur(0.4px);
+    }
+
+    /* A finom négyzetrács röviden felvillan, mintha a mozaik cellái reagálnának. */
+    .brand-icon-shell::after {
+      content: "";
+      position: absolute;
+      z-index: 3;
+      inset: 7px;
+      pointer-events: none;
+      opacity: 0;
+      border-radius: 9px;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.42) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.42) 1px, transparent 1px);
+      background-size: 9px 9px;
+      mix-blend-mode: screen;
+    }
+
     .brand-icon {
+      position: relative;
+      z-index: 1;
       display: block;
       width: var(--brand-icon-fill);
       height: var(--brand-icon-fill);
+      transform-origin: center;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .brand-icon-shell:hover::before {
+        animation: brand-logo-shimmer 720ms ease-out;
+      }
+
+      .brand-icon-shell:hover::after {
+        animation: brand-logo-grid-flash 720ms ease-out;
+      }
+
+      .brand-icon-shell:hover .brand-icon {
+        animation: brand-logo-icon-flash 720ms ease-out;
+      }
+    }
+
+    /* Mobilon és érintőtollnál a JS rövid időre ezt az osztályt kapcsolja be. */
+    .brand-icon-shell.is-animating::before {
+      animation: brand-logo-shimmer 720ms ease-out;
+    }
+
+    .brand-icon-shell.is-animating::after {
+      animation: brand-logo-grid-flash 720ms ease-out;
+    }
+
+    .brand-icon-shell.is-animating .brand-icon {
+      animation: brand-logo-icon-flash 720ms ease-out;
+    }
+
+    @keyframes brand-logo-shimmer {
+      0% {
+        opacity: 0;
+        transform: translateX(-180%) rotate(18deg);
+      }
+      18% { opacity: 0.72; }
+      100% {
+        opacity: 0;
+        transform: translateX(620%) rotate(18deg);
+      }
+    }
+
+    @keyframes brand-logo-grid-flash {
+      0%, 18%, 100% { opacity: 0; }
+      28% { opacity: 0.18; }
+      39% { opacity: 0; }
+      52% { opacity: 0.13; }
+      66% { opacity: 0; }
+    }
+
+    @keyframes brand-logo-icon-flash {
+      0%, 100% {
+        transform: scale(1);
+        filter: brightness(1) saturate(1);
+      }
+      30% {
+        transform: scale(1.035);
+        filter: brightness(1.18) saturate(1.12)
+          drop-shadow(0 0 5px rgba(244, 81, 30, 0.34));
+      }
+      46% {
+        transform: scale(1.012);
+        filter: brightness(1.04) saturate(1.04);
+      }
+      62% {
+        transform: scale(1.026);
+        filter: brightness(1.12) saturate(1.08)
+          drop-shadow(0 0 4px rgba(255, 138, 31, 0.26));
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .brand-icon-shell:hover::before,
+      .brand-icon-shell:hover::after,
+      .brand-icon-shell:hover .brand-icon,
+      .brand-icon-shell.is-animating::before,
+      .brand-icon-shell.is-animating::after,
+      .brand-icon-shell.is-animating .brand-icon {
+        animation: none;
+      }
     }
 
     .brand-copy {
@@ -3230,6 +3354,8 @@
       const customRatioHeight = document.getElementById("customRatioHeight");
       const themeToggle = document.getElementById("themeToggle");
       const themeColorMeta = document.getElementById("themeColorMeta");
+      const brandIconShell = document.querySelector(".brand-icon-shell");
+      const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
       const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
       const THEME_STORAGE_KEY = "kepmozaik-theme";
 
@@ -5254,6 +5380,24 @@
         const selectedTheme = themeToggle.checked ? "dark" : "light";
         storeTheme(selectedTheme);
         applyTheme(selectedTheme, { animateToggle: true });
+      });
+
+      // Érintőképernyőn egy valódi koppintás indítja el ugyanazt a rövid
+      // animációt. Görgetéskor a böngésző pointercancel eseményt küld, ezért
+      // az animáció nem indul el pusztán attól, hogy a logón kezdődik a húzás.
+      let brandAnimationTimer = null;
+      brandIconShell?.addEventListener("pointerup", (event) => {
+        if (event.pointerType === "mouse" || reducedMotionQuery.matches) return;
+
+        if (brandAnimationTimer) clearTimeout(brandAnimationTimer);
+        brandIconShell.classList.remove("is-animating");
+        void brandIconShell.offsetWidth;
+        brandIconShell.classList.add("is-animating");
+
+        brandAnimationTimer = setTimeout(() => {
+          brandIconShell.classList.remove("is-animating");
+          brandAnimationTimer = null;
+        }, 760);
       });
 
       const handleSystemThemeChange = () => {
