@@ -3736,7 +3736,8 @@
           "images.added": "{count} {noun} hozzáadva.",
           "images.unsupported": "A behúzott fájlok között nem volt támogatott kép.",
           "images.addedAt": "{count} {noun} hozzáadva a(z) {position}. helytől.",
-          "images.dragToGrid": "A képeket a rács kívánt helyére húzd."
+          "images.dragToGrid": "A képeket a rács kívánt helyére húzd.",
+          "recovery.restored": "Az előző munkamenet automatikusan visszaállt: {count} {noun}."
         },
         en: {
           "brand.base": "Picture",
@@ -3878,7 +3879,8 @@
           "images.added": "Added {count} {noun}.",
           "images.unsupported": "The dropped files did not include any supported images.",
           "images.addedAt": "Added {count} {noun} starting at position {position}.",
-          "images.dragToGrid": "Drag the images to the desired position in the grid."
+          "images.dragToGrid": "Drag the images to the desired position in the grid.",
+          "recovery.restored": "The previous session was restored automatically: {count} {noun}."
         }
       };
 
@@ -4104,6 +4106,15 @@
       const DEFAULT_EXPORT_BACKGROUND_COLOR = "#000000";
       const TITLE_BACKGROUND_ALPHA = 0.74;
       const EDITOR_TITLE_BACKGROUND_ALPHA = 0.72;
+      const RECOVERY_DB_NAME = "kepmozaik-recovery";
+      const RECOVERY_DB_VERSION = 1;
+      const RECOVERY_STORE_NAME = "sessions";
+      const RECOVERY_RECORD_KEY = "current-project";
+      const RECOVERY_SAVE_DELAY = 700;
+      let recoveryDatabasePromise = null;
+      let recoverySaveTimer = null;
+      let recoverySaveChain = Promise.resolve();
+      let recoveryRestoreInProgress = false;
       // A PNG kétszeres belső felbontáson készül, így a canvasra rajzolt
       // feliratok és élek nagyításkor is lényegesen tisztábbak maradnak.
 
@@ -5320,12 +5331,13 @@
         grid.classList.remove("file-drop-active");
       }
 
-      function clearCurrentProject({ clearStatus = true } = {}) {
+      function clearCurrentProject({ clearStatus = true, persistRecovery = true } = {}) {
         getCards().forEach(revokeCardResources);
         getCards().forEach((card) => card.remove());
         if (clearStatus) hideStatusToast({ immediate: true });
         updateEmptyState();
         refreshMoveButtons();
+        if (persistRecovery) scheduleRecoverySave({ immediate: true });
       }
 
       function confirmClearProject() {
@@ -5615,6 +5627,171 @@
         applyGlobalRatio();
       }
 
+
+      function recoveryRequest(request) {
+        return new Promise((resolve, reject) => {
+          request.addEventListener("success", () => resolve(request.result), { once: true });
+          request.addEventListener("error", () => reject(request.error || new Error("IndexedDB request failed.")), { once: true });
+        });
+      }
+
+      function recoveryTransaction(transaction) {
+        return new Promise((resolve, reject) => {
+          transaction.addEventListener("complete", resolve, { once: true });
+          transaction.addEventListener("abort", () => reject(transaction.error || new Error("IndexedDB transaction aborted.")), { once: true });
+          transaction.addEventListener("error", () => reject(transaction.error || new Error("IndexedDB transaction failed.")), { once: true });
+        });
+      }
+
+      function openRecoveryDatabase() {
+        if (!("indexedDB" in window)) {
+          return Promise.reject(new Error("IndexedDB is not supported."));
+        }
+        if (recoveryDatabasePromise) return recoveryDatabasePromise;
+
+        recoveryDatabasePromise = new Promise((resolve, reject) => {
+          const request = indexedDB.open(RECOVERY_DB_NAME, RECOVERY_DB_VERSION);
+          request.addEventListener("upgradeneeded", () => {
+            const database = request.result;
+            if (!database.objectStoreNames.contains(RECOVERY_STORE_NAME)) {
+              database.createObjectStore(RECOVERY_STORE_NAME, { keyPath: "id" });
+            }
+          });
+          request.addEventListener("success", () => resolve(request.result), { once: true });
+          request.addEventListener("error", () => reject(request.error || new Error("The recovery database could not be opened.")), { once: true });
+          request.addEventListener("blocked", () => reject(new Error("The recovery database is blocked.")), { once: true });
+        });
+
+        return recoveryDatabasePromise;
+      }
+
+      function captureRecoverySettings() {
+        return {
+          globalRatio: globalRatio.value,
+          customRatioWidth: Number(customRatioWidth.value),
+          customRatioHeight: Number(customRatioHeight.value),
+          columns: Number(columnRange.value),
+          exportCellWidth: Number(exportCellWidth.value),
+          exportGap: Number(exportGap.value),
+          exportTitles: exportTitles.checked,
+          titleTextColor: normalizeHexColor(titleTextColor.value, DEFAULT_TITLE_TEXT_COLOR),
+          titleBackgroundColor: normalizeHexColor(titleBackgroundColor.value, DEFAULT_TITLE_BACKGROUND_COLOR),
+          exportBackgroundColor: normalizeHexColor(exportBackgroundColor.value, DEFAULT_EXPORT_BACKGROUND_COLOR)
+        };
+      }
+
+      function captureRecoveryImages() {
+        return getCards().map((card, index) => {
+          const blob = card._imageBlob;
+          const meta = card._fileMeta || {};
+          return {
+            blob,
+            state: {
+              fileName: String(meta.name || `kep-${index + 1}`),
+              fileType: String(blob?.type || meta.type || "image/png"),
+              fileSize: Number(blob?.size || meta.size || 0),
+              originalFileType: String(meta.type || blob?.type || "image/png"),
+              originalFileSize: Number(meta.size || blob?.size || 0),
+              lastModified: Number(meta.lastModified || Date.now()),
+              title: card.querySelector(".title-input")?.value || "",
+              posX: Number(card.dataset.posX || 50),
+              posY: Number(card.dataset.posY || 50),
+              zoom: Number(card.dataset.zoom || 1),
+              storageOptimized: false
+            }
+          };
+        }).filter((item) => item.blob instanceof Blob);
+      }
+
+      async function persistRecoverySnapshot() {
+        if (recoveryRestoreInProgress) return;
+        if (recoverySaveTimer) clearTimeout(recoverySaveTimer);
+        recoverySaveTimer = null;
+
+        const images = captureRecoveryImages();
+        const record = images.length
+          ? {
+              id: RECOVERY_RECORD_KEY,
+              version: 1,
+              savedAt: new Date().toISOString(),
+              settings: captureRecoverySettings(),
+              images
+            }
+          : null;
+
+        const operation = recoverySaveChain
+          .catch(() => {})
+          .then(async () => {
+            const database = await openRecoveryDatabase();
+            const transaction = database.transaction(RECOVERY_STORE_NAME, "readwrite");
+            const store = transaction.objectStore(RECOVERY_STORE_NAME);
+            if (record) store.put(record);
+            else store.delete(RECOVERY_RECORD_KEY);
+            await recoveryTransaction(transaction);
+          });
+
+        recoverySaveChain = operation.catch((error) => {
+          console.warn("Automatic project recovery could not be saved.", error);
+        });
+        return operation;
+      }
+
+      function scheduleRecoverySave({ immediate = false } = {}) {
+        if (recoveryRestoreInProgress || !("indexedDB" in window)) return;
+        if (recoverySaveTimer) clearTimeout(recoverySaveTimer);
+        recoverySaveTimer = null;
+
+        if (immediate) {
+          void persistRecoverySnapshot();
+          return;
+        }
+
+        recoverySaveTimer = setTimeout(() => {
+          recoverySaveTimer = null;
+          void persistRecoverySnapshot();
+        }, RECOVERY_SAVE_DELAY);
+      }
+
+      async function restoreRecoverySnapshot() {
+        if (!("indexedDB" in window) || getCards().length) return;
+
+        try {
+          const database = await openRecoveryDatabase();
+          const transaction = database.transaction(RECOVERY_STORE_NAME, "readonly");
+          const transactionDone = recoveryTransaction(transaction);
+          const store = transaction.objectStore(RECOVERY_STORE_NAME);
+          const record = await recoveryRequest(store.get(RECOVERY_RECORD_KEY));
+          await transactionDone;
+
+          if (!record || !Array.isArray(record.images) || !record.images.length) return;
+
+          recoveryRestoreInProgress = true;
+          applyProjectSettings(record.settings || {});
+
+          let restoredCount = 0;
+          for (const item of record.images) {
+            if (!(item?.blob instanceof Blob)) continue;
+            createCard(item.blob, item.state || {});
+            restoredCount += 1;
+          }
+
+          updateEmptyState();
+          refreshMoveButtons();
+          requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+
+          if (restoredCount) {
+            showStatusToast(t("recovery.restored", {
+              count: restoredCount,
+              noun: imageNoun(restoredCount)
+            }), { tone: "success", duration: 5200 });
+          }
+        } catch (error) {
+          console.warn("Automatic project recovery could not be restored.", error);
+        } finally {
+          recoveryRestoreInProgress = false;
+        }
+      }
+
       async function saveProject() {
         const cards = getCards();
         if (!cards.length) return;
@@ -5732,7 +5909,7 @@
             return;
           }
 
-          clearCurrentProject({ clearStatus: false });
+          clearCurrentProject({ clearStatus: false, persistRecovery: false });
           applyProjectSettings(project.settings || {});
 
           preparedImages.forEach(({ blob, state }) => createCard(blob, state));
@@ -6176,8 +6353,58 @@
         });
       });
 
-      window.addEventListener("beforeunload", () => {
+      // Ha a projektben már van legalább egy kép, az ezt támogató
+      // böngészők szabványos megerősítést kérnek frissítés vagy kilépés előtt.
+      // Mobilon ez nem garantált, ezért alább automatikus helyreállítás is működik.
+      window.addEventListener("beforeunload", (event) => {
+        if (!getCards().length) return;
+
+        event.preventDefault();
+        event.returnValue = "";
+      });
+
+      const recoveryMutationObserver = new MutationObserver(() => {
+        scheduleRecoverySave();
+      });
+      recoveryMutationObserver.observe(grid, { childList: true });
+
+      document.addEventListener("input", (event) => {
+        if (event.target.matches?.(
+          ".title-input, .zoom-range, #customRatioWidth, #customRatioHeight, " +
+          "#globalRatio, #exportCellWidth, #exportGap, #exportTitles, " +
+          "#titleTextColor, #titleBackgroundColor, #exportBackgroundColor"
+        )) {
+          scheduleRecoverySave();
+        }
+      });
+
+      document.addEventListener("change", (event) => {
+        if (event.target.closest?.(".toolbar, .export-panel, .card")) {
+          scheduleRecoverySave();
+        }
+      });
+
+      grid.addEventListener("pointerup", () => scheduleRecoverySave());
+      grid.addEventListener("pointercancel", () => scheduleRecoverySave());
+      grid.addEventListener("keyup", () => scheduleRecoverySave());
+      grid.addEventListener("wheel", () => scheduleRecoverySave(), { passive: true });
+      columnDecrease.addEventListener("click", () => scheduleRecoverySave());
+      columnIncrease.addEventListener("click", () => scheduleRecoverySave());
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
+          scheduleRecoverySave({ immediate: true });
+        }
+      });
+
+      // Az objektum-URL-eket csak akkor szabad visszavonni, amikor az oldal
+      // ténylegesen elhagyásra kerül. Előtte megpróbáljuk kiírni a legfrissebb
+      // automatikus mentést; mobilon a korábbi, debounced mentések adják a fő védelmet.
+      window.addEventListener("pagehide", (event) => {
+        scheduleRecoverySave({ immediate: true });
+        if (event.persisted) return;
         objectUrls.forEach((url) => URL.revokeObjectURL(url));
+        objectUrls.clear();
       });
 
       applyLanguage(resolvePreferredLanguage());
@@ -6187,6 +6414,7 @@
       updateGridLayout();
       updateEmptyState();
       refreshMoveButtons();
+      void restoreRecoverySnapshot();
     })();
   </script>
 </body>
