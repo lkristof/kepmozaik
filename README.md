@@ -8,7 +8,7 @@ A képek átrendezhetők, kivághatók, nagyíthatók és feliratozhatók, majd 
 
 **[KépMozaik megnyitása](https://lkristof.github.io/kepmozaik/)**
 
-![KépMozaik előnézet](./screenshot-light.jpg)
+![KépMozaik előnézet](assets/images/screenshot-light.jpg)
 
 ## Főbb funkciók
 
