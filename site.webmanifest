@@ -1,6 +1,9 @@
 {
   "name": "KépMozaik",
   "short_name": "KépMozaik",
+  "id": "/kepmozaik/",
+  "start_url": "/kepmozaik/",
+  "scope": "/kepmozaik/",
   "icons": [
     {
       "src": "/kepmozaik/assets/images/web-app-manifest-192x192.png",
