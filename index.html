@@ -780,12 +780,33 @@
     }
 
     .color-code {
+      width: 8ch;
+      min-width: 0;
+      padding: 4px 3px;
+      border: 0;
+      border-radius: 6px;
+      outline: none;
+      background: transparent;
       color: var(--text);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 0.78rem;
       font-weight: 700;
       letter-spacing: 0.02em;
+      text-align: center;
       text-transform: uppercase;
+      box-shadow: none;
+      transition: background 0.16s ease, box-shadow 0.16s ease, color 0.16s ease;
+    }
+
+    .color-code:focus-visible {
+      background: color-mix(in srgb, var(--accent) 8%, transparent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+
+    .color-code[aria-invalid="true"] {
+      background: color-mix(in srgb, var(--danger) 8%, transparent);
+      color: var(--danger);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 22%, transparent);
     }
 
     .toggle-field {
@@ -2386,14 +2407,17 @@
       }
 
       .export-panel > .color-field .color-control {
-        justify-content: center;
-        min-height: 40px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        justify-content: stretch;
+        gap: 4px;
+        min-height: 0;
         padding: 5px;
       }
 
       .export-panel > .color-field input[type="color"] {
         width: 100%;
-        height: 34px;
+        height: 30px;
       }
 
       .export-panel > .color-field .color-code {
@@ -3476,35 +3500,62 @@
         </span>
       </label>
 
-      <label class="control-field color-field" for="titleTextColor">
-        <span class="control-label">Felirat színe</span>
+      <div class="control-field color-field">
+        <label class="control-label" for="titleTextColor">Felirat színe</label>
         <span class="color-control">
           <input id="titleTextColor" type="color" value="#ffffff" aria-label="A képcím szövegszíne" />
-          <span class="color-code" id="titleTextColorValue">#FFFFFF</span>
+          <input
+            class="color-code"
+            id="titleTextColorValue"
+            type="text"
+            value="#FFFFFF"
+            maxlength="7"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="A képcím szövegszínének hexakódja"
+          />
         </span>
-      </label>
+      </div>
 
-      <label class="control-field color-field" for="titleBackgroundColor">
-        <span class="control-label">
+      <div class="control-field color-field">
+        <label class="control-label" for="titleBackgroundColor">
           <span class="responsive-label-desktop">Felirat háttere</span>
           <span class="responsive-label-mobile">Felirat háttere</span>
-        </span>
+        </label>
         <span class="color-control">
           <input id="titleBackgroundColor" type="color" value="#121821" aria-label="A képcím hátterének színe" />
-          <span class="color-code" id="titleBackgroundColorValue">#121821</span>
+          <input
+            class="color-code"
+            id="titleBackgroundColorValue"
+            type="text"
+            value="#121821"
+            maxlength="7"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="A képcím háttérszínének hexakódja"
+          />
         </span>
-      </label>
+      </div>
 
-      <label class="control-field color-field" for="exportBackgroundColor">
-        <span class="control-label">
+      <div class="control-field color-field">
+        <label class="control-label" for="exportBackgroundColor">
           <span class="responsive-label-desktop">Mozaik háttere</span>
           <span class="responsive-label-mobile">Mozaik háttere</span>
-        </span>
+        </label>
         <span class="color-control">
           <input id="exportBackgroundColor" type="color" value="#000000" aria-label="Az exportált képrács háttérszíne" />
-          <span class="color-code" id="exportBackgroundColorValue">#000000</span>
+          <input
+            class="color-code"
+            id="exportBackgroundColorValue"
+            type="text"
+            value="#000000"
+            maxlength="7"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Az exportált képrács háttérszínének hexakódja"
+          />
         </span>
-      </label>
+      </div>
 
       <div class="toast-region" aria-live="polite" aria-atomic="true">
         <div class="status" id="status" role="status" data-tone="info" hidden>
@@ -3782,6 +3833,9 @@
           "titles.colorAria": "A képcím szövegszíne",
           "titles.backgroundAria": "A képcím hátterének színe",
           "mosaic.backgroundAria": "Az exportált képrács háttérszíne",
+          "titles.colorHexAria": "A képcím szövegszínének hexakódja",
+          "titles.backgroundHexAria": "A képcím háttérszínének hexakódja",
+          "mosaic.backgroundHexAria": "Az exportált képrács háttérszínének hexakódja",
           "toast.close": "Értesítés bezárása",
           "clear.title": "Összes kép törlése?",
           "clear.description": "A projekt összes betöltött képe és minden szerkesztés eltávolításra kerül. Ez nem vonható vissza.",
@@ -3929,6 +3983,9 @@
           "titles.colorAria": "Caption text color",
           "titles.backgroundAria": "Caption background color",
           "mosaic.backgroundAria": "Exported mosaic background color",
+          "titles.colorHexAria": "Caption text color hex code",
+          "titles.backgroundHexAria": "Caption background color hex code",
+          "mosaic.backgroundHexAria": "Exported mosaic background color hex code",
           "toast.close": "Close notification",
           "clear.title": "Clear all images?",
           "clear.description": "All loaded images and edits in the project will be removed. This cannot be undone.",
@@ -4154,7 +4211,7 @@
         setText(document, '#exportCellWidth option[value="720"]', "quality.extraLarge");
         setText(document, 'label[for="exportGap"] > span', "gridGap");
         setText(document, 'label[for="exportTitles"] .control-label', "titles.show");
-        setText(document, 'label[for="titleTextColor"] .control-label', "titles.color");
+        setText(document, 'label[for="titleTextColor"]', "titles.color");
         setText(document, 'label[for="titleBackgroundColor"] .responsive-label-desktop', "titles.background");
         setText(document, 'label[for="titleBackgroundColor"] .responsive-label-mobile', "titles.backgroundShort");
         setText(document, 'label[for="exportBackgroundColor"] .responsive-label-desktop', "mosaic.background");
@@ -4162,6 +4219,9 @@
         setAttribute(document, "#titleTextColor", "aria-label", "titles.colorAria");
         setAttribute(document, "#titleBackgroundColor", "aria-label", "titles.backgroundAria");
         setAttribute(document, "#exportBackgroundColor", "aria-label", "mosaic.backgroundAria");
+        setAttribute(document, "#titleTextColorValue", "aria-label", "titles.colorHexAria");
+        setAttribute(document, "#titleBackgroundColorValue", "aria-label", "titles.backgroundHexAria");
+        setAttribute(document, "#exportBackgroundColorValue", "aria-label", "mosaic.backgroundHexAria");
         setAttribute(document, "#statusClose", "aria-label", "toast.close");
 
         setText(document, "#clearDialogTitle", "clear.title");
@@ -4413,7 +4473,8 @@
 
       function normalizeHexColor(value, fallback) {
         const candidate = String(value || "").trim();
-        return /^#[0-9a-f]{6}$/i.test(candidate) ? candidate.toLowerCase() : fallback;
+        const withHash = candidate.startsWith("#") ? candidate : `#${candidate}`;
+        return /^#[0-9a-f]{6}$/i.test(withHash) ? withHash.toLowerCase() : fallback;
       }
 
       function hexToRgba(hex, alpha = 1) {
@@ -4432,15 +4493,65 @@
         titleTextColor.value = textColor;
         titleBackgroundColor.value = backgroundColor;
         exportBackgroundColor.value = finalBackgroundColor;
-        titleTextColorValue.textContent = textColor.toUpperCase();
-        titleBackgroundColorValue.textContent = backgroundColor.toUpperCase();
-        exportBackgroundColorValue.textContent = finalBackgroundColor.toUpperCase();
+        titleTextColorValue.value = textColor.toUpperCase();
+        titleBackgroundColorValue.value = backgroundColor.toUpperCase();
+        exportBackgroundColorValue.value = finalBackgroundColor.toUpperCase();
+        titleTextColorValue.removeAttribute("aria-invalid");
+        titleBackgroundColorValue.removeAttribute("aria-invalid");
+        exportBackgroundColorValue.removeAttribute("aria-invalid");
         document.documentElement.style.setProperty("--title-text-color", textColor);
         document.documentElement.style.setProperty(
           "--title-background-color",
           hexToRgba(backgroundColor, EDITOR_TITLE_BACKGROUND_ALPHA)
         );
         document.documentElement.style.setProperty("--empty-slot-background", finalBackgroundColor);
+      }
+
+      function applyEditableHexColor(colorInput, codeInput) {
+        const normalized = normalizeHexColor(codeInput.value, "");
+        if (!normalized) {
+          codeInput.setAttribute("aria-invalid", "true");
+          return false;
+        }
+
+        codeInput.removeAttribute("aria-invalid");
+        codeInput.value = normalized.toUpperCase();
+        colorInput.value = normalized;
+        applyColorSettings();
+        scheduleRecoverySave();
+        return true;
+      }
+
+      function connectEditableHexColor(colorInput, codeInput) {
+        colorInput.addEventListener("input", applyColorSettings);
+        colorInput.addEventListener("change", applyColorSettings);
+
+        codeInput.addEventListener("input", () => {
+          const normalized = normalizeHexColor(codeInput.value, "");
+          if (!normalized) {
+            codeInput.removeAttribute("aria-invalid");
+            return;
+          }
+
+          colorInput.value = normalized;
+          applyColorSettings();
+        });
+
+        codeInput.addEventListener("change", () => {
+          applyEditableHexColor(colorInput, codeInput);
+        });
+
+        codeInput.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            if (applyEditableHexColor(colorInput, codeInput)) codeInput.blur();
+          } else if (event.key === "Escape") {
+            event.preventDefault();
+            codeInput.value = colorInput.value.toUpperCase();
+            codeInput.removeAttribute("aria-invalid");
+            codeInput.blur();
+          }
+        });
       }
 
       function getCards() {
@@ -6508,9 +6619,12 @@
         const file = projectInput.files && projectInput.files[0];
         if (file) loadProjectFile(file);
       });
-      [titleTextColor, titleBackgroundColor, exportBackgroundColor].forEach((input) => {
-        input.addEventListener("input", applyColorSettings);
-        input.addEventListener("change", applyColorSettings);
+      [
+        [titleTextColor, titleTextColorValue],
+        [titleBackgroundColor, titleBackgroundColorValue],
+        [exportBackgroundColor, exportBackgroundColorValue]
+      ].forEach(([colorInput, codeInput]) => {
+        connectEditableHexColor(colorInput, codeInput);
       });
       exportButton.addEventListener("click", exportGridAsPng);
 
@@ -6618,7 +6732,8 @@
         if (event.target.matches?.(
           ".title-input, .zoom-range, #customRatioWidth, #customRatioHeight, " +
           "#globalRatio, #exportCellWidth, #exportGap, #exportTitles, " +
-          "#titleTextColor, #titleBackgroundColor, #exportBackgroundColor"
+          "#titleTextColor, #titleBackgroundColor, #exportBackgroundColor, " +
+          "#titleTextColorValue, #titleBackgroundColorValue, #exportBackgroundColorValue"
         )) {
           scheduleRecoverySave();
         }
