@@ -686,7 +686,7 @@
 
     .column-stepper-button:hover:not(:disabled) {
       background: #eef2ff;
-      color: #2948a8;
+      color: var(--text);
     }
 
     .column-stepper-button:active:not(:disabled) {
@@ -718,13 +718,18 @@
       min-width: 0;
       height: 100%;
       padding: 0 8px;
-      color: #2948a8;
+      color: var(--text);
       font-size: 1rem;
       font-weight: 850;
       font-variant-numeric: tabular-nums;
       line-height: 1;
       user-select: none;
     }
+
+    .ratio-stepper {
+      grid-template-columns: 38px minmax(36px, 1fr) 38px;
+    }
+
 
     .color-field {
       min-width: 154px;
@@ -871,29 +876,42 @@
       padding: 5px 8px 7px;
     }
 
-    .custom-ratio input[type="number"] {
+    .custom-ratio .ratio-stepper-input {
       width: 100%;
-      height: 38px;
+      min-width: 0;
+      height: 100%;
       min-height: 38px;
-      padding: 8px 10px;
-      border: 1px solid #d8dee8;
-      border-radius: 10px;
+      padding: 0 4px;
+      border: 0;
+      border-radius: 0;
       outline: none;
-      background: #fff;
+      appearance: textfield;
+      -moz-appearance: textfield;
+      background: transparent;
       color: var(--text);
-      font-weight: 700;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 850;
       font-variant-numeric: tabular-nums;
-      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+      line-height: 1;
+      text-align: center;
+      box-shadow: none;
     }
 
-    .custom-ratio input[type="number"]:hover {
-      border-color: #b8c2d1;
+    .custom-ratio .ratio-stepper-input:hover {
+      border: 0;
     }
 
-    .custom-ratio input[type="number"]:focus-visible {
-      border-color: #315efb;
-      box-shadow: 0 0 0 3px rgba(49, 94, 251, 0.16);
+    .custom-ratio .ratio-stepper-input::-webkit-inner-spin-button,
+    .custom-ratio .ratio-stepper-input::-webkit-outer-spin-button {
+      margin: 0;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .custom-ratio .ratio-stepper-input:focus-visible {
+      border: 0;
+      box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 42%, transparent);
     }
 
     .ratio-separator {
@@ -2287,11 +2305,15 @@
       }
 
       .column-stepper {
+        height: 44px;
         min-height: 44px;
       }
 
-      .column-stepper-button {
-        min-height: 44px;
+      .column-stepper-button,
+      .ratio-stepper-input,
+      .column-stepper-value {
+        height: 100%;
+        min-height: 0;
       }
 
       .toolbar.custom-ratio-active .ratio-number-field,
@@ -2299,10 +2321,12 @@
         padding-inline: 5px;
       }
 
-      .toolbar.custom-ratio-active .ratio-number-field input[type="number"] {
-        height: 44px;
-        min-height: 44px;
+      .toolbar.custom-ratio-active .ratio-stepper-input {
+        height: 100%;
+        min-height: 0;
         padding-inline: 5px;
+        border: 0;
+        border-radius: 0;
         text-align: center;
       }
 
@@ -2678,8 +2702,7 @@
     :root[data-theme="dark"] .inline-field select,
     :root[data-theme="dark"] .column-stepper,
     :root[data-theme="dark"] .color-control,
-    :root[data-theme="dark"] .toggle-control,
-    :root[data-theme="dark"] .custom-ratio input[type="number"] {
+    :root[data-theme="dark"] .toggle-control {
       border-color: #3a4657;
       background-color: #1c2531;
       color: var(--text);
@@ -2692,8 +2715,7 @@
         linear-gradient(135deg, #a5b0bf 50%, transparent 50%);
     }
 
-    :root[data-theme="dark"] .inline-field select:hover,
-    :root[data-theme="dark"] .custom-ratio input[type="number"]:hover {
+    :root[data-theme="dark"] .inline-field select:hover {
       border-color: #5a687b;
       background-color: #222d3a;
     }
@@ -2725,7 +2747,18 @@
     }
 
     :root[data-theme="dark"] .column-stepper-value {
-      color: #cbd6ff;
+      color: var(--text);
+    }
+
+    :root[data-theme="dark"] .ratio-stepper-input {
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    :root[data-theme="dark"] .ratio-stepper-input:focus-visible {
+      box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 48%, transparent);
     }
 
     :root[data-theme="dark"] .toggle-track {
@@ -3346,14 +3379,40 @@
       </label>
 
       <div class="custom-ratio" id="customRatioFields" hidden aria-label="Egyéni képarány">
-        <label class="control-field ratio-number-field" for="customRatioWidth">
-          <span class="control-label">Szélesség</span>
-          <input id="customRatioWidth" type="number" min="1" max="100" step="1" value="3" inputmode="numeric" />
-        </label>
-        <label class="control-field ratio-number-field" for="customRatioHeight">
-          <span class="control-label">Magasság</span>
-          <input id="customRatioHeight" type="number" min="1" max="100" step="1" value="2" inputmode="numeric" />
-        </label>
+        <div class="control-field ratio-number-field" role="group" aria-labelledby="customRatioWidthLabel">
+          <span class="control-label" id="customRatioWidthLabel">Szélesség</span>
+          <span class="column-stepper ratio-stepper">
+            <button class="column-stepper-button" id="customRatioWidthDecrease" type="button" aria-label="Szélesség csökkentése">
+              <svg class="lucide lucide-minus" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"></path>
+              </svg>
+            </button>
+            <input class="ratio-stepper-input" id="customRatioWidth" type="number" min="1" max="100" step="1" value="3" inputmode="numeric" aria-labelledby="customRatioWidthLabel" />
+            <button class="column-stepper-button" id="customRatioWidthIncrease" type="button" aria-label="Szélesség növelése">
+              <svg class="lucide lucide-plus" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"></path>
+                <path d="M12 5v14"></path>
+              </svg>
+            </button>
+          </span>
+        </div>
+        <div class="control-field ratio-number-field" role="group" aria-labelledby="customRatioHeightLabel">
+          <span class="control-label" id="customRatioHeightLabel">Magasság</span>
+          <span class="column-stepper ratio-stepper">
+            <button class="column-stepper-button" id="customRatioHeightDecrease" type="button" aria-label="Magasság csökkentése">
+              <svg class="lucide lucide-minus" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"></path>
+              </svg>
+            </button>
+            <input class="ratio-stepper-input" id="customRatioHeight" type="number" min="1" max="100" step="1" value="2" inputmode="numeric" aria-labelledby="customRatioHeightLabel" />
+            <button class="column-stepper-button" id="customRatioHeightIncrease" type="button" aria-label="Magasság növelése">
+              <svg class="lucide lucide-plus" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"></path>
+                <path d="M12 5v14"></path>
+              </svg>
+            </button>
+          </span>
+        </div>
       </div>
 
       <div class="control-field column-stepper-field" role="group" aria-labelledby="columnStepperLabel">
@@ -3651,6 +3710,10 @@
       const customRatioFields = document.getElementById("customRatioFields");
       const customRatioWidth = document.getElementById("customRatioWidth");
       const customRatioHeight = document.getElementById("customRatioHeight");
+      const customRatioWidthDecrease = document.getElementById("customRatioWidthDecrease");
+      const customRatioWidthIncrease = document.getElementById("customRatioWidthIncrease");
+      const customRatioHeightDecrease = document.getElementById("customRatioHeightDecrease");
+      const customRatioHeightIncrease = document.getElementById("customRatioHeightIncrease");
       const languageSwitch = document.getElementById("languageSwitch");
       const themeToggle = document.getElementById("themeToggle");
       const themeColorMeta = document.getElementById("themeColorMeta");
@@ -3692,6 +3755,10 @@
           "customRatio": "Egyéni képarány",
           "width": "Szélesség",
           "height": "Magasság",
+          "width.decrease": "Szélesség csökkentése",
+          "width.increase": "Szélesség növelése",
+          "height.decrease": "Magasság csökkentése",
+          "height.increase": "Magasság növelése",
           "columns": "Oszlopok",
           "columns.decrease": "Oszlopok számának csökkentése",
           "columns.increase": "Oszlopok számának növelése",
@@ -3835,6 +3902,10 @@
           "customRatio": "Custom aspect ratio",
           "width": "Width",
           "height": "Height",
+          "width.decrease": "Decrease width",
+          "width.increase": "Increase width",
+          "height.decrease": "Decrease height",
+          "height.increase": "Increase height",
           "columns": "Columns",
           "columns.decrease": "Decrease the number of columns",
           "columns.increase": "Increase the number of columns",
@@ -4063,8 +4134,12 @@
         setText(document, 'label[for="globalRatio"] > span', "aspectRatio");
         setText(document, '#globalRatio option[value="custom"]', "custom");
         setAttribute(document, "#customRatioFields", "aria-label", "customRatio");
-        setText(document, 'label[for="customRatioWidth"] .control-label', "width");
-        setText(document, 'label[for="customRatioHeight"] .control-label', "height");
+        setText(document, "#customRatioWidthLabel", "width");
+        setText(document, "#customRatioHeightLabel", "height");
+        setAttribute(document, "#customRatioWidthDecrease", "aria-label", "width.decrease");
+        setAttribute(document, "#customRatioWidthIncrease", "aria-label", "width.increase");
+        setAttribute(document, "#customRatioHeightDecrease", "aria-label", "height.decrease");
+        setAttribute(document, "#customRatioHeightIncrease", "aria-label", "height.increase");
         setText(document, "#columnStepperLabel", "columns");
         setAttribute(document, "#columnDecrease", "aria-label", "columns.decrease");
         setAttribute(document, "#columnIncrease", "aria-label", "columns.increase");
@@ -4268,6 +4343,27 @@
         if (announce) {
           reorderStatus.textContent = t("columns.set", { count: nextValue, noun: columnNoun(nextValue) });
         }
+      }
+
+      function updateRatioStepperState(input, decreaseButton, increaseButton) {
+        const min = Number(input.min) || 1;
+        const max = Number(input.max) || 100;
+        const value = Math.round(clamp(Number(input.value) || min, min, max));
+        decreaseButton.disabled = value <= min;
+        increaseButton.disabled = value >= max;
+      }
+
+      function updateCustomRatioStepperStates() {
+        updateRatioStepperState(customRatioWidth, customRatioWidthDecrease, customRatioWidthIncrease);
+        updateRatioStepperState(customRatioHeight, customRatioHeightDecrease, customRatioHeightIncrease);
+      }
+
+      function setCustomRatioValue(input, value) {
+        const min = Number(input.min) || 1;
+        const max = Number(input.max) || 100;
+        const nextValue = Math.round(clamp(Number(value) || min, min, max));
+        input.value = String(nextValue);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
       }
 
       function getStoredTheme() {
@@ -4606,6 +4702,7 @@
       }
 
       function applyGlobalRatio() {
+        updateCustomRatioStepperStates();
         const customRatioActive = globalRatio.value === "custom";
         customRatioFields.hidden = !customRatioActive;
         toolbar?.classList.toggle("custom-ratio-active", customRatioActive);
@@ -6378,6 +6475,33 @@
       globalRatio.addEventListener("change", applyGlobalRatio);
       customRatioWidth.addEventListener("input", applyGlobalRatio);
       customRatioHeight.addEventListener("input", applyGlobalRatio);
+
+      customRatioWidthDecrease.addEventListener("click", () => {
+        setCustomRatioValue(customRatioWidth, Number(customRatioWidth.value) - 1);
+      });
+      customRatioWidthIncrease.addEventListener("click", () => {
+        setCustomRatioValue(customRatioWidth, Number(customRatioWidth.value) + 1);
+      });
+      customRatioHeightDecrease.addEventListener("click", () => {
+        setCustomRatioValue(customRatioHeight, Number(customRatioHeight.value) - 1);
+      });
+      customRatioHeightIncrease.addEventListener("click", () => {
+        setCustomRatioValue(customRatioHeight, Number(customRatioHeight.value) + 1);
+      });
+
+      [customRatioWidth, customRatioHeight].forEach((input) => {
+        input.addEventListener("change", () => setCustomRatioValue(input, input.value));
+      });
+
+      [
+        customRatioWidthDecrease,
+        customRatioWidthIncrease,
+        customRatioHeightDecrease,
+        customRatioHeightIncrease
+      ].forEach((button) => {
+        button.addEventListener("dblclick", (event) => event.preventDefault());
+      });
+
       saveProjectButton.addEventListener("click", saveProject);
       loadProjectButton.addEventListener("click", () => projectInput.click());
       projectInput.addEventListener("change", () => {
