@@ -2186,6 +2186,21 @@
         grid-column: span 3;
       }
 
+      /* A képarány-választó és az oszlopszám-vezérlő mobilon azonos
+         belső magasságot kap, ezért a két mező külső magassága is megegyezik. */
+      .toolbar > label[for="globalRatio"] select,
+      .toolbar > .column-stepper-field .column-stepper,
+      .toolbar > .column-stepper-field .column-stepper-button {
+        height: 44px;
+        min-height: 44px;
+      }
+
+      .toolbar > label[for="globalRatio"] select {
+        background-position:
+          calc(100% - 16px) 50%,
+          calc(100% - 11px) 50%;
+      }
+
       .toolbar-action-group {
         width: 100%;
         min-height: 0;
@@ -2285,6 +2300,8 @@
       }
 
       .toolbar.custom-ratio-active .ratio-number-field input[type="number"] {
+        height: 44px;
+        min-height: 44px;
         padding-inline: 5px;
         text-align: center;
       }
