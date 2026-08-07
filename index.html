@@ -93,11 +93,10 @@
       --scrollbar-track: #e8edf3;
       --scrollbar-thumb: #a5afbd;
       --scrollbar-thumb-hover: #858f9f;
-      --brand-icon-fill: 72%; /* Nagyobb érték = kisebb térköz az ikon és a keret között. */
+      --brand-icon-fill: 72%;
     }
 
     html {
-      /* Windows alatt mindig ugyanakkora hely marad a függőleges scrollbar számára. */
       overflow-y: scroll;
       scrollbar-gutter: stable;
       scrollbar-width: thin;
@@ -144,8 +143,6 @@
     button, input, select, textarea { font: inherit; }
 
     .app {
-      /* Szeles monitoron kihasznaljuk szinte a teljes kepernyoszelesseget.
-         2560 px-es kijelzon igy 8 darab, legalabb 300 px-es kartya is kifer. */
       width: min(2600px, calc(100% - 20px));
       margin: 0 auto;
       padding: 10px 0 10px;
@@ -190,7 +187,6 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.72);
     }
 
-    /* Hoverkor egy rövid fénycsík fut át az ikonon. */
     .brand-icon-shell::before {
       content: "";
       position: absolute;
@@ -230,7 +226,6 @@
       }
     }
 
-    /* Mobilon és érintőtollnál a JS rövid időre ezt az osztályt kapcsolja be. */
     .brand-icon-shell.is-animating::before {
       animation: brand-logo-shimmer 720ms ease-out;
     }
@@ -306,13 +301,10 @@
     }
 
     .brand-name-accent {
-      /* A jobb oldali belső tartalék megakadályozza, hogy a záró „k”
-         betű optikai túlnyúlása egyes böngészőkben levágódjon. */
       display: inline-block;
       padding-right: 0.09em;
       margin-right: -0.09em;
 
-      /* Fallback, ha a gradient text nem támogatott */
       color: #d93621;
       background: linear-gradient(
         90deg,
@@ -604,8 +596,6 @@
       letter-spacing: 0.015em;
     }
 
-    /* A képarány, az egyéni szélesség/magasság és az oszlopszám
-       ugyanazt a címke + vezérlő szerkezetet használja. */
     .toolbar > label[for="globalRatio"],
     .toolbar > .column-stepper-field,
     .toolbar .ratio-number-field {
@@ -1385,9 +1375,6 @@
 
     .grid-scroll-hint[hidden] { display: none; }
 
-    /* Minden oszlop a 300 px-es munkaméretet tartja. Kevés oszlopnál a
-       szerkesztőfelület a rácshoz szűkül és középre kerül; sok oszlopnál
-       legfeljebb a rendelkezésre álló szélességet foglalja el, majd görgethető. */
     .grid-scroll {
       width: min(100%, calc(var(--editor-grid-width, 100%) + 16px));
       max-width: 100%;
@@ -1395,16 +1382,11 @@
       overflow-y: visible;
       padding: 8px 8px 16px;
       margin: -8px auto 0;
-      /* Windows Chrome alatt a stable gutter akkor is elvesz a clientWidth-bol,
-         amikor nincs tenyleges tulcsordulas. Ez hamis gorgetesi jelzest okozott. */
       scrollbar-gutter: auto;
       overscroll-behavior-inline: contain;
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Ha a racs tenylegesen nem szelesebb a kepernyonel, ne maradjon aktiv
-       egy ures vizszintes scroll-kontener. Mobilon ez bele tud szolni a kepen
-       vegzett ketujjas vagasba, es a bongeszo az oldalt kezdi mozgatni. */
     .grid-scroll.no-horizontal-overflow {
       overflow-x: hidden;
       overscroll-behavior-x: none;
@@ -1553,8 +1535,6 @@
       line-height: 1.35;
     }
 
-    /* Fájl behúzásakor maga a célkártya vagy az üres cella kap kiemelést.
-       Így nem kerül új rácselem az egér alá, tehát a célpont nem ugrik arrébb. */
     .card.file-drop-target,
     .editor-empty-slot.file-drop-target {
       outline: 3px solid var(--accent);
@@ -1620,10 +1600,6 @@
       transform: scale(0.98);
     }
 
-
-    /* Egyedi pointeres húzás közben a helyőrző tartja fenn a kártya helyét.
-       A forráskártyát biztonságosan elrejthetjük, mert a mozgatást az ablak
-       szintjén figyeljük, nem a böngésző natív drag eseményeivel. */
     .card.dragging-source-hidden {
       display: none !important;
     }
@@ -1976,10 +1952,6 @@
       stroke-width: 2;
     }
 
-
-
-    /* A kártyák saját szélességéhez igazodó vezérlők. Ez akkor is működik,
-       ha nagy oszlopszám miatt egy-egy kép nagyon keskeny lesz. */
     @container (max-width: 300px) {
       .controls {
         gap: 8px;
@@ -2070,9 +2042,6 @@
 
     .responsive-label-mobile { display: none; }
 
-    /* Asztalon az exportpanel ugyanazt a folyamatos flex-logikát használja,
-       mint a szerkesztő toolbar. A nowrap megakadályozza a köztes sortörést,
-       ezért az exportpanel magassága ablakszűkítés közben is stabil marad. */
     @media (min-width: 1181px) {
       .export-panel {
         display: flex;
@@ -2088,8 +2057,6 @@
       }
 
       .export-panel > .export-action-group {
-        /* Az exportgomb megtartja a korábbi, tartalomhoz igazodó szélességét.
-           A többi mező szükség esetén enyhén összehúzódhat, a gomb viszont nem. */
         flex: 0 0 max-content;
         width: max-content;
         min-width: 150px;
@@ -2114,8 +2081,6 @@
       }
     }
 
-    /* Tablet: a negy fo muvelet egy sorban marad rovid feliratokkal.
-       Az exportbeallitasok egy atlathato, negyoszlopos racsba rendezodnek. */
     @media (min-width: 761px) and (max-width: 1180px) {
       .app {
         width: min(100% - 20px, 2600px);
@@ -2206,9 +2171,6 @@
         padding: 10px 0 10px;
       }
 
-      /* Mobilon ne egy hosszú függőleges lista legyen: a szerkesztő két,
-         az exportpanel hat virtuális oszlopot használ. Így a kisebb mezők
-         egymás mellé kerülnek, miközben a fontos műveletek teljes szélességűek. */
       .toolbar {
         --toolbar-setting-control-height: 44px;
         display: grid;
@@ -2273,8 +2235,6 @@
 
       .custom-ratio[hidden] { display: none; }
 
-      /* Egyéni képaránynál a két aránymező és az oszlopszám közös sorba kerül.
-         A display: contents miatt a két belső mező közvetlen grid-elemként viselkedik. */
       .toolbar.custom-ratio-active > label[for="globalRatio"] {
         grid-column: 1 / -1;
       }
@@ -2312,7 +2272,6 @@
         grid-column: 1 / -1;
       }
 
-      /* A három keskeny színválasztó ugyanabban a sorban fér el. */
       .export-panel > .color-field {
         grid-column: span 2;
       }
@@ -2371,8 +2330,6 @@
         height: 16px;
       }
 
-      /* A műveleti gombok belső mérete a hexakódok eltűnésekor sem változik. */
-
       .export-panel > .color-field {
         min-height: 66px;
         padding: 5px 8px 6px;
@@ -2413,8 +2370,6 @@
       stroke-width: 2;
     }
 
-
-    /* Automatikus világos/sötét téma és kézi felülbírálás. */
     :root[data-theme="light"] {
       color-scheme: light;
     }
@@ -2515,11 +2470,9 @@
 
     .language-flag-en { display: none; }
 
-    /* Magyar állás: a gombóc bal oldalon, a magyar SVG-zászló látható. */
     :root[lang="hu"] .language-flag-hu { display: block; }
     :root[lang="hu"] .language-flag-en { display: none; }
 
-    /* Angol állás: a gombóc jobbra csúszik, az Egyesült Királyság SVG-zászlajával. */
     :root[lang="en"] .language-switch-track {
       --language-thumb-x: 18px;
     }
@@ -2971,8 +2924,6 @@
         max-width: 440px;
       }
 
-      /* Mobilon a jobb oldali elemek egymás alatt jelennek meg. Így a
-         nyelvváltó nem vesz el vízszintes helyet a KépMozaik emblémától. */
       .header-controls,
       .appearance-controls {
         display: contents;
@@ -3032,8 +2983,6 @@
         gap: 10px 8px;
       }
 
-      /* A témaváltó minden mobilméreten azonos marad. Nem zsugorodik össze,
-         és a nap/hold ikonok keskeny kijelzőn sem tűnnek el. */
       .theme-switch {
         flex: 0 0 auto;
       }
@@ -3056,8 +3005,6 @@
 
     }
 
-    /* A téma színei egyetlen képkockában frissülnek. Így sok kártyánál sem
-       indul el egyszerre több tucat háttér-, keret- és árnyékátmenet. */
     :root.theme-updating .app,
     :root.theme-updating .app *,
     :root.theme-updating .app *::before,
@@ -3066,7 +3013,6 @@
       animation: none !important;
     }
 
-    /* Csak maga a kapcsoló marad röviden animált kézi váltáskor. */
     :root.theme-updating.theme-toggle-animating .theme-switch-icon {
       transition: color 0.1s linear, opacity 0.1s linear !important;
     }
@@ -3079,9 +3025,6 @@
       transition: transform 0.11s ease-out !important;
     }
 
-    /* A témaváltás alatti globális animációtiltás ne nullázza le a már futó
-       toast-visszaszámlálást. A számított animation érték így változatlan marad,
-       ezért a csík ugyanonnan folytatódik, és a JS-időzítővel szinkronban marad. */
     @media (prefers-reduced-motion: no-preference) {
       :root.theme-updating .status[data-tone="progress"]::before {
         animation: toast-spin 0.8s linear infinite !important;
@@ -3116,10 +3059,6 @@
       }
     }
 
-
-    /* A márkaszöveg 760 px körül is ugyanabban a függőleges ritmusban marad.
-       A két szövegsor nem nyúlik szét; együtt, középre igazodva követi a jobb
-       oldali témaváltó + projektállapot oszlop teljes magasságát. */
     @media (max-width: 760px) {
       .header {
         row-gap: 8px;
@@ -3163,10 +3102,6 @@
       }
     }
 
-
-    /* Mobil fejléc: a képszámláló, a nyelvváltó és a témaváltó egyetlen
-       felső sorban jelenik meg. A számláló kompakt ikon + szám formát kap,
-       ezért keskeny telefonon is kiférnek egymás mellett. */
     @media (max-width: 760px) {
       .header {
         grid-template-columns: minmax(0, 1fr);
@@ -3185,8 +3120,6 @@
         gap: 7px;
       }
 
-      /* A burkoló mobilon nem hoz létre külön flex-elemet, így mindhárom
-         vezérlő ugyanannak a felső sornak a közvetlen eleme lesz. */
       .appearance-controls {
         display: contents;
       }
@@ -3221,8 +3154,6 @@
         align-self: auto;
       }
 
-      /* Mobilon a teljes felirat helyett az ikon és a darabszám látszik.
-         Az aria-label továbbra is közli a teljes projektállapotot. */
       .image-count-label {
         display: none;
       }
@@ -3238,6 +3169,75 @@
         grid-row: 2;
         width: 100%;
         min-height: 76px;
+      }
+    }
+
+
+    @media (hover: hover) and (pointer: fine) {
+      .inline-field,
+      .control-field {
+        --field-reveal-x: 50%;
+        --field-reveal-y: 50%;
+        --field-reveal-opacity: 0;
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        border-color: color-mix(
+          in srgb,
+          var(--accent) calc(var(--field-reveal-opacity) * 58%),
+          var(--line)
+        );
+        transition:
+          border-color 0.12s linear,
+          box-shadow 0.18s ease;
+      }
+
+      .inline-field::before,
+      .control-field::before {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        inset: -1px;
+        border-radius: inherit;
+        pointer-events: none;
+        opacity: var(--field-reveal-opacity);
+        background: radial-gradient(
+          220px circle at var(--field-reveal-x) var(--field-reveal-y),
+          color-mix(in srgb, var(--accent) 24%, transparent) 0%,
+          color-mix(in srgb, var(--accent) 12%, transparent) 34%,
+          transparent 68%
+        );
+        transition: opacity 0.18s ease;
+      }
+
+      .inline-field > *,
+      .control-field > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .inline-field:hover,
+      .control-field:hover {
+        box-shadow:
+          inset 0 1px 0 color-mix(in srgb, #ffffff 72%, transparent),
+          0 7px 20px color-mix(in srgb, var(--accent) 9%, transparent);
+      }
+
+      :root[data-theme="dark"] .inline-field:hover,
+      :root[data-theme="dark"] .control-field:hover {
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.045),
+          0 9px 24px color-mix(in srgb, var(--accent) 13%, transparent);
+      }
+
+      :root[data-theme="dark"] .inline-field::before,
+      :root[data-theme="dark"] .control-field::before {
+        background: radial-gradient(
+          230px circle at var(--field-reveal-x) var(--field-reveal-y),
+          color-mix(in srgb, var(--accent) 22%, transparent) 0%,
+          color-mix(in srgb, var(--accent) 10%, transparent) 38%,
+          transparent 70%
+        );
       }
     }
 
@@ -4267,9 +4267,6 @@
       const PROJECT_IMAGE_QUALITY = 0.82;
       const MIN_CARD_WIDTH = 300;
       const GRID_GAP = 16;
-      // Ha a legutolso oszlopbol legalabb egy fel kartya kiférne, eloszor
-      // az osszes kartyat aranyosan osszenyomjuk, es csak nagyobb hianynal
-      // valtunk vizszintes gorgetesre.
       const MIN_FITTED_CARD_WIDTH = MIN_CARD_WIDTH / 2;
       const MAX_GRID_FIT_SHORTAGE = MIN_CARD_WIDTH / 2;
       const GRID_FIT_SAFETY_MARGIN = 1;
@@ -4287,8 +4284,6 @@
       let recoverySaveTimer = null;
       let recoverySaveChain = Promise.resolve();
       let recoveryRestoreInProgress = false;
-      // A PNG kétszeres belső felbontáson készül, így a canvasra rajzolt
-      // feliratok és élek nagyításkor is lényegesen tisztábbak maradnak.
 
       const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
       let statusHideTimer = null;
@@ -4642,8 +4637,6 @@
         const cardCount = getCards().length;
         const hasCards = cardCount > 0;
 
-        // Az első feltöltési mező csak üres projektben látható. Amint van kép,
-        // a rács veszi át a drag and drop célterület szerepét.
         dropZone.hidden = hasCards;
         gridScroll.hidden = !hasCards;
         emptyState.hidden = true;
@@ -4924,9 +4917,6 @@
 
         if (placeholderIndex < 0 || touchedIndex < 0) return null;
 
-        // A megfogási pont dönti el, melyik kártyát célozzuk. Ha a célkártya
-        // a helyőrző előtt van, elé szúrunk; ha utána van, közvetlenül mögé.
-        // Így már a célkártya keretének érintésekor megtörténik a pozícióváltás.
         return touchedIndex < placeholderIndex
           ? touchedCard
           : nextSortableCard(touchedCard);
@@ -5084,9 +5074,6 @@
             event.target.closest("input, textarea, button, select, .drag-badge");
           const touchCount = event.touches ? event.touches.length : 0;
 
-          // Egy ujjal a szovegmezok tovabbra is kezelhetok. Ket ujjnal viszont
-          // mindig a kepvagas kap elsobbseget az oldal gorgetesevel/nagyitasaval
-          // szemben, Safari gesture esemenyeinel is.
           if (touchCount >= 2 || !interactiveControl) {
             event.preventDefault();
           }
@@ -5188,8 +5175,6 @@
           if (event.target.closest("input, textarea, button, select, .drag-badge")) return;
           if (!img.naturalWidth || !img.naturalHeight) return;
 
-          // A modositogombos gorgetest itt a kep nagyitasara hasznaljuk,
-          // ezert megakadalyozzuk a bongeszo sajat oldalnagyitasat.
           event.preventDefault();
 
           const deltaScale = event.deltaMode === 1
@@ -5600,8 +5585,6 @@
         if (!getCards().length) return;
         pendingFileCount = draggedImageCount(event);
 
-        // A teljes kártya és a teljes üres cella aktív célterület. Nincs
-        // bal/jobb félre osztás: amint az egér beleér, az lesz a beszúrás helye.
         const directTarget = event.target.closest?.(".card, .editor-empty-slot");
         let beforeNode = null;
         let visualTarget = null;
@@ -6317,8 +6300,6 @@
         if ("fontKerning" in ctx) ctx.fontKerning = "normal";
         if ("textRendering" in ctx) ctx.textRendering = "optimizeLegibility";
 
-        // A tényleges betűmetrikából számolunk, ezért egy egysoros cím
-        // háttere nem kap egy teljes, fölösleges sormagasságnyi alsó részt.
         const metricProbe = ctx.measureText("ÁÉŐgjy");
         const ascent = Math.ceil(metricProbe.actualBoundingBoxAscent || fontSize * 0.78);
         const descent = Math.ceil(metricProbe.actualBoundingBoxDescent || fontSize * 0.22);
@@ -6522,8 +6503,6 @@
         event.preventDefault();
         event.stopPropagation();
 
-        // A kiemelt kártya vagy üres cella a közvetlen beszúrási referencia.
-        // A célzás közben nem kerül új elem a rácsba, ezért semmi nem ugrik el.
         const insertionMarker = fileDropBeforeNode && grid.contains(fileDropBeforeNode)
           ? fileDropBeforeNode
           : null;
@@ -6612,9 +6591,6 @@
         applyTheme(selectedTheme, { animateToggle: true });
       });
 
-      // Érintőképernyőn egy valódi koppintás indítja el ugyanazt a rövid
-      // animációt. Görgetéskor a böngésző pointercancel eseményt küld, ezért
-      // az animáció nem indul el pusztán attól, hogy a logón kezdődik a húzás.
       let brandAnimationTimer = null;
       brandIconShell?.addEventListener("pointerup", (event) => {
         if (event.pointerType === "mouse" || reducedMotionQuery.matches) return;
@@ -6656,9 +6632,6 @@
         setColumnCount(Number(columnRange.value) + 1);
       });
 
-      // A touch-action: manipulation letiltja a mobilos dupla koppintásos
-      // nagyítást, miközben a gyors egymás utáni gombnyomások megmaradnak.
-      // A dblclick tiltás régebbi mobilböngészőkben ad további védelmet.
       [columnDecrease, columnIncrease].forEach((button) => {
         button.addEventListener("dblclick", (event) => event.preventDefault());
       });
@@ -6677,17 +6650,12 @@
           resizeLayoutFrame = null;
           updateGridLayout();
 
-          // Modern böngészőkben a kártyák saját ResizeObservere frissíti a
-          // képek geometriáját. Csak régi böngészőben kell kézzel végigmenni rajtuk.
           if (typeof ResizeObserver === "undefined") {
             getCards().forEach(updateImageGeometry);
           }
         });
       });
 
-      // Ha a projektben már van legalább egy kép, az ezt támogató
-      // böngészők szabványos megerősítést kérnek frissítés vagy kilépés előtt.
-      // Mobilon ez nem garantált, ezért alább automatikus helyreállítás is működik.
       window.addEventListener("beforeunload", (event) => {
         if (!getCards().length) return;
 
@@ -6722,11 +6690,6 @@
       grid.addEventListener("keyup", () => scheduleRecoverySave());
       grid.addEventListener("wheel", () => scheduleRecoverySave(), { passive: true });
 
-      // A vizszintesen gorgetheto racs egyes bongeszokben elnyelheti a
-      // fuggoleges egergorgot. A dominans fuggoleges gorgetest az oldalnak,
-      // a dominans vizszintes mozgasokat pedig a racsnak tovabbitjuk.
-      // Shift mellett a fuggoleges gorgojel is vizszintes racsgorgetes lesz;
-      // Ctrl/Command mellett a kepzoom marad aktiv.
       gridScroll.addEventListener("wheel", (event) => {
         if (event.ctrlKey || event.metaKey) return;
 
@@ -6757,8 +6720,6 @@
         };
 
         if (event.shiftKey) {
-          // Bongeszotol es egerdriver-tol fuggoen a Shift + gorgetes
-          // deltaX-kent vagy tovabbra is deltaY-kent erkezhet.
           const horizontalDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY)
             ? event.deltaX
             : event.deltaY;
@@ -6766,8 +6727,6 @@
           return;
         }
 
-        // Trackpad, dontheto gorgo vagy mas natív vizszintes wheel-esemeny.
-        // Ezt explicit kezeljuk, hogy a kartya vagy a kepkeret folott se vesszen el.
         if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
           scrollGridHorizontally(event.deltaX);
           return;
@@ -6797,9 +6756,6 @@
         }
       });
 
-      // Az objektum-URL-eket csak akkor szabad visszavonni, amikor az oldal
-      // ténylegesen elhagyásra kerül. Előtte megpróbáljuk kiírni a legfrissebb
-      // automatikus mentést; mobilon a korábbi, debounced mentések adják a fő védelmet.
       window.addEventListener("pagehide", (event) => {
         scheduleRecoverySave({ immediate: true });
         if (event.persisted) return;
@@ -6817,5 +6773,71 @@
       void restoreRecoverySnapshot();
     })();
   </script>
+
+  <script>
+    (() => {
+      const canHover = window.matchMedia?.("(hover: hover) and (pointer: fine)");
+      if (canHover && !canHover.matches) return;
+
+      const revealFields = Array.from(document.querySelectorAll(".inline-field, .control-field"));
+      const REVEAL_DISTANCE = 180;
+      let pointerX = -10000;
+      let pointerY = -10000;
+      let hasPointer = false;
+      let revealFrame = 0;
+
+      const clampValue = (value, min, max) => Math.min(max, Math.max(min, value));
+
+      function updateFieldReveal() {
+        revealFrame = 0;
+
+        revealFields.forEach((field) => {
+          if (!hasPointer) {
+            field.style.setProperty("--field-reveal-opacity", "0");
+            return;
+          }
+
+          const rect = field.getBoundingClientRect();
+          const nearestX = clampValue(pointerX, rect.left, rect.right);
+          const nearestY = clampValue(pointerY, rect.top, rect.bottom);
+          const distance = Math.hypot(pointerX - nearestX, pointerY - nearestY);
+
+          if (distance > REVEAL_DISTANCE) {
+            field.style.setProperty("--field-reveal-opacity", "0");
+            return;
+          }
+
+          field.style.setProperty("--field-reveal-x", `${pointerX - rect.left}px`);
+          field.style.setProperty("--field-reveal-y", `${pointerY - rect.top}px`);
+
+          const proximity = 1 - (distance / REVEAL_DISTANCE);
+          const opacity = distance === 0 ? 1 : Math.pow(proximity, 1.35);
+          field.style.setProperty("--field-reveal-opacity", opacity.toFixed(3));
+        });
+      }
+
+      function scheduleFieldReveal() {
+        if (revealFrame) return;
+        revealFrame = requestAnimationFrame(updateFieldReveal);
+      }
+
+      window.addEventListener("pointermove", (event) => {
+        if (event.pointerType && event.pointerType !== "mouse" && event.pointerType !== "pen") return;
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        hasPointer = true;
+        scheduleFieldReveal();
+      }, { passive: true });
+
+      window.addEventListener("pointerleave", () => {
+        hasPointer = false;
+        scheduleFieldReveal();
+      }, { passive: true });
+
+      window.addEventListener("scroll", scheduleFieldReveal, { passive: true });
+      window.addEventListener("resize", scheduleFieldReveal, { passive: true });
+    })();
+  </script>
+
 </body>
 </html>
