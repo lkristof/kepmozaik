@@ -106,6 +106,9 @@
       --scrollbar-thumb: #a5afbd;
       --scrollbar-thumb-hover: #858f9f;
       --brand-icon-fill: 72%;
+      --control-hover-border: color-mix(in srgb, var(--accent) 48%, var(--line));
+      --control-hover-shadow: 0 5px 16px color-mix(in srgb, var(--accent) 10%, transparent);
+      --control-hover-tint: 5%;
     }
 
     html {
@@ -662,8 +665,9 @@
     }
 
     .inline-field select:hover {
-      border-color: #b8c2d1;
-      background-color: #fff;
+      border-color: var(--control-hover-border);
+      background-color: color-mix(in srgb, rgba(255,255,255,.92), var(--accent) var(--control-hover-tint));
+      box-shadow: var(--control-hover-shadow);
     }
 
     .inline-field select:focus-visible {
@@ -692,6 +696,13 @@
       border-radius: 10px;
       background-color: rgba(255,255,255,.92);
       box-shadow: 0 1px 2px rgba(16,24,40,.025);
+    }
+
+    .column-stepper-field:hover .column-stepper,
+    .custom-ratio .ratio-number-field:hover .column-stepper {
+      border-color: var(--control-hover-border);
+      background-color: color-mix(in srgb, rgba(255,255,255,.92), var(--accent) var(--control-hover-tint));
+      box-shadow: var(--control-hover-shadow);
     }
 
     .column-stepper-field:focus-within .column-stepper {
@@ -799,7 +810,9 @@
     }
 
     .color-field:hover .color-control {
-      border-color: #b8c2d1;
+      border-color: var(--control-hover-border);
+      background-color: color-mix(in srgb, rgba(255,255,255,.92), var(--accent) var(--control-hover-tint));
+      box-shadow: var(--control-hover-shadow);
     }
 
     .color-field:focus-within .color-control {
@@ -880,7 +893,9 @@
     }
 
     .toggle-field:hover .toggle-control {
-      border-color: #b8c2d1;
+      border-color: var(--control-hover-border);
+      background-color: color-mix(in srgb, rgba(255,255,255,.92), var(--accent) var(--control-hover-tint));
+      box-shadow: var(--control-hover-shadow);
     }
 
     .toggle-control input {
@@ -2675,6 +2690,9 @@
       --success: #52d49a;
       --surface-soft: rgba(27, 33, 44, .78);
       --surface-strong: #181e28;
+      --control-hover-border: color-mix(in srgb, var(--accent) 58%, var(--line));
+      --control-hover-shadow: 0 5px 16px color-mix(in srgb, var(--accent) 13%, transparent);
+      --control-hover-tint: 6%;
       --shadow: 0 1px 2px rgba(0,0,0,.22), 0 14px 36px rgba(0,0,0,.24);
     }
 
@@ -2691,7 +2709,7 @@
       color: var(--muted);
       cursor: pointer;
       touch-action: manipulation;
-      transition: border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+      transition: border-color 0.16s ease, color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
       border-color: var(--line);
       background: rgba(255,255,255,0.70);
       box-shadow: 0 1px 2px rgba(16, 24, 40, 0.025);
@@ -2706,12 +2724,14 @@
     }
 
     .settings-button:hover {
-      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      border-color: var(--control-hover-border);
+      background: color-mix(in srgb, rgba(255,255,255,0.70), var(--accent) var(--control-hover-tint));
       color: var(--accent);
-      transform: translateY(-1px);
+      box-shadow: var(--control-hover-shadow);
+      transform: none;
     }
 
-    .settings-button:active { transform: translateY(0); }
+    .settings-button:active { transform: none; }
 
     .settings-button:focus-visible {
       outline: 3px solid var(--ring);
@@ -3073,7 +3093,9 @@
     }
 
     .language-switch:hover {
-      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      border-color: var(--control-hover-border);
+      background: color-mix(in srgb, rgba(255,255,255,0.70), var(--accent) var(--control-hover-tint));
+      box-shadow: var(--control-hover-shadow);
     }
 
     .language-switch:focus-visible {
@@ -3098,6 +3120,7 @@
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
       border-color: var(--line);
       background: rgba(255,255,255,0.70);
       box-shadow: 0 1px 2px rgba(16, 24, 40, 0.025);
@@ -3106,7 +3129,9 @@
     }
 
     .theme-switch:hover {
-      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      border-color: var(--control-hover-border);
+      background: color-mix(in srgb, rgba(255,255,255,0.70), var(--accent) var(--control-hover-tint));
+      box-shadow: var(--control-hover-shadow);
     }
 
     .theme-switch:focus-within {
@@ -3259,8 +3284,9 @@
     }
 
     :root[data-theme="dark"] .inline-field select:hover {
-      border-color: #5a687b;
-      background-color: #222d3a;
+      border-color: var(--control-hover-border);
+      background-color: color-mix(in srgb, rgba(35,42,55,.9), var(--accent) var(--control-hover-tint));
+      box-shadow: var(--control-hover-shadow);
     }
 
     :root[data-theme="dark"] .column-stepper-button {
@@ -3515,6 +3541,14 @@
       border-color: var(--line);
     }
 
+    :root[data-theme="dark"] .settings-button:hover,
+    :root[data-theme="dark"] .language-switch:hover,
+    :root[data-theme="dark"] .theme-switch:hover {
+      border-color: var(--control-hover-border);
+      background: color-mix(in srgb, rgba(27,33,44,.78), var(--accent) var(--control-hover-tint));
+      box-shadow: var(--control-hover-shadow);
+    }
+
     :root[data-theme="dark"] .inline-field,
     :root[data-theme="dark"] .control-field {
       border-color: transparent;
@@ -3527,6 +3561,15 @@
     :root[data-theme="dark"] .toggle-control {
       border-color: var(--line);
       background-color: rgba(35,42,55,.9);
+    }
+
+    :root[data-theme="dark"] .column-stepper-field:hover .column-stepper,
+    :root[data-theme="dark"] .custom-ratio .ratio-number-field:hover .column-stepper,
+    :root[data-theme="dark"] .color-field:hover .color-control,
+    :root[data-theme="dark"] .toggle-field:hover .toggle-control {
+      border-color: var(--control-hover-border);
+      background-color: color-mix(in srgb, rgba(35,42,55,.9), var(--accent) var(--control-hover-tint));
+      box-shadow: var(--control-hover-shadow);
     }
 
     :root[data-theme="dark"] .card {
