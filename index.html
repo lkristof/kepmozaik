@@ -3346,6 +3346,12 @@
       background: rgba(27,33,44,.80);
     }
 
+    @media (min-width: 2048px) {
+      .app {
+        width: min(2560px, calc(100% - 48px));
+      }
+    }
+
     @media (max-width: 760px) {
       .header {
         display: grid;
