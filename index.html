@@ -107,8 +107,6 @@
       --scrollbar-thumb-hover: #858f9f;
       --brand-icon-fill: 72%;
       --control-hover-border: color-mix(in srgb, var(--accent) 48%, var(--line));
-      --control-hover-shadow: 0 5px 16px color-mix(in srgb, var(--accent) 10%, transparent);
-      --control-hover-tint: 5%;
     }
 
     html {
@@ -666,8 +664,6 @@
 
     .inline-field select:hover {
       border-color: var(--control-hover-border);
-      background-color: color-mix(in srgb, rgba(255,255,255,.92), var(--accent) var(--control-hover-tint));
-      box-shadow: var(--control-hover-shadow);
     }
 
     .inline-field select:focus-visible {
@@ -701,8 +697,6 @@
     .column-stepper-field:hover .column-stepper,
     .custom-ratio .ratio-number-field:hover .column-stepper {
       border-color: var(--control-hover-border);
-      background-color: color-mix(in srgb, rgba(255,255,255,.92), var(--accent) var(--control-hover-tint));
-      box-shadow: var(--control-hover-shadow);
     }
 
     .column-stepper-field:focus-within .column-stepper {
@@ -811,8 +805,6 @@
 
     .color-field:hover .color-control {
       border-color: var(--control-hover-border);
-      background-color: color-mix(in srgb, rgba(255,255,255,.92), var(--accent) var(--control-hover-tint));
-      box-shadow: var(--control-hover-shadow);
     }
 
     .color-field:focus-within .color-control {
@@ -894,8 +886,6 @@
 
     .toggle-field:hover .toggle-control {
       border-color: var(--control-hover-border);
-      background-color: color-mix(in srgb, rgba(255,255,255,.92), var(--accent) var(--control-hover-tint));
-      box-shadow: var(--control-hover-shadow);
     }
 
     .toggle-control input {
@@ -2691,8 +2681,6 @@
       --surface-soft: rgba(27, 33, 44, .78);
       --surface-strong: #181e28;
       --control-hover-border: color-mix(in srgb, var(--accent) 58%, var(--line));
-      --control-hover-shadow: 0 5px 16px color-mix(in srgb, var(--accent) 13%, transparent);
-      --control-hover-tint: 6%;
       --shadow: 0 1px 2px rgba(0,0,0,.22), 0 14px 36px rgba(0,0,0,.24);
     }
 
@@ -2725,9 +2713,6 @@
 
     .settings-button:hover {
       border-color: var(--control-hover-border);
-      background: color-mix(in srgb, rgba(255,255,255,0.70), var(--accent) var(--control-hover-tint));
-      color: var(--accent);
-      box-shadow: var(--control-hover-shadow);
       transform: none;
     }
 
@@ -3097,8 +3082,6 @@
 
     .language-switch:hover {
       border-color: var(--control-hover-border);
-      background: color-mix(in srgb, rgba(255,255,255,0.70), var(--accent) var(--control-hover-tint));
-      box-shadow: var(--control-hover-shadow);
     }
 
     .language-switch:focus-visible {
@@ -3133,8 +3116,6 @@
 
     .theme-switch:hover {
       border-color: var(--control-hover-border);
-      background: color-mix(in srgb, rgba(255,255,255,0.70), var(--accent) var(--control-hover-tint));
-      box-shadow: var(--control-hover-shadow);
     }
 
     .theme-switch:focus-within {
@@ -3288,8 +3269,6 @@
 
     :root[data-theme="dark"] .inline-field select:hover {
       border-color: var(--control-hover-border);
-      background-color: color-mix(in srgb, rgba(35,42,55,.9), var(--accent) var(--control-hover-tint));
-      box-shadow: var(--control-hover-shadow);
     }
 
     :root[data-theme="dark"] .column-stepper-button {
@@ -3548,8 +3527,6 @@
     :root[data-theme="dark"] .language-switch:hover,
     :root[data-theme="dark"] .theme-switch:hover {
       border-color: var(--control-hover-border);
-      background: color-mix(in srgb, rgba(27,33,44,.78), var(--accent) var(--control-hover-tint));
-      box-shadow: var(--control-hover-shadow);
     }
 
     :root[data-theme="dark"] .inline-field,
@@ -3571,8 +3548,6 @@
     :root[data-theme="dark"] .color-field:hover .color-control,
     :root[data-theme="dark"] .toggle-field:hover .toggle-control {
       border-color: var(--control-hover-border);
-      background-color: color-mix(in srgb, rgba(35,42,55,.9), var(--accent) var(--control-hover-tint));
-      box-shadow: var(--control-hover-shadow);
     }
 
     :root[data-theme="dark"] .card {
@@ -3892,92 +3867,39 @@
     @media (hover: hover) and (pointer: fine) {
       .inline-field,
       .control-field {
-        --field-reveal-x: 50%;
-        --field-reveal-y: 50%;
-        --field-reveal-opacity: 0;
         position: relative;
-        isolation: isolate;
-        overflow: hidden;
         border-color: transparent;
-        transition: box-shadow 0.18s ease;
+        transition: border-color 0.18s ease;
       }
 
       .toolbar-action-group {
-        --field-reveal-x: 50%;
-        --field-reveal-y: 50%;
-        --field-reveal-opacity: 0;
         position: relative;
-        isolation: isolate;
-        overflow: hidden;
-        transition: box-shadow 0.18s ease;
+        outline: 1px solid transparent;
+        outline-offset: -1px;
+        transition: outline-color 0.18s ease;
       }
 
       .settings-item {
-        --field-reveal-x: 50%;
-        --field-reveal-y: 50%;
-        --field-reveal-opacity: 0;
-        position: relative;
-        isolation: isolate;
-        overflow: hidden;
-        transition: border-color 0.18s ease, box-shadow 0.18s ease;
-      }
-
-      .inline-field::before,
-      .control-field::before,
-      .settings-item::before,
-      .toolbar-action-group::before {
-        content: "";
-        position: absolute;
-        z-index: 0;
-        inset: -1px;
-        border-radius: inherit;
-        pointer-events: none;
-        opacity: var(--field-reveal-opacity);
-        background: radial-gradient(
-          220px circle at var(--field-reveal-x) var(--field-reveal-y),
-          color-mix(in srgb, var(--accent) 24%, transparent) 0%,
-          color-mix(in srgb, var(--accent) 12%, transparent) 34%,
-          transparent 68%
-        );
-        transition: opacity 0.18s ease;
-      }
-
-      .inline-field > *,
-      .control-field > *,
-      .settings-item > *,
-      .toolbar-action-group > * {
-        position: relative;
-        z-index: 1;
+        transition: border-color 0.18s ease;
       }
 
       .inline-field:hover,
       .control-field:hover,
-      .settings-item:hover,
       .toolbar-action-group:hover {
-        box-shadow:
-          inset 0 1px 0 color-mix(in srgb, #ffffff 72%, transparent),
-          0 7px 20px color-mix(in srgb, var(--accent) 9%, transparent);
+        border-color: color-mix(in srgb, var(--accent) 34%, var(--line));
+        outline-color: color-mix(in srgb, var(--accent) 34%, var(--line));
+      }
+
+      .settings-item:hover {
+        border-color: color-mix(in srgb, var(--accent) 34%, var(--line));
       }
 
       :root[data-theme="dark"] .inline-field:hover,
       :root[data-theme="dark"] .control-field:hover,
-      :root[data-theme="dark"] .settings-item:hover,
-      :root[data-theme="dark"] .toolbar-action-group:hover {
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.045),
-          0 9px 24px color-mix(in srgb, var(--accent) 13%, transparent);
-      }
-
-      :root[data-theme="dark"] .inline-field::before,
-      :root[data-theme="dark"] .control-field::before,
-      :root[data-theme="dark"] .settings-item::before,
-      :root[data-theme="dark"] .toolbar-action-group::before {
-        background: radial-gradient(
-          230px circle at var(--field-reveal-x) var(--field-reveal-y),
-          color-mix(in srgb, var(--accent) 22%, transparent) 0%,
-          color-mix(in srgb, var(--accent) 10%, transparent) 38%,
-          transparent 70%
-        );
+      :root[data-theme="dark"] .toolbar-action-group:hover,
+      :root[data-theme="dark"] .settings-item:hover {
+        border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
+        outline-color: color-mix(in srgb, var(--accent) 42%, var(--line));
       }
     }
 
@@ -8452,70 +8374,7 @@
     })();
   </script>
 
-  <script>
-    (() => {
-      const canHover = window.matchMedia?.("(hover: hover) and (pointer: fine)");
-      if (canHover && !canHover.matches) return;
 
-      const revealFields = Array.from(document.querySelectorAll(".inline-field, .control-field, .settings-item, .toolbar-action-group"));
-      const REVEAL_DISTANCE = 180;
-      let pointerX = -10000;
-      let pointerY = -10000;
-      let hasPointer = false;
-      let revealFrame = 0;
-
-      const clampValue = (value, min, max) => Math.min(max, Math.max(min, value));
-
-      function updateFieldReveal() {
-        revealFrame = 0;
-
-        revealFields.forEach((field) => {
-          if (!hasPointer) {
-            field.style.setProperty("--field-reveal-opacity", "0");
-            return;
-          }
-
-          const rect = field.getBoundingClientRect();
-          const nearestX = clampValue(pointerX, rect.left, rect.right);
-          const nearestY = clampValue(pointerY, rect.top, rect.bottom);
-          const distance = Math.hypot(pointerX - nearestX, pointerY - nearestY);
-
-          if (distance > REVEAL_DISTANCE) {
-            field.style.setProperty("--field-reveal-opacity", "0");
-            return;
-          }
-
-          field.style.setProperty("--field-reveal-x", `${pointerX - rect.left}px`);
-          field.style.setProperty("--field-reveal-y", `${pointerY - rect.top}px`);
-
-          const proximity = 1 - (distance / REVEAL_DISTANCE);
-          const opacity = distance === 0 ? 1 : Math.pow(proximity, 1.35);
-          field.style.setProperty("--field-reveal-opacity", opacity.toFixed(3));
-        });
-      }
-
-      function scheduleFieldReveal() {
-        if (revealFrame) return;
-        revealFrame = requestAnimationFrame(updateFieldReveal);
-      }
-
-      window.addEventListener("pointermove", (event) => {
-        if (event.pointerType && event.pointerType !== "mouse" && event.pointerType !== "pen") return;
-        pointerX = event.clientX;
-        pointerY = event.clientY;
-        hasPointer = true;
-        scheduleFieldReveal();
-      }, { passive: true });
-
-      window.addEventListener("pointerleave", () => {
-        hasPointer = false;
-        scheduleFieldReveal();
-      }, { passive: true });
-
-      window.addEventListener("scroll", scheduleFieldReveal, { passive: true });
-      window.addEventListener("resize", scheduleFieldReveal, { passive: true });
-    })();
-  </script>
 
   <script>
     (() => {
