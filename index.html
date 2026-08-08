@@ -2823,6 +2823,8 @@
     .settings-dialog-body {
       display: grid;
       flex: 1 1 auto;
+      grid-auto-rows: max-content;
+      align-content: start;
       gap: 12px;
       min-height: 0;
       padding: 16px 20px 20px;
@@ -2833,6 +2835,7 @@
 
     .settings-item {
       display: grid;
+      align-self: start;
       gap: 9px;
       padding: 14px;
       border: 1px solid var(--line);
