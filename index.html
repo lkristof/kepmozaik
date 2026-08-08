@@ -6022,6 +6022,10 @@
         }, { passive: false });
 
         frame.addEventListener("pointerdown", (event) => {
+          if (reorderModeActive) {
+            event.preventDefault();
+            return;
+          }
           if (event.button !== undefined && event.button !== 0) return;
           if (event.target.closest("input, textarea, button, select, .drag-badge")) return;
           if (!img.naturalWidth || !img.naturalHeight) return;
@@ -6277,7 +6281,11 @@
         card.addEventListener("pointerdown", (event) => {
           if (!reorderModeActive) return;
           if (event.button !== undefined && event.button !== 0) return;
-          if (event.isPrimary === false) return;
+          if (event.isPrimary === false) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
           event.preventDefault();
           event.stopPropagation();
           startReorderDrag(card, event);
