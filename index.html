@@ -1844,10 +1844,9 @@
     }
 
     .grid.reordering {
-      padding: 8px;
-      margin: -8px;
       border-radius: 18px;
       background: color-mix(in srgb, var(--accent) 3.5%, transparent);
+      box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 3.5%, transparent);
     }
 
     .drop-placeholder {
@@ -3325,6 +3324,7 @@
 
     :root[data-theme="dark"] .grid.reordering {
       background: color-mix(in srgb, var(--accent) 5.5%, transparent);
+      box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 5.5%, transparent);
     }
 
     :root[data-theme="dark"] .drop-placeholder {
