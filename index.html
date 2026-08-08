@@ -1429,6 +1429,7 @@
     .editor-empty-slot {
       position: relative;
       display: grid;
+      container-type: inline-size;
       place-items: center;
       width: var(--card-min-width);
       aspect-ratio: var(--ratio, 4 / 3);
@@ -1533,6 +1534,26 @@
       line-height: 1.35;
     }
 
+    @container (max-width: 220px) {
+      .editor-empty-slot-content {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        gap: 0;
+        place-items: center;
+        align-content: center;
+      }
+
+      .editor-empty-slot-title,
+      .editor-empty-slot-description {
+        display: none;
+      }
+
+      .editor-empty-slot-icon {
+        margin: 0;
+      }
+    }
+
     .card.file-drop-target,
     .editor-empty-slot.file-drop-target {
       outline: 3px solid var(--accent);
@@ -1593,6 +1614,46 @@
       transition: opacity 0.16s ease, transform 0.16s ease, outline-color 0.16s ease;
     }
 
+    .reorder-mode-button[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+      color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
+    }
+
+    body.card-reorder-mode .card {
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+    }
+
+    body.card-reorder-mode .card:hover {
+      outline-color: color-mix(in srgb, var(--accent) 54%, transparent);
+    }
+
+    body.card-reorder-mode .card:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--accent) 62%, transparent);
+      outline-offset: 3px;
+    }
+
+    body.card-reorder-mode .card .title-input,
+    body.card-reorder-mode .card .controls,
+    body.card-reorder-mode .card .drag-badge,
+    body.card-reorder-mode .card .pan-hint {
+      display: none !important;
+    }
+
+    body.card-reorder-mode .card .image-frame {
+      cursor: inherit;
+    }
+
+    body.card-reorder-mode .card .image-frame::after {
+      opacity: 0 !important;
+    }
+
     .card.dragging {
       opacity: 0.5;
       transform: scale(0.98);
@@ -1636,6 +1697,7 @@
       place-items: center;
       align-content: center;
       gap: 5px;
+      container-type: inline-size;
       padding: 12px;
       border: 3px dashed var(--accent);
       border-radius: 14px;
@@ -1659,6 +1721,13 @@
       font-size: clamp(0.68rem, 2cqi, 0.82rem);
       font-weight: 650;
       opacity: 0.82;
+    }
+
+    @container (max-width: 100px) {
+      .drop-placeholder-title,
+      .drop-placeholder-position {
+        display: none;
+      }
     }
 
     .file-drop-placeholder {
@@ -1972,11 +2041,18 @@
       }
     }
 
-    @container (max-width: 220px) {
-      .card-actions {
-        grid-template-columns: minmax(0, 1fr);
+    @container (max-width: 240px) {
+      .card-actions .icon-button {
+        gap: 0;
+        padding-inline: 6px;
       }
 
+      .card-actions .icon-button > span {
+        display: none;
+      }
+    }
+
+    @container (max-width: 220px) {
       .title-input {
         top: 7px;
         left: 7px;
@@ -1996,7 +2072,9 @@
         right: 7px;
         bottom: 7px;
         left: 7px;
+        transform: none;
         font-size: 0.63rem;
+        text-align: center;
         white-space: normal;
       }
     }
@@ -2097,7 +2175,7 @@
         grid-column: 1 / -1;
         width: 100%;
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         min-height: 0;
       }
 
@@ -2211,6 +2289,11 @@
         padding-inline: 9px;
         white-space: normal;
         line-height: 1.15;
+      }
+
+      .toolbar-action-group .reorder-mode-button {
+        grid-column: 1 / -1;
+        order: 10;
       }
 
       .button-label-full { display: none; }
@@ -2384,6 +2467,279 @@
       --scrollbar-track: #111821;
       --scrollbar-thumb: #465367;
       --scrollbar-thumb-hover: #5b687c;
+    }
+
+    .settings-button {
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      min-width: 42px;
+      height: 38px;
+      flex: 0 0 42px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      box-shadow: 0 4px 14px rgba(20, 30, 50, 0.06);
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+    }
+
+    .settings-button svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+
+    .settings-button:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .settings-button:active { transform: translateY(0); }
+
+    .settings-button:focus-visible {
+      outline: 3px solid rgba(49, 94, 251, 0.22);
+      outline-offset: 2px;
+    }
+
+    .settings-dialog {
+      width: min(520px, calc(100% - 24px));
+      max-width: none;
+      max-height: calc(100vh - 24px);
+      max-height: calc(100dvh - 24px);
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--panel);
+      color: var(--text);
+      box-shadow: 0 28px 80px rgba(16, 24, 40, 0.34);
+    }
+
+    .settings-dialog::backdrop {
+      background: rgba(8, 13, 21, 0.58);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .settings-dialog-content {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 24px);
+      max-height: calc(100dvh - 24px);
+      margin: 0;
+    }
+
+    .settings-dialog-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 16px;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--line);
+      flex: 0 0 auto;
+    }
+
+    .settings-dialog-heading { min-width: 0; }
+
+    .settings-dialog-title {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.25;
+    }
+
+    .settings-dialog-description {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .settings-dialog-close {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .settings-dialog-close:hover {
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+      color: var(--text);
+    }
+
+    .settings-dialog-close:focus-visible {
+      outline: 3px solid rgba(49, 94, 251, 0.22);
+      outline-offset: 1px;
+    }
+
+    .settings-dialog-body {
+      display: grid;
+      flex: 1 1 auto;
+      gap: 12px;
+      min-height: 0;
+      padding: 16px 20px 20px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .settings-item {
+      display: grid;
+      gap: 9px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--bg) 54%, var(--panel));
+    }
+
+    .settings-item-copy {
+      display: grid;
+      gap: 3px;
+    }
+
+    .settings-item-title {
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .settings-item-help {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.4;
+    }
+
+    .settings-control-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 104px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .settings-control-row input[type="range"] {
+      width: 100%;
+      min-width: 0;
+      accent-color: var(--accent);
+    }
+
+    .settings-number-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      min-height: 38px;
+      overflow: hidden;
+      border: 1px solid #d8dee8;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+
+    .settings-number-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+
+    .settings-number-wrap input {
+      width: 100%;
+      min-width: 0;
+      height: 36px;
+      padding: 7px 4px 7px 10px;
+      border: 0;
+      outline: 0;
+      appearance: textfield;
+      -moz-appearance: textfield;
+      background: transparent;
+      color: var(--text);
+      font-weight: 800;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .settings-number-wrap input[type="number"]::-webkit-inner-spin-button,
+    .settings-number-wrap input[type="number"]::-webkit-outer-spin-button {
+      margin: 0;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .settings-number-unit {
+      padding: 0 10px 0 4px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 750;
+    }
+
+    .settings-dialog-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 58%, var(--panel));
+      flex: 0 0 auto;
+    }
+
+    .settings-dialog-actions-right {
+      display: flex;
+      gap: 8px;
+    }
+
+    :root[data-theme="dark"] .settings-button {
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+    }
+
+    :root[data-theme="dark"] .settings-number-wrap {
+      border-color: #3a4657;
+      background: #1c2531;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+    }
+
+    @media (max-width: 520px) {
+      .settings-dialog {
+        width: calc(100% - 16px);
+        max-height: calc(100vh - 16px);
+        max-height: calc(100dvh - 16px);
+        border-radius: 18px;
+      }
+
+      .settings-dialog-content {
+        max-height: calc(100vh - 16px);
+        max-height: calc(100dvh - 16px);
+      }
+
+      .settings-dialog-header,
+      .settings-dialog-body {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .settings-dialog-actions {
+        padding: 12px 14px;
+        flex-wrap: wrap;
+      }
+
+      .settings-dialog-actions-right {
+        margin-left: auto;
+      }
+
+      .settings-control-row {
+        grid-template-columns: minmax(0, 1fr) 92px;
+        gap: 9px;
+      }
     }
 
     .language-switch {
@@ -3045,6 +3401,7 @@
       .language-switch-track,
       .language-switch-thumb,
       .theme-switch,
+      .settings-button,
       .theme-switch-icon,
       .theme-switch-track,
       .theme-switch-track::after {
@@ -3123,6 +3480,10 @@
 
       .theme-switch {
         order: 3;
+      }
+
+      .settings-button {
+        order: 4;
       }
 
       .language-switch,
@@ -3416,6 +3777,13 @@
             <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
           </svg>
           </label>
+
+          <button class="settings-button" id="settingsButton" type="button" aria-label="Beállítások megnyitása" title="Beállítások">
+            <svg class="lucide lucide-settings" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
         </div>
       </div>
     </header>
@@ -3451,6 +3819,19 @@
           <span class="button-label-short">Betöltés</span>
         </button>
         <input class="visually-hidden" id="projectInput" type="file" accept=".json,application/json" />
+
+        <button class="button reorder-mode-button" id="reorderModeButton" type="button" aria-pressed="false" disabled title="Átrendezési mód">
+          <svg class="lucide lucide-move" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20"></path>
+            <path d="m15 19-3 3-3-3"></path>
+            <path d="m19 9 3 3-3 3"></path>
+            <path d="M2 12h20"></path>
+            <path d="m5 9-3 3 3 3"></path>
+            <path d="m9 5 3-3 3 3"></path>
+          </svg>
+          <span class="button-label-full">Átrendezés</span>
+          <span class="button-label-short">Rendezés</span>
+        </button>
 
         <button class="button danger" id="clearButton" type="button" disabled>
           <svg class="lucide lucide-trash-2" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -3672,6 +4053,77 @@
       </form>
     </dialog>
 
+    <dialog
+      class="settings-dialog"
+      id="settingsDialog"
+      aria-labelledby="settingsDialogTitle"
+      aria-describedby="settingsDialogDescription"
+    >
+      <form class="settings-dialog-content" id="settingsForm" method="dialog">
+        <div class="settings-dialog-header">
+          <div class="settings-dialog-heading">
+            <h2 class="settings-dialog-title" id="settingsDialogTitle">Beállítások</h2>
+            <p class="settings-dialog-description" id="settingsDialogDescription">
+              A szerkesztő működését és méreteit szabhatod személyre. Ezek a beállítások ezen a böngészőn megmaradnak.
+            </p>
+          </div>
+          <button class="settings-dialog-close" id="settingsCloseButton" type="submit" value="cancel" aria-label="Beállítások bezárása">×</button>
+        </div>
+
+        <div class="settings-dialog-body">
+          <div class="settings-item">
+            <div class="settings-item-copy">
+              <label class="settings-item-title" for="settingsMaxZoom">Maximális zoom</label>
+              <span class="settings-item-help" id="settingsMaxZoomHelp">A képek nagyításának felső határa.</span>
+            </div>
+            <div class="settings-control-row">
+              <input id="settingsMaxZoom" type="range" min="400" max="2000" step="25" value="400" aria-describedby="settingsMaxZoomHelp" />
+              <span class="settings-number-wrap">
+                <input id="settingsMaxZoomNumber" type="number" min="400" max="2000" step="25" value="400" inputmode="numeric" aria-label="Maximális zoom százalékban" />
+                <span class="settings-number-unit" aria-hidden="true">%</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-copy">
+              <label class="settings-item-title" for="settingsCardWidth">Kártyaméret</label>
+              <span class="settings-item-help" id="settingsCardWidthHelp">A szerkesztőben megjelenő képkártyák alap-szélessége.</span>
+            </div>
+            <div class="settings-control-row">
+              <input id="settingsCardWidth" type="range" min="200" max="640" step="10" value="300" aria-describedby="settingsCardWidthHelp" />
+              <span class="settings-number-wrap">
+                <input id="settingsCardWidthNumber" type="number" min="200" max="640" step="10" value="300" inputmode="numeric" aria-label="Kártyaméret pixelben" />
+                <span class="settings-number-unit" aria-hidden="true">px</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-copy">
+              <label class="settings-item-title" for="settingsMaxColumns">Maximális oszlopszám</label>
+              <span class="settings-item-help" id="settingsMaxColumnsHelp">Az oszlopszám-léptető felső határa.</span>
+            </div>
+            <div class="settings-control-row">
+              <input id="settingsMaxColumns" type="range" min="1" max="20" step="1" value="10" aria-describedby="settingsMaxColumnsHelp" />
+              <span class="settings-number-wrap">
+                <input id="settingsMaxColumnsNumber" type="number" min="1" max="20" step="1" value="10" inputmode="numeric" aria-label="Maximális oszlopszám" />
+                <span class="settings-number-unit" id="settingsMaxColumnsUnit" aria-hidden="true">oszlop</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-dialog-actions">
+          <button class="button subtle" id="settingsResetButton" type="button">Alapértékek</button>
+          <div class="settings-dialog-actions-right">
+            <button class="button" id="settingsCancelButton" type="submit" value="cancel">Mégse</button>
+            <button class="button primary" id="settingsSaveButton" type="button">Mentés</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
     <section class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Képek hozzáadása kattintással vagy behúzással">
       <div class="drop-zone-content">
         <span class="drop-zone-icon" aria-hidden="true">＋</span>
@@ -3802,6 +4254,7 @@
       const saveProjectButton = document.getElementById("saveProjectButton");
       const loadProjectButton = document.getElementById("loadProjectButton");
       const clearButton = document.getElementById("clearButton");
+      const reorderModeButton = document.getElementById("reorderModeButton");
       const clearDialog = document.getElementById("clearDialog");
       const clearDialogDescription = document.getElementById("clearDialogDescription");
       const clearDialogCancel = document.getElementById("clearDialogCancel");
@@ -3844,12 +4297,26 @@
       const customRatioHeightIncrease = document.getElementById("customRatioHeightIncrease");
       const languageSwitch = document.getElementById("languageSwitch");
       const themeToggle = document.getElementById("themeToggle");
+      const settingsButton = document.getElementById("settingsButton");
+      const settingsDialog = document.getElementById("settingsDialog");
+      const settingsForm = document.getElementById("settingsForm");
+      const settingsCloseButton = document.getElementById("settingsCloseButton");
+      const settingsMaxZoom = document.getElementById("settingsMaxZoom");
+      const settingsMaxZoomNumber = document.getElementById("settingsMaxZoomNumber");
+      const settingsCardWidth = document.getElementById("settingsCardWidth");
+      const settingsCardWidthNumber = document.getElementById("settingsCardWidthNumber");
+      const settingsMaxColumns = document.getElementById("settingsMaxColumns");
+      const settingsMaxColumnsNumber = document.getElementById("settingsMaxColumnsNumber");
+      const settingsResetButton = document.getElementById("settingsResetButton");
+      const settingsCancelButton = document.getElementById("settingsCancelButton");
+      const settingsSaveButton = document.getElementById("settingsSaveButton");
       const themeColorMeta = document.getElementById("themeColorMeta");
       const brandIconShell = document.querySelector(".brand-icon-shell");
       const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
       const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
       const THEME_STORAGE_KEY = "kepmozaik-theme";
       const LANGUAGE_STORAGE_KEY = "kepmozaik-language";
+      const SETTINGS_STORAGE_KEY = "kepmozaik-editor-settings";
 
       const translations = {
         hu: {
@@ -3865,6 +4332,24 @@
           "theme.switch": "Megjelenési téma váltása",
           "theme.enableDark": "Sötét téma bekapcsolása",
           "theme.enableLight": "Világos téma bekapcsolása",
+          "settings.open": "Beállítások megnyitása",
+          "settings.title": "Beállítások",
+          "settings.description": "A szerkesztő működését és méreteit szabhatod személyre. Ezek a beállítások ezen a böngészőn megmaradnak.",
+          "settings.close": "Beállítások bezárása",
+          "settings.maxZoom": "Maximális zoom",
+          "settings.maxZoomHelp": "A képek nagyításának felső határa.",
+          "settings.maxZoomAria": "Maximális zoom százalékban",
+          "settings.cardWidth": "Kártyaméret",
+          "settings.cardWidthHelp": "A szerkesztőben megjelenő képkártyák alap-szélessége.",
+          "settings.cardWidthAria": "Kártyaméret pixelben",
+          "settings.maxColumns": "Maximális oszlopszám",
+          "settings.maxColumnsHelp": "Az oszlopszám-léptető felső határa.",
+          "settings.maxColumnsAria": "Maximális oszlopszám",
+          "settings.maxColumnsUnit": "oszlop",
+          "settings.reset": "Alapértékek",
+          "settings.cancel": "Mégse",
+          "settings.save": "Mentés",
+          "settings.saved": "Beállítások elmentve.",
           "project.empty": "Üres projekt",
           "image.one": "kép",
           "image.many": "kép",
@@ -3878,6 +4363,14 @@
           "load.short": "Betöltés",
           "clear.full": "Összes törlése",
           "clear.short": "Törlés",
+          "reorderMode.full": "Átrendezés",
+          "reorderMode.short": "Rendezés",
+          "reorderMode.title": "Átrendezési mód",
+          "reorderMode.enableAria": "Átrendezési mód bekapcsolása",
+          "reorderMode.disableAria": "Átrendezési mód kikapcsolása",
+          "reorderMode.enabled": "Átrendezési mód bekapcsolva. Fogd meg bárhol a kártyát, és húzd az új helyére.",
+          "reorderMode.disabled": "Átrendezési mód kikapcsolva.",
+          "reorderMode.cardAria": "Kártya átrendezése húzással. A nyílbillentyűkkel is mozgatható.",
           "aspectRatio": "Képarány",
           "custom": "Egyéni",
           "customRatio": "Egyéni képarány",
@@ -4016,6 +4509,24 @@
           "theme.switch": "Change appearance theme",
           "theme.enableDark": "Enable dark theme",
           "theme.enableLight": "Enable light theme",
+          "settings.open": "Open settings",
+          "settings.title": "Settings",
+          "settings.description": "Customize how the editor behaves and how large its cards appear. These settings are saved in this browser.",
+          "settings.close": "Close settings",
+          "settings.maxZoom": "Maximum zoom",
+          "settings.maxZoomHelp": "Sets the upper zoom limit for images.",
+          "settings.maxZoomAria": "Maximum zoom percent",
+          "settings.cardWidth": "Card size",
+          "settings.cardWidthHelp": "Base width of image cards in the editor.",
+          "settings.cardWidthAria": "Card size in pixels",
+          "settings.maxColumns": "Maximum columns",
+          "settings.maxColumnsHelp": "Sets the upper limit of the column stepper.",
+          "settings.maxColumnsAria": "Maximum number of columns",
+          "settings.maxColumnsUnit": "cols",
+          "settings.reset": "Defaults",
+          "settings.cancel": "Cancel",
+          "settings.save": "Save",
+          "settings.saved": "Settings saved.",
           "project.empty": "Empty project",
           "image.one": "image",
           "image.many": "images",
@@ -4029,6 +4540,14 @@
           "load.short": "Load",
           "clear.full": "Clear all",
           "clear.short": "Clear",
+          "reorderMode.full": "Rearrange",
+          "reorderMode.short": "Arrange",
+          "reorderMode.title": "Rearrange mode",
+          "reorderMode.enableAria": "Enable rearrange mode",
+          "reorderMode.disableAria": "Disable rearrange mode",
+          "reorderMode.enabled": "Rearrange mode is on. Grab any part of a card and drag it to its new position.",
+          "reorderMode.disabled": "Rearrange mode is off.",
+          "reorderMode.cardAria": "Drag to rearrange this card. You can also move it with the arrow keys.",
           "aspectRatio": "Aspect ratio",
           "custom": "Custom",
           "customRatio": "Custom aspect ratio",
@@ -4257,6 +4776,24 @@
         setText(document, ".brand-name-accent", "brand.accent");
         setText(document, ".subtitle", "subtitle");
         setAttribute(document, ".theme-switch", "title", "theme.switch");
+        setAttribute(document, "#settingsButton", "aria-label", "settings.open");
+        setAttribute(document, "#settingsButton", "title", "settings.title");
+        setText(document, "#settingsDialogTitle", "settings.title");
+        setText(document, "#settingsDialogDescription", "settings.description");
+        setAttribute(document, "#settingsCloseButton", "aria-label", "settings.close");
+        setText(document, 'label[for="settingsMaxZoom"]', "settings.maxZoom");
+        setText(document, "#settingsMaxZoomHelp", "settings.maxZoomHelp");
+        setAttribute(document, "#settingsMaxZoomNumber", "aria-label", "settings.maxZoomAria");
+        setText(document, 'label[for="settingsCardWidth"]', "settings.cardWidth");
+        setText(document, "#settingsCardWidthHelp", "settings.cardWidthHelp");
+        setAttribute(document, "#settingsCardWidthNumber", "aria-label", "settings.cardWidthAria");
+        setText(document, 'label[for="settingsMaxColumns"]', "settings.maxColumns");
+        setText(document, "#settingsMaxColumnsHelp", "settings.maxColumnsHelp");
+        setAttribute(document, "#settingsMaxColumnsNumber", "aria-label", "settings.maxColumnsAria");
+        setText(document, "#settingsMaxColumnsUnit", "settings.maxColumnsUnit");
+        setText(document, "#settingsResetButton", "settings.reset");
+        setText(document, "#settingsCancelButton", "settings.cancel");
+        setText(document, "#settingsSaveButton", "settings.save");
         setAttribute(document, ".toolbar", "aria-label", "toolbar.label");
         setAttribute(document, ".toolbar-action-group", "aria-label", "toolbar.fileActions");
         setText(document, "#browseButton .button-label-full", "browse.full");
@@ -4267,6 +4804,13 @@
         setText(document, "#loadProjectButton .button-label-short", "load.short");
         setText(document, "#clearButton .button-label-full", "clear.full");
         setText(document, "#clearButton .button-label-short", "clear.short");
+        setText(document, "#reorderModeButton .button-label-full", "reorderMode.full");
+        setText(document, "#reorderModeButton .button-label-short", "reorderMode.short");
+        setAttribute(document, "#reorderModeButton", "title", "reorderMode.title");
+        reorderModeButton.setAttribute(
+          "aria-label",
+          t(reorderModeActive ? "reorderMode.disableAria" : "reorderMode.enableAria")
+        );
         setText(document, 'label[for="globalRatio"] > span', "aspectRatio");
         setText(document, '#globalRatio option[value="custom"]', "custom");
         setAttribute(document, "#customRatioFields", "aria-label", "customRatio");
@@ -4322,6 +4866,7 @@
           const title = card.querySelector(".title-input")?.value.trim().replace(/\s+/g, " ");
           const image = card.querySelector("img");
           if (image) image.alt = title || t("card.uploadedImage");
+          syncReorderModeCard(card);
         });
       }
 
@@ -4357,6 +4902,7 @@
       let dropPlaceholder = null;
       let dragGhost = null;
       let reorderPointerId = null;
+      let reorderModeActive = false;
       let dragOffsetX = 0;
       let dragOffsetY = 0;
       let lastTouchedReorderCard = null;
@@ -4372,11 +4918,90 @@
       const EDITOR_PREVIEW_QUALITY = 0.82;
       const PROJECT_IMAGE_MAX_DIMENSION = 1600;
       const PROJECT_IMAGE_QUALITY = 0.82;
-      const MIN_CARD_WIDTH = 300;
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const DEFAULT_EDITOR_SETTINGS = Object.freeze({ maxZoom: 4, cardWidth: 300, maxColumns: 10 });
+      const EDITOR_SETTINGS_LIMITS = Object.freeze({
+        maxZoom: { min: 4, max: 20 },
+        cardWidth: { min: 200, max: 640 },
+        maxColumns: { min: 1, max: 20 }
+      });
       const GRID_GAP = 16;
-      const MIN_FITTED_CARD_WIDTH = MIN_CARD_WIDTH / 2;
-      const MAX_GRID_FIT_SHORTAGE = MIN_CARD_WIDTH / 2;
       const GRID_FIT_SAFETY_MARGIN = 1;
+
+      function normalizeEditorSettings(candidate = {}) {
+        return {
+          maxZoom: clamp(
+            Number(candidate.maxZoom) || DEFAULT_EDITOR_SETTINGS.maxZoom,
+            EDITOR_SETTINGS_LIMITS.maxZoom.min,
+            EDITOR_SETTINGS_LIMITS.maxZoom.max
+          ),
+          cardWidth: Math.round(clamp(
+            Number(candidate.cardWidth) || DEFAULT_EDITOR_SETTINGS.cardWidth,
+            EDITOR_SETTINGS_LIMITS.cardWidth.min,
+            EDITOR_SETTINGS_LIMITS.cardWidth.max
+          )),
+          maxColumns: Math.round(clamp(
+            Number(candidate.maxColumns) || DEFAULT_EDITOR_SETTINGS.maxColumns,
+            EDITOR_SETTINGS_LIMITS.maxColumns.min,
+            EDITOR_SETTINGS_LIMITS.maxColumns.max
+          ))
+        };
+      }
+
+      function loadEditorSettings() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || "null");
+          return normalizeEditorSettings(parsed || DEFAULT_EDITOR_SETTINGS);
+        } catch (_) {
+          return { ...DEFAULT_EDITOR_SETTINGS };
+        }
+      }
+
+      function storeEditorSettings() {
+        try {
+          localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(editorSettings));
+        } catch (_) {}
+      }
+
+      let editorSettings = loadEditorSettings();
+
+      function getMaxZoom() {
+        return editorSettings.maxZoom;
+      }
+
+      function getMaxColumns() {
+        return editorSettings.maxColumns;
+      }
+
+      function syncSettingsDialog() {
+        const maxZoomPercent = Math.round(editorSettings.maxZoom * 100);
+        settingsMaxZoom.value = String(maxZoomPercent);
+        settingsMaxZoomNumber.value = String(maxZoomPercent);
+        settingsCardWidth.value = String(editorSettings.cardWidth);
+        settingsCardWidthNumber.value = String(editorSettings.cardWidth);
+        settingsMaxColumns.value = String(editorSettings.maxColumns);
+        settingsMaxColumnsNumber.value = String(editorSettings.maxColumns);
+      }
+
+      function applyEditorSettings({ clampExistingZoom = true } = {}) {
+        document.documentElement.style.setProperty("--card-min-width", `${editorSettings.cardWidth}px`);
+        columnRange.max = String(editorSettings.maxColumns);
+        setColumnCount(columnRange.value, { announce: false });
+        cardTemplate.content.querySelector(".zoom-range")?.setAttribute("max", String(editorSettings.maxZoom));
+
+        getCards().forEach((card) => {
+          const range = card.querySelector(".zoom-range");
+          if (range) range.max = String(editorSettings.maxZoom);
+          if (clampExistingZoom && Number(card.dataset.zoom || 1) > editorSettings.maxZoom) {
+            setCardZoom(card, editorSettings.maxZoom);
+          } else {
+            updateImageGeometry(card);
+          }
+        });
+
+        updateGridLayout();
+        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+      }
       const DEFAULT_TITLE_TEXT_COLOR = "#ffffff";
       const DEFAULT_TITLE_BACKGROUND_COLOR = "#121821";
       const DEFAULT_EXPORT_BACKGROUND_COLOR = "#000000";
@@ -4392,7 +5017,6 @@
       let recoverySaveChain = Promise.resolve();
       let recoveryRestoreInProgress = false;
 
-      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
       let statusHideTimer = null;
       let statusTransitionTimer = null;
 
@@ -4469,9 +5093,9 @@
       });
 
       function updateColumnStepperState() {
-        const value = Math.round(clamp(Number(columnRange.value) || 1, 1, 10));
+        const value = Math.round(clamp(Number(columnRange.value) || 1, 1, getMaxColumns()));
         const min = Number(columnRange.min) || 1;
-        const max = Number(columnRange.max) || 10;
+        const max = Number(columnRange.max) || getMaxColumns();
         columnValue.textContent = String(value);
         columnValue.setAttribute("aria-label", t("columns.count", { count: value, noun: columnNoun(value) }));
         columnDecrease.disabled = value <= min;
@@ -4479,7 +5103,7 @@
       }
 
       function setColumnCount(value, { announce = true } = {}) {
-        const nextValue = Math.round(clamp(Number(value) || 1, 1, 10));
+        const nextValue = Math.round(clamp(Number(value) || 1, 1, getMaxColumns()));
         columnRange.value = String(nextValue);
         document.documentElement.style.setProperty("--columns", String(nextValue));
         updateColumnStepperState();
@@ -4661,7 +5285,7 @@
         const cardCount = getCards().length;
         if (!cardCount) return;
 
-        const columns = Math.round(clamp(Number(columnRange.value) || 1, 1, 10));
+        const columns = Math.round(clamp(Number(columnRange.value) || 1, 1, getMaxColumns()));
         const missingSlots = (columns - (cardCount % columns)) % columns;
         if (!missingSlots) return;
 
@@ -4702,35 +5326,54 @@
       }
 
       function updateGridLayout() {
-        const columns = Math.round(clamp(Number(columnRange.value) || 1, 1, 10));
+        const columns = Math.round(clamp(Number(columnRange.value) || 1, 1, getMaxColumns()));
         const hasCards = getCards().length > 0;
-        const totalGapWidth = Math.max(0, columns - 1) * GRID_GAP;
-        const preferredGridWidth = (columns * MIN_CARD_WIDTH) + totalGapWidth;
+        const preferredCardWidth = editorSettings.cardWidth;
+        const minFittedCardWidth = preferredCardWidth / 2;
+        const maxGridFitShortage = preferredCardWidth / 2;
         const scrollStyles = getComputedStyle(gridScroll);
         const horizontalPadding =
           (parseFloat(scrollStyles.paddingLeft) || 0) +
           (parseFloat(scrollStyles.paddingRight) || 0);
         const availableGridWidth = Math.max(0, gridScroll.parentElement.clientWidth - horizontalPadding);
-        const widthShortage = Math.max(0, preferredGridWidth - availableGridWidth);
-        const allowedShrink = Math.min(
-          MAX_GRID_FIT_SHORTAGE,
-          columns * (MIN_CARD_WIDTH - MIN_FITTED_CARD_WIDTH)
-        );
-        const canFitWithMinorShrink =
-          hasCards &&
-          widthShortage > 0 &&
-          widthShortage <= allowedShrink;
-        const fittedGridWidth = canFitWithMinorShrink
-          ? Math.max(
-              totalGapWidth + columns,
-              availableGridWidth - GRID_FIT_SAFETY_MARGIN
-            )
-          : preferredGridWidth;
-        const cardWidth = canFitWithMinorShrink
-          ? (fittedGridWidth - totalGapWidth) / columns
-          : MIN_CARD_WIDTH;
+
+        let gridGap = GRID_GAP;
+        let fittedGridWidth;
+        let cardWidth;
+
+        if (reorderModeActive && hasCards) {
+          gridGap = columns <= 6 ? 10 : columns <= 10 ? 8 : 4;
+          const totalGapWidth = Math.max(0, columns - 1) * gridGap;
+          const availableFitWidth = Math.max(columns, availableGridWidth - GRID_FIT_SAFETY_MARGIN);
+          const fittedCardWidth = Math.max(1, (availableFitWidth - totalGapWidth) / columns);
+          cardWidth = Math.min(preferredCardWidth, fittedCardWidth);
+          fittedGridWidth = (columns * cardWidth) + totalGapWidth;
+        } else {
+          const totalGapWidth = Math.max(0, columns - 1) * GRID_GAP;
+          const preferredGridWidth = (columns * preferredCardWidth) + totalGapWidth;
+          const widthShortage = Math.max(0, preferredGridWidth - availableGridWidth);
+          const allowedShrink = Math.min(
+            maxGridFitShortage,
+            columns * (preferredCardWidth - minFittedCardWidth)
+          );
+          const canFitWithMinorShrink =
+            hasCards &&
+            widthShortage > 0 &&
+            widthShortage <= allowedShrink;
+          fittedGridWidth = canFitWithMinorShrink
+            ? Math.max(
+                totalGapWidth + columns,
+                availableGridWidth - GRID_FIT_SAFETY_MARGIN
+              )
+            : preferredGridWidth;
+          cardWidth = canFitWithMinorShrink
+            ? (fittedGridWidth - totalGapWidth) / columns
+            : preferredCardWidth;
+        }
+
         const editorGridWidth = hasCards ? `${fittedGridWidth}px` : "100%";
 
+        gridScroll.style.setProperty("--grid-gap", `${gridGap}px`);
         gridScroll.style.setProperty("--card-min-width", `${cardWidth}px`);
         gridScroll.style.setProperty("--editor-grid-width", editorGridWidth);
 
@@ -4772,6 +5415,7 @@
           "aria-label",
           hasCards ? `${cardCount} ${imageNoun(cardCount)}` : t("project.empty")
         );
+        updateReorderModeAvailability();
         updateEditorPlaceholders();
         updateGridLayout();
       }
@@ -4861,7 +5505,7 @@
 
         const posX = clamp(Number(card.dataset.posX || 50), 0, 100);
         const posY = clamp(Number(card.dataset.posY || 50), 0, 100);
-        const zoom = clamp(Number(card.dataset.zoom || 1), 1, 4);
+        const zoom = clamp(Number(card.dataset.zoom || 1), 1, getMaxZoom());
         const hasCropChanges =
           Math.abs(posX - 50) > 0.01 ||
           Math.abs(posY - 50) > 0.01 ||
@@ -4883,7 +5527,7 @@
       }
 
       function setCardZoom(card, zoom) {
-        const nextZoom = clamp(Number(zoom), 1, 4);
+        const nextZoom = clamp(Number(zoom), 1, getMaxZoom());
         card.dataset.zoom = String(nextZoom);
         card.querySelector(".zoom-range").value = String(nextZoom);
         card.querySelector(".zoom-value").textContent = `${Math.round(nextZoom * 100)}%`;
@@ -4906,12 +5550,73 @@
         requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
       }
 
+      function syncReorderModeCard(card) {
+        if (!card) return;
+        if (reorderModeActive) {
+          card.tabIndex = 0;
+          card.setAttribute("aria-label", t("reorderMode.cardAria"));
+        } else {
+          card.removeAttribute("tabindex");
+          card.removeAttribute("aria-label");
+        }
+      }
+
+      function isDesktopReorderMode() {
+        return reorderModeActive && window.matchMedia("(min-width: 761px)").matches;
+      }
+
+      function setReorderMode(active, { announce = true } = {}) {
+        const canReorder = getCards().length > 1;
+        const nextActive = Boolean(active) && canReorder;
+        if (!nextActive && draggedCard) finishReorderDrag({ commit: false });
+
+        reorderModeActive = nextActive;
+        document.body.classList.toggle("card-reorder-mode", reorderModeActive);
+        reorderModeButton.setAttribute("aria-pressed", String(reorderModeActive));
+        reorderModeButton.setAttribute(
+          "aria-label",
+          t(reorderModeActive ? "reorderMode.disableAria" : "reorderMode.enableAria")
+        );
+        getCards().forEach(syncReorderModeCard);
+        updateGridLayout();
+        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+
+        if (announce) {
+          showStatusToast(
+            t(reorderModeActive ? "reorderMode.enabled" : "reorderMode.disabled"),
+            { tone: "info", duration: reorderModeActive ? 4200 : 2200 }
+          );
+        }
+      }
+
+      function updateReorderModeAvailability() {
+        const canReorder = getCards().length > 1;
+        reorderModeButton.disabled = !canReorder;
+        if (!canReorder && reorderModeActive) setReorderMode(false, { announce: false });
+      }
+
+      function moveCardByKeyboard(card, direction) {
+        const cards = getCards();
+        const currentIndex = cards.indexOf(card);
+        const nextIndex = clamp(currentIndex + direction, 0, cards.length - 1);
+        if (currentIndex < 0 || nextIndex === currentIndex) return;
+
+        if (direction < 0) grid.insertBefore(card, cards[nextIndex]);
+        else grid.insertBefore(card, cards[nextIndex].nextSibling);
+
+        refreshMoveButtons();
+        card.focus({ preventScroll: true });
+        reorderStatus.textContent = t("reorder.movedTo", { position: nextIndex + 1 });
+      }
+
       function refreshMoveButtons() {
         const cards = getCards();
         cards.forEach((card, index) => {
           card.querySelector(".move-left").disabled = index === 0;
           card.querySelector(".move-right").disabled = index === cards.length - 1;
+          syncReorderModeCard(card);
         });
+        updateReorderModeAvailability();
       }
 
       function createDropPlaceholder(card) {
@@ -4919,7 +5624,8 @@
         const rect = card.getBoundingClientRect();
         placeholder.className = "drop-placeholder";
         placeholder.setAttribute("aria-hidden", "true");
-        placeholder.style.height = `${Math.max(96, Math.round(rect.height))}px`;
+        placeholder.style.width = `${Math.max(1, Math.round(rect.width))}px`;
+        placeholder.style.height = `${Math.max(1, Math.round(rect.height))}px`;
         placeholder.innerHTML = `
           <span class="drop-placeholder-title">${t("reorder.placeholder")}</span>
           <span class="drop-placeholder-position"></span>
@@ -5290,6 +5996,10 @@
         }
 
         frame.addEventListener("wheel", (event) => {
+          if (isDesktopReorderMode()) {
+            if (event.ctrlKey || event.metaKey) event.preventDefault();
+            return;
+          }
           if (!event.ctrlKey && !event.metaKey) return;
           if (event.target.closest("input, textarea, button, select, .drag-badge")) return;
           if (!img.naturalWidth || !img.naturalHeight) return;
@@ -5304,9 +6014,9 @@
           const normalizedDelta = clamp(event.deltaY * deltaScale, -240, 240);
           if (Math.abs(normalizedDelta) < 0.01) return;
 
-          const currentZoom = clamp(Number(card.dataset.zoom || 1), 1, 4);
+          const currentZoom = clamp(Number(card.dataset.zoom || 1), 1, getMaxZoom());
           const zoomFactor = Math.exp(-normalizedDelta * 0.0015);
-          const nextZoom = clamp(currentZoom * zoomFactor, 1, 4);
+          const nextZoom = clamp(currentZoom * zoomFactor, 1, getMaxZoom());
 
           zoomAtClientPoint(event.clientX, event.clientY, nextZoom);
         }, { passive: false });
@@ -5363,7 +6073,7 @@
             const nextZoom = clamp(
               gesture.startZoom * (distance / gesture.startDistance),
               1,
-              4
+              getMaxZoom()
             );
 
             setCardZoom(card, nextZoom);
@@ -5426,11 +6136,13 @@
         });
 
         frame.addEventListener("dblclick", (event) => {
+          if (isDesktopReorderMode()) return;
           if (event.target.closest("input, textarea, button, select, .drag-badge")) return;
           resetCardCrop(card);
         });
 
         frame.addEventListener("keydown", (event) => {
+          if (isDesktopReorderMode()) return;
           if (event.target.closest("input, textarea, button, select, .drag-badge")) return;
 
           const posX = Number(card.dataset.posX || 50);
@@ -5478,7 +6190,7 @@
           : Number(file.lastModified || Date.now());
         const initialX = clamp(Number(state.posX ?? 50), 0, 100);
         const initialY = clamp(Number(state.posY ?? 50), 0, 100);
-        const initialZoom = clamp(Number(state.zoom ?? 1), 1, 4);
+        const initialZoom = clamp(Number(state.zoom ?? 1), 1, getMaxZoom());
 
         card._resourcesRevoked = false;
         card._imageBlob = file;
@@ -5512,10 +6224,12 @@
         fileNameElement.textContent = fileName;
         fileSizeElement.textContent = formatBytes(fileSize);
         fileInfo.title = fileName;
+        zoomRange.max = String(getMaxZoom());
         zoomRange.value = String(initialZoom);
         zoomValue.textContent = `${Math.round(initialZoom * 100)}%`;
         setCardRatio(card);
         updateResetCropButton(card);
+        syncReorderModeCard(card);
 
         img.addEventListener("load", () => {
           frame.classList.remove("preview-loading");
@@ -5558,6 +6272,23 @@
             grid.insertBefore(next, card);
             refreshMoveButtons();
           }
+        });
+
+        card.addEventListener("pointerdown", (event) => {
+          if (!reorderModeActive) return;
+          if (event.button !== undefined && event.button !== 0) return;
+          if (event.isPrimary === false) return;
+          event.preventDefault();
+          event.stopPropagation();
+          startReorderDrag(card, event);
+        }, { capture: true });
+
+        card.addEventListener("keydown", (event) => {
+          if (!reorderModeActive) return;
+          if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+          event.preventDefault();
+          const direction = (event.key === "ArrowLeft" || event.key === "ArrowUp") ? -1 : 1;
+          moveCardByKeyboard(card, direction);
         });
 
         dragBadge.addEventListener("pointerdown", (event) => {
@@ -6016,7 +6747,7 @@
         customRatioWidth.value = String(clamp(Number(settings.customRatioWidth) || 3, 1, 100));
         customRatioHeight.value = String(clamp(Number(settings.customRatioHeight) || 2, 1, 100));
 
-        const columns = Math.round(clamp(Number(settings.columns) || 4, 1, 10));
+        const columns = Math.round(clamp(Number(settings.columns) || 4, 1, getMaxColumns()));
         setColumnCount(columns, { announce: false });
 
         const cellWidth = String(settings.exportCellWidth || "480");
@@ -6349,7 +7080,7 @@
         const sourceHeight = Number(source.naturalHeight || source.videoHeight || source.height || 0);
         if (!sourceWidth || !sourceHeight) return;
 
-        const safeZoom = clamp(Number(zoom) || 1, 1, 4);
+        const safeZoom = clamp(Number(zoom) || 1, 1, getMaxZoom());
         const scale = Math.max(width / sourceWidth, height / sourceHeight) * safeZoom;
         const visibleSourceWidth = Math.min(sourceWidth, width / scale);
         const visibleSourceHeight = Math.min(sourceHeight, height / scale);
@@ -6485,7 +7216,7 @@
           await Promise.all(cards.map((card) => card._previewPromise).filter(Boolean));
 
           const requestedColumns = Number(columnRange.value);
-          const columns = Math.round(clamp(requestedColumns || 1, 1, 10));
+          const columns = Math.round(clamp(requestedColumns || 1, 1, getMaxColumns()));
           const cellWidth = Number(exportCellWidth.value);
           const cellHeight = Math.max(1, Math.round(cellWidth / getGlobalAspectRatio()));
           const gap = Number(exportGap.value);
@@ -6563,6 +7294,10 @@
 
       window.addEventListener("pointermove", handleReorderPointerMove, { passive: false });
       window.addEventListener("pointerup", handleReorderPointerEnd, { passive: false });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || !reorderModeActive || settingsDialog.open) return;
+        setReorderMode(false);
+      });
       window.addEventListener("pointercancel", (event) => {
         if (!draggedCard || event.pointerId !== reorderPointerId) return;
         finishReorderDrag({ commit: false });
@@ -6697,6 +7432,61 @@
       });
       exportButton.addEventListener("click", exportGridAsPng);
 
+      function syncPairedSettingInputs(rangeInput, numberInput, value) {
+        const min = Number(numberInput.min || rangeInput.min) || 0;
+        const max = Number(numberInput.max || rangeInput.max) || Number.MAX_SAFE_INTEGER;
+        const step = Number(numberInput.step || rangeInput.step) || 1;
+        const numeric = clamp(Number(value) || min, min, max);
+        const snapped = Math.round(numeric / step) * step;
+        const nextValue = String(clamp(snapped, min, max));
+        rangeInput.value = nextValue;
+        numberInput.value = nextValue;
+      }
+
+      [[settingsMaxZoom, settingsMaxZoomNumber], [settingsCardWidth, settingsCardWidthNumber], [settingsMaxColumns, settingsMaxColumnsNumber]].forEach(([rangeInput, numberInput]) => {
+        rangeInput.addEventListener("input", () => syncPairedSettingInputs(rangeInput, numberInput, rangeInput.value));
+        numberInput.addEventListener("input", () => {
+          const value = Number(numberInput.value);
+          if (Number.isFinite(value)) rangeInput.value = String(clamp(value, Number(rangeInput.min), Number(rangeInput.max)));
+        });
+        numberInput.addEventListener("change", () => syncPairedSettingInputs(rangeInput, numberInput, numberInput.value));
+      });
+
+      reorderModeButton.addEventListener("click", () => {
+        setReorderMode(!reorderModeActive);
+      });
+
+      settingsButton.addEventListener("click", () => {
+        syncSettingsDialog();
+        if (typeof settingsDialog.showModal === "function") settingsDialog.showModal();
+        else settingsDialog.setAttribute("open", "");
+      });
+
+      settingsDialog.addEventListener("click", (event) => {
+        if (event.target === settingsDialog) settingsDialog.close("cancel");
+      });
+
+      settingsResetButton.addEventListener("click", () => {
+        syncPairedSettingInputs(settingsMaxZoom, settingsMaxZoomNumber, DEFAULT_EDITOR_SETTINGS.maxZoom * 100);
+        syncPairedSettingInputs(settingsCardWidth, settingsCardWidthNumber, DEFAULT_EDITOR_SETTINGS.cardWidth);
+        syncPairedSettingInputs(settingsMaxColumns, settingsMaxColumnsNumber, DEFAULT_EDITOR_SETTINGS.maxColumns);
+      });
+
+      settingsSaveButton.addEventListener("click", () => {
+        syncPairedSettingInputs(settingsMaxZoom, settingsMaxZoomNumber, settingsMaxZoomNumber.value);
+        syncPairedSettingInputs(settingsCardWidth, settingsCardWidthNumber, settingsCardWidthNumber.value);
+        syncPairedSettingInputs(settingsMaxColumns, settingsMaxColumnsNumber, settingsMaxColumnsNumber.value);
+        editorSettings = normalizeEditorSettings({
+          maxZoom: Number(settingsMaxZoomNumber.value) / 100,
+          cardWidth: Number(settingsCardWidthNumber.value),
+          maxColumns: Number(settingsMaxColumnsNumber.value)
+        });
+        storeEditorSettings();
+        applyEditorSettings();
+        settingsDialog.close("save");
+        showStatusToast(t("settings.saved"), { tone: "success", duration: 2400 });
+      });
+
       languageSwitch.addEventListener("click", () => {
         const selectedLanguage = currentLanguage === "hu" ? "en" : "hu";
         storeLanguage(selectedLanguage);
@@ -6740,6 +7530,11 @@
       window.addEventListener("storage", (event) => {
         if (event.key === THEME_STORAGE_KEY) applyTheme(resolvePreferredTheme());
         if (event.key === LANGUAGE_STORAGE_KEY) applyLanguage(resolvePreferredLanguage());
+        if (event.key === SETTINGS_STORAGE_KEY) {
+          editorSettings = loadEditorSettings();
+          syncSettingsDialog();
+          applyEditorSettings();
+        }
       });
 
       columnDecrease.addEventListener("click", () => {
@@ -6885,7 +7680,8 @@
       applyTheme(resolvePreferredTheme());
       applyColorSettings();
       applyGlobalRatio();
-      updateGridLayout();
+      syncSettingsDialog();
+      applyEditorSettings({ clampExistingZoom: false });
       updateEmptyState();
       refreshMoveButtons();
       void restoreRecoverySnapshot();
