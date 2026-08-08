@@ -1702,7 +1702,7 @@
     }
 
     @media (max-width: 1400px) and (any-pointer: coarse) {
-      .reorder-scroll-gutter {
+      body.card-reorder-mode .reorder-scroll-gutter {
         position: absolute;
         z-index: 9500;
         top: var(--reorder-gutter-top, 0px);
@@ -2093,6 +2093,14 @@
     }
 
     .drag-badge:active { cursor: grabbing; }
+
+    .card.crop-ui-hidden .title-input,
+    .card.crop-ui-hidden .drag-badge,
+    .card.crop-ui-hidden .pan-hint {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
 
     .controls {
       display: grid;
@@ -5836,6 +5844,16 @@
           : t("card.resetDisabled");
       }
 
+      function setCardCropUiInteraction(card, source, active) {
+        if (!card || !source) return;
+        if (!card._cropUiInteractions) card._cropUiInteractions = new Set();
+
+        if (active) card._cropUiInteractions.add(source);
+        else card._cropUiInteractions.delete(source);
+
+        card.classList.toggle("crop-ui-hidden", card._cropUiInteractions.size > 0);
+      }
+
       function setCardPosition(card, x, y) {
         const nextX = clamp(Number(x), 0, 100);
         const nextY = clamp(Number(y), 0, 100);
@@ -6198,6 +6216,7 @@
       function installImageCropping(card, frame, img) {
         const activePointers = new Map();
         let gesture = null;
+        let wheelCropUiTimer = 0;
 
         function setCropGestureActive(active) {
           const wasActive = frame.dataset.cropGestureActive === "true";
@@ -6249,6 +6268,7 @@
 
           frame.classList.add("panning");
           frame.classList.remove("pinching");
+          setCardCropUiInteraction(card, "pointer-crop", true);
         }
 
         function beginPinch() {
@@ -6279,6 +6299,7 @@
           };
 
           frame.classList.add("panning", "pinching");
+          setCardCropUiInteraction(card, "pointer-crop", true);
         }
 
         function zoomAtClientPoint(clientX, clientY, nextZoom) {
@@ -6324,6 +6345,12 @@
           if (!img.naturalWidth || !img.naturalHeight) return;
 
           event.preventDefault();
+
+          setCardCropUiInteraction(card, "wheel-zoom", true);
+          clearTimeout(wheelCropUiTimer);
+          wheelCropUiTimer = window.setTimeout(() => {
+            setCardCropUiInteraction(card, "wheel-zoom", false);
+          }, 180);
 
           const deltaScale = event.deltaMode === 1
             ? 16
@@ -6444,6 +6471,7 @@
           } else {
             gesture = null;
             frame.classList.remove("panning", "pinching");
+            setCardCropUiInteraction(card, "pointer-crop", false);
             setCropGestureActive(false);
           }
         }
@@ -6568,7 +6596,27 @@
           resizeTitleInput(titleInput);
         });
 
+        let zoomRangeCropUiTimer = 0;
+
+        zoomRange.addEventListener("pointerdown", () => {
+          setCardCropUiInteraction(card, "zoom-range-pointer", true);
+        });
+
+        const endZoomRangePointerInteraction = () => {
+          setCardCropUiInteraction(card, "zoom-range-pointer", false);
+        };
+
+        zoomRange.addEventListener("pointerup", endZoomRangePointerInteraction);
+        zoomRange.addEventListener("pointercancel", endZoomRangePointerInteraction);
+        zoomRange.addEventListener("lostpointercapture", endZoomRangePointerInteraction);
+        zoomRange.addEventListener("blur", endZoomRangePointerInteraction);
+
         zoomRange.addEventListener("input", () => {
+          setCardCropUiInteraction(card, "zoom-range-input", true);
+          clearTimeout(zoomRangeCropUiTimer);
+          zoomRangeCropUiTimer = window.setTimeout(() => {
+            setCardCropUiInteraction(card, "zoom-range-input", false);
+          }, 180);
           setCardZoom(card, zoomRange.value);
         });
 
