@@ -2154,9 +2154,17 @@
       background: rgba(248,250,252,.90);
     }
 
-    .icon-button:hover:not(:disabled) {
+    .icon-button:hover:not(:disabled):not([aria-disabled="true"]) {
       border-color: #c5ccd8;
       background: #fff;
+    }
+
+    .move-left[aria-disabled="true"],
+    .move-right[aria-disabled="true"] {
+      opacity: 0.42;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
 
     .icon-button.reset-crop {
@@ -3385,7 +3393,7 @@
       background: rgba(31,38,50,.92);
     }
 
-    :root[data-theme="dark"] .icon-button:hover:not(:disabled) {
+    :root[data-theme="dark"] .icon-button:hover:not(:disabled):not([aria-disabled="true"]) {
       border-color: #5a687b;
       background: #24303e;
     }
@@ -5932,25 +5940,35 @@
         if (!canReorder && reorderModeActive) setReorderMode(false, { announce: false });
       }
 
-      function moveCardByKeyboard(card, direction) {
+      function moveCardByKeyboard(card, direction, focusTarget = card) {
         const cards = getCards();
         const currentIndex = cards.indexOf(card);
         const nextIndex = clamp(currentIndex + direction, 0, cards.length - 1);
         if (currentIndex < 0 || nextIndex === currentIndex) return;
 
-        if (direction < 0) grid.insertBefore(card, cards[nextIndex]);
-        else grid.insertBefore(card, cards[nextIndex].nextSibling);
+        const adjacentCard = cards[nextIndex];
+        if (direction < 0) {
+          grid.insertBefore(adjacentCard, card.nextSibling);
+        } else {
+          grid.insertBefore(adjacentCard, card);
+        }
 
         refreshMoveButtons();
+        if (focusTarget?.isConnected && typeof focusTarget.focus === "function") {
+          focusTarget.focus({ preventScroll: true });
+        } else {
         card.focus({ preventScroll: true });
+        }
         reorderStatus.textContent = t("reorder.movedTo", { position: nextIndex + 1 });
       }
 
       function refreshMoveButtons() {
         const cards = getCards();
         cards.forEach((card, index) => {
-          card.querySelector(".move-left").disabled = index === 0;
-          card.querySelector(".move-right").disabled = index === cards.length - 1;
+          const moveLeftButton = card.querySelector(".move-left");
+          const moveRightButton = card.querySelector(".move-right");
+          moveLeftButton.setAttribute("aria-disabled", String(index === 0));
+          moveRightButton.setAttribute("aria-disabled", String(index === cards.length - 1));
           syncReorderModeCard(card);
         });
         updateReorderModeAvailability();
@@ -6632,8 +6650,9 @@
         moveLeftButton.addEventListener("click", () => {
           const previous = card.previousElementSibling;
           if (previous && previous.classList.contains("card")) {
-            grid.insertBefore(card, previous);
+            grid.insertBefore(previous, card.nextSibling);
             refreshMoveButtons();
+            moveLeftButton.focus({ preventScroll: true });
           }
         });
 
@@ -6642,6 +6661,7 @@
           if (next && next.classList.contains("card")) {
             grid.insertBefore(next, card);
             refreshMoveButtons();
+            moveRightButton.focus({ preventScroll: true });
           }
         });
 
@@ -6660,10 +6680,11 @@
 
         card.addEventListener("keydown", (event) => {
           if (!reorderModeActive) return;
+          if (event.target !== card) return;
           if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
           event.preventDefault();
           const direction = (event.key === "ArrowLeft" || event.key === "ArrowUp") ? -1 : 1;
-          moveCardByKeyboard(card, direction);
+          moveCardByKeyboard(card, direction, card);
         });
 
         dragBadge.addEventListener("pointerdown", (event) => {
@@ -6677,18 +6698,9 @@
         dragBadge.addEventListener("keydown", (event) => {
           if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
           event.preventDefault();
+          event.stopPropagation();
           const direction = event.key === "ArrowLeft" ? -1 : 1;
-          const cards = getCards();
-          const currentIndex = cards.indexOf(card);
-          const nextIndex = clamp(currentIndex + direction, 0, cards.length - 1);
-          if (nextIndex === currentIndex) return;
-          if (direction < 0) {
-            grid.insertBefore(card, cards[nextIndex]);
-          } else {
-            grid.insertBefore(card, cards[nextIndex].nextSibling);
-          }
-          refreshMoveButtons();
-          reorderStatus.textContent = t("reorder.movedTo", { position: nextIndex + 1 });
+          moveCardByKeyboard(card, direction, dragBadge);
         });
 
         installImageCropping(card, frame, img);
