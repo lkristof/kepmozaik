@@ -1453,6 +1453,10 @@
       align-items: start;
     }
 
+    .grid.single-column-layout {
+      margin-inline: auto;
+    }
+
     .empty-state {
       grid-column: 1 / -1;
       padding: 42px 20px;
@@ -1690,6 +1694,122 @@
 
     body.card-reorder-mode .card .image-frame::after {
       opacity: 0 !important;
+    }
+
+    .reorder-scroll-gutter {
+      display: none;
+    }
+
+    @media (max-width: 1180px) and (pointer: coarse) {
+      .reorder-scroll-gutter {
+        position: absolute;
+        z-index: 9500;
+        top: var(--reorder-gutter-top, 0px);
+        left: var(--reorder-gutter-left, 0px);
+        right: auto;
+        bottom: auto;
+        display: block;
+        width: 48px;
+        height: var(--reorder-gutter-height, 0px);
+        border-left: 1px solid color-mix(in srgb, var(--accent) 12%, transparent);
+        background: linear-gradient(
+          90deg,
+          transparent,
+          color-mix(in srgb, var(--accent) 5%, transparent)
+        );
+        box-shadow: inset 8px 0 18px color-mix(in srgb, var(--accent) 3%, transparent);
+        opacity: 0;
+        pointer-events: none;
+        touch-action: pan-y;
+        -webkit-tap-highlight-color: transparent;
+        transition: opacity 0.16s ease;
+      }
+
+      .reorder-scroll-gutter-label {
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        color: color-mix(in srgb, var(--text) 34%, transparent);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        line-height: 1;
+        text-transform: uppercase;
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        transform: translateX(-50%);
+        user-select: none;
+        pointer-events: none;
+      }
+
+      .reorder-scroll-gutter-icon {
+        position: fixed;
+        z-index: 9501;
+        top: var(--reorder-gutter-icon-top, 50%);
+        left: var(--reorder-gutter-icon-left, calc(100% - 24px));
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 54px;
+        border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--panel) 88%, transparent);
+        color: var(--accent);
+        box-shadow:
+          0 6px 18px color-mix(in srgb, var(--accent) 10%, transparent),
+          inset 0 1px 0 color-mix(in srgb, #ffffff 60%, transparent);
+        opacity: 0;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        transition: opacity 0.14s ease;
+      }
+
+      body.card-reorder-mode .reorder-scroll-gutter.is-grid-visible.is-grid-in-view
+        .reorder-scroll-gutter-icon {
+        opacity: 1;
+      }
+
+      .reorder-scroll-gutter-icon svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2.2;
+      }
+
+      body.card-reorder-mode .reorder-scroll-gutter.is-grid-visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      body.card-reorder-mode .grid-scroll {
+        width: calc(100% - 32px);
+        max-width: calc(100% - 32px);
+        margin: -8px 48px 0 -8px;
+        overflow-x: hidden;
+        overscroll-behavior-x: none;
+        touch-action: pan-y pinch-zoom;
+      }
+
+      :root[data-theme="dark"] .reorder-scroll-gutter {
+        border-left-color: color-mix(in srgb, var(--accent) 16%, transparent);
+        background: linear-gradient(
+          90deg,
+          transparent,
+          color-mix(in srgb, var(--accent) 7%, transparent)
+        );
+        box-shadow: inset 8px 0 18px color-mix(in srgb, var(--accent) 5%, transparent);
+      }
+
+      :root[data-theme="dark"] .reorder-scroll-gutter-label {
+        color: color-mix(in srgb, var(--text) 30%, transparent);
+      }
+
+      :root[data-theme="dark"] .reorder-scroll-gutter-icon {
+        border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+        background: color-mix(in srgb, var(--panel) 92%, transparent);
+        box-shadow:
+          0 6px 18px rgba(0, 0, 0, 0.22),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
     }
 
     .card.dragging {
@@ -4312,6 +4432,17 @@
       </section>
     </div>
     <div class="visually-hidden" id="reorderStatus" role="status" aria-live="polite"></div>
+    <div class="reorder-scroll-gutter" aria-hidden="true">
+      <span class="reorder-scroll-gutter-label">Görgetés</span>
+      <span class="reorder-scroll-gutter-icon">
+        <svg class="lucide lucide-move-vertical" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20"></path>
+          <path d="m8 6 4-4 4 4"></path>
+          <path d="m8 18 4 4 4-4"></path>
+        </svg>
+      </span>
+    </div>
   </main>
 
   <template id="cardTemplate">
@@ -4472,358 +4603,360 @@
 
       const translations = {
         hu: {
-          "brand.base": "Kép",
+          "aspectRatio": "Képarány",
           "brand.accent": "Mozaik",
-          "page.siteName": "KépMozaik",
-          "page.title": "KépMozaik - Készíts látványos képmozaikot",
-          "page.description": "Rendezd, vágd és exportáld képeidet egyetlen látványos mozaikként, közvetlenül a böngészőből.",
-          "page.twitterDescription": "Rendezd, vágd és exportáld képeidet egyetlen látványos mozaikként.",
-          "page.imageAlt": "KépMozaik - képek rendezése és mozaikként történő exportálása",
-          "subtitle": "Képekből látványos mozaik, közvetlenül a böngészőben.",
-          "language.switch": "Váltás angol nyelvre",
-          "theme.switch": "Megjelenési téma váltása",
-          "theme.enableDark": "Sötét téma bekapcsolása",
-          "theme.enableLight": "Világos téma bekapcsolása",
-          "settings.open": "Beállítások megnyitása",
-          "settings.title": "Beállítások",
-          "settings.description": "A szerkesztő működését és méreteit szabhatod személyre. Ezek a beállítások ezen a böngészőn megmaradnak.",
-          "settings.close": "Beállítások bezárása",
-          "settings.maxZoom": "Maximális zoom",
-          "settings.maxZoomHelp": "A képek nagyításának felső határa.",
-          "settings.maxZoomAria": "Maximális zoom százalékban",
-          "settings.cardWidth": "Kártyaméret",
-          "settings.cardWidthHelp": "A szerkesztőben megjelenő képkártyák alap-szélessége.",
-          "settings.cardWidthAria": "Kártyaméret pixelben",
-          "settings.maxColumns": "Maximális oszlopszám",
-          "settings.maxColumnsHelp": "Az oszlopszám-léptető felső határa.",
-          "settings.maxColumnsAria": "Maximális oszlopszám",
-          "settings.maxColumnsUnit": "oszlop",
-          "settings.reset": "Alapértékek",
-          "settings.cancel": "Mégse",
-          "settings.save": "Mentés",
-          "settings.saved": "Beállítások elmentve.",
-          "project.empty": "Üres projekt",
-          "image.one": "kép",
-          "image.many": "kép",
-          "toolbar.label": "Szerkesztő eszköztár",
-          "toolbar.fileActions": "Fájl- és projektműveletek",
+          "brand.base": "Kép",
           "browse.full": "Képek tallózása",
           "browse.short": "Tallózás",
-          "save.full": "Projekt mentése",
-          "save.short": "Mentés",
-          "load.full": "Projekt betöltése",
-          "load.short": "Betöltés",
-          "clear.full": "Összes törlése",
-          "clear.short": "Törlés",
-          "reorderMode.full": "Átrendezés",
-          "reorderMode.short": "Rendezés",
-          "reorderMode.title": "Átrendezési mód",
-          "reorderMode.enableAria": "Átrendezési mód bekapcsolása",
-          "reorderMode.disableAria": "Átrendezési mód kikapcsolása",
-          "reorderMode.enabled": "Átrendezési mód bekapcsolva. Fogd meg bárhol a kártyát, és húzd az új helyére.",
-          "reorderMode.disabled": "Átrendezési mód kikapcsolva.",
-          "reorderMode.cardAria": "Kártya átrendezése húzással. A nyílbillentyűkkel is mozgatható.",
-          "aspectRatio": "Képarány",
-          "custom": "Egyéni",
-          "customRatio": "Egyéni képarány",
-          "width": "Szélesség",
-          "height": "Magasság",
-          "width.decrease": "Szélesség csökkentése",
-          "width.increase": "Szélesség növelése",
-          "height.decrease": "Magasság csökkentése",
-          "height.increase": "Magasság növelése",
-          "columns": "Oszlopok",
-          "columns.decrease": "Oszlopok számának csökkentése",
-          "columns.increase": "Oszlopok számának növelése",
-          "columns.count": "{count} oszlop",
-          "columns.set": "{count} oszlop beállítva.",
-          "export.label": "Exportálási beállítások",
-          "export.action": "Exportálási művelet",
-          "export.full": "PNG exportálás",
-          "export.short": "PNG export",
-          "quality": "Minőség",
-          "quality.compact": "Kompakt",
-          "quality.large": "Nagy",
-          "quality.extraLarge": "Extra nagy",
-          "gridGap": "Rácsköz",
-          "titles.show": "Feliratok megjelenítése",
-          "titles.color": "Felirat színe",
-          "titles.background": "Felirat háttere",
-          "titles.backgroundShort": "Felirat háttere",
-          "mosaic.background": "Mozaik háttere",
-          "mosaic.backgroundShort": "Mozaik háttere",
-          "titles.colorAria": "A képcím szövegszíne",
-          "titles.backgroundAria": "A képcím hátterének színe",
-          "mosaic.backgroundAria": "Az exportált képrács háttérszíne",
-          "titles.colorHexAria": "A képcím szövegszínének hexakódja",
-          "titles.backgroundHexAria": "A képcím háttérszínének hexakódja",
-          "mosaic.backgroundHexAria": "Az exportált képrács háttérszínének hexakódja",
-          "toast.close": "Értesítés bezárása",
-          "easter.careful": "Óvatosan a kattintgatással… 👀",
-          "clear.title": "Összes kép törlése?",
-          "clear.description": "A projekt összes betöltött képe és minden szerkesztés eltávolításra kerül. Ez nem vonható vissza.",
-          "clear.descriptionCount": "A projekt {count} betöltött képe és minden szerkesztés eltávolításra kerül. Ez nem vonható vissza.",
-          "clear.cancel": "Mégse",
-          "clear.confirm": "Összes törlése",
-          "clear.fallback": "Összes kép törlése?\n\n{description}",
-          "clear.deleted": "{count} {noun} törölve.",
-          "drop.aria": "Képek hozzáadása kattintással vagy behúzással",
-          "drop.add": "Képek hozzáadása",
-          "drop.release": "Engedd el a képeket itt",
-          "drop.description": "Kattints ide a tallózáshoz, vagy húzd ide a képeket.",
-          "drop.note": "Egyszerre több képet is hozzáadhatsz.",
-          "grid.scrollHint": "További oszlopokért görgess oldalra.",
-          "grid.scrollable": "Vízszintesen görgethető képrács",
-          "grid.label": "Képrács",
-          "grid.descriptionScrollable": "A rács szélesebb a képernyőnél, ezért vízszintesen görgethető.",
-          "grid.descriptionVisible": "A teljes képrács látható vízszintes görgetés nélkül.",
-          "grid.empty": "Még nincs feltöltött kép.",
-          "card.frameAria": "Kép kivágásának pozicionálása",
-          "card.titlePlaceholder": "Kép neve",
-          "card.titleAria": "Kép neve, több sor is megadható",
-          "card.dragTitle": "Fogd meg és húzd. A kék helyőrző mutatja a pontos új helyet.",
+          "card.delete": "Törlés",
+          "card.deleteTitle": "Kép törlése",
           "card.dragAria": "Kártya átrendezése. A kék helyőrző mutatja a pontos új helyet.",
-          "card.panMouse": "Húzd a képet a vágáshoz",
-          "card.panTouch": "Egy ujjal mozgasd, két ujjal nagyítsd",
-          "card.zoom": "Nagyítás",
-          "card.zoomAria": "Kép nagyítása",
-          "card.previous": "Előző",
-          "card.previousTitle": "Kártya mozgatása az előző helyre",
+          "card.dragTitle": "Fogd meg és húzd. A kék helyőrző mutatja a pontos új helyet.",
+          "card.frameAria": "Kép kivágásának pozicionálása",
           "card.next": "Következő",
           "card.nextTitle": "Kártya mozgatása a következő helyre",
+          "card.panMouse": "Húzd a képet a vágáshoz",
+          "card.panTouch": "Egy ujjal mozgasd, két ujjal nagyítsd",
+          "card.previous": "Előző",
+          "card.previousTitle": "Kártya mozgatása az előző helyre",
+          "card.reset": "Alaphelyzet",
           "card.resetAria": "Nagyítás és képpozíció visszaállítása",
           "card.resetAvailable": "Nagyítás és képpozíció visszaállítása",
           "card.resetDisabled": "A kép már alaphelyzetben van",
-          "card.reset": "Alaphelyzet",
-          "card.delete": "Törlés",
-          "card.deleteTitle": "Kép törlése",
+          "card.titleAria": "Kép neve, több sor is megadható",
+          "card.titlePlaceholder": "Kép neve",
           "card.uploadedImage": "Feltöltött kép",
-          "slot.addTitle": "Kép hozzáadása",
-          "slot.addDescription": "Kattints ide, vagy húzd ide a képeket.",
-          "slot.addAria": "Kép hozzáadása a következő üres helyhez",
-          "reorder.placeholder": "Ide kerül",
-          "reorder.position": "{position}. hely a(z) {total} közül",
-          "reorder.willMove": "A kép a(z) {position}. helyre kerül.",
-          "reorder.inProgress": "Áthelyezés folyamatban. A kék helyőrző mutatja az új pozíciót.",
-          "reorder.moved": "A kép új helyre került.",
-          "reorder.cancelled": "Az áthelyezés megszakadt.",
-          "reorder.movedTo": "A kép a(z) {position}. helyre került.",
-          "fileDrop.multipleHere": "{count} kép ide kerül",
-          "fileDrop.singleHere": "Új kép ide kerül",
-          "fileDrop.placeHere": "Ide kerül",
-          "fileDrop.releaseMultiple": "Engedd el: {count} kép kerül be ettől a helytől.",
-          "fileDrop.releaseSingle": "Engedd el a képet a beszúráshoz.",
-          "fileDrop.multiplePosition": "{count} új kép a(z) {position}. helytől kerül be.",
-          "fileDrop.singlePosition": "Az új kép a(z) {position}. helyre kerül.",
-          "error.imageRead": "A kép beolvasása sikertelen.",
+          "card.zoom": "Nagyítás",
+          "card.zoomAria": "Kép nagyítása",
+          "clear.cancel": "Mégse",
+          "clear.confirm": "Összes törlése",
+          "clear.deleted": "{count} {noun} törölve.",
+          "clear.description": "A projekt összes betöltött képe és minden szerkesztés eltávolításra kerül. Ez nem vonható vissza.",
+          "clear.descriptionCount": "A projekt {count} betöltött képe és minden szerkesztés eltávolításra kerül. Ez nem vonható vissza.",
+          "clear.fallback": "Összes kép törlése?\n\n{description}",
+          "clear.full": "Összes törlése",
+          "clear.short": "Törlés",
+          "clear.title": "Összes kép törlése?",
+          "columns": "Oszlopok",
+          "columns.count": "{count} oszlop",
+          "columns.decrease": "Oszlopok számának csökkentése",
+          "columns.increase": "Oszlopok számának növelése",
+          "columns.set": "{count} oszlop beállítva.",
+          "custom": "Egyéni",
+          "customRatio": "Egyéni képarány",
+          "drop.add": "Képek hozzáadása",
+          "drop.aria": "Képek hozzáadása kattintással vagy behúzással",
+          "drop.description": "Kattints ide a tallózáshoz, vagy húzd ide a képeket.",
+          "drop.note": "Egyszerre több képet is hozzáadhatsz.",
+          "drop.release": "Engedd el a képeket itt",
+          "easter.careful": "Óvatosan a kattintgatással… 👀",
           "error.compress": "A projektkép tömörítése sikertelen volt.",
           "error.decode": "A kép nem dekódolható.",
           "error.dimensions": "Az egyik kép mérete nem állapítható meg.",
+          "error.imageRead": "A kép beolvasása sikertelen.",
           "error.prepare": "A böngésző nem tudta előkészíteni a képet.",
           "error.projectImage": "A projekt egyik képe hibás vagy nem támogatott.",
           "error.restoreImage": "A projekt egyik képét nem lehetett visszaállítani.",
-          "save.start": "JSON-projekt mentése folyamatban…",
-          "save.sourceUnavailable": "Az egyik kép forrása nem érhető el.",
-          "save.progress": "Képek tömörítése és mentése: {current} / {total}…",
-          "save.success": "JSON elmentve: {count} {noun}, {size}. Képadatok: {original} → {optimized} ({reduction}% csökkenés).",
-          "save.failed": "A projekt mentése sikertelen volt.",
+          "export.action": "Exportálási művelet",
+          "export.canvasFailed": "A böngésző nem tudta létrehozni az exportvásznat.",
+          "export.done": "Elkészült: {width} × {height} px",
+          "export.failed": "Az exportálás sikertelen volt.",
+          "export.full": "PNG exportálás",
+          "export.label": "Exportálási beállítások",
+          "export.pngFailed": "A PNG-fájl létrehozása sikertelen volt.",
+          "export.progress": "Exportálás: {current} / {total} kép…",
+          "export.short": "PNG export",
+          "export.start": "Exportálás folyamatban…",
+          "export.tooLarge": "A létrejövő kép túl nagy. Válassz kisebb exportminőséget vagy kevesebb oszlopot.",
+          "fileDrop.multipleHere": "{count} kép ide kerül",
+          "fileDrop.multiplePosition": "{count} új kép a(z) {position}. helytől kerül be.",
+          "fileDrop.placeHere": "Ide kerül",
+          "fileDrop.releaseMultiple": "Engedd el: {count} kép kerül be ettől a helytől.",
+          "fileDrop.releaseSingle": "Engedd el a képet a beszúráshoz.",
+          "fileDrop.singleHere": "Új kép ide kerül",
+          "fileDrop.singlePosition": "Az új kép a(z) {position}. helyre kerül.",
+          "grid.descriptionScrollable": "A rács szélesebb a képernyőnél, ezért vízszintesen görgethető.",
+          "grid.descriptionVisible": "A teljes képrács látható vízszintes görgetés nélkül.",
+          "grid.empty": "Még nincs feltöltött kép.",
+          "grid.label": "Képrács",
+          "grid.scrollable": "Vízszintesen görgethető képrács",
+          "grid.scrollHint": "További oszlopokért görgess oldalra.",
+          "gridGap": "Rácsköz",
+          "height": "Magasság",
+          "height.decrease": "Magasság csökkentése",
+          "height.increase": "Magasság növelése",
+          "image.many": "kép",
+          "image.one": "kép",
+          "images.added": "{count} {noun} hozzáadva.",
+          "images.addedAt": "{count} {noun} hozzáadva a(z) {position}. helytől.",
+          "images.dragToGrid": "A képeket a rács kívánt helyére húzd.",
+          "images.unsupported": "A behúzott fájlok között nem volt támogatott kép.",
+          "language.switch": "Váltás angol nyelvre",
+          "load.cancelled": "A projekt betöltése megszakítva.",
           "load.check": "Projektfájl ellenőrzése…",
-          "load.unsupported": "Ez nem támogatott képrács JSON-projektfájl.",
+          "load.failed": "A projekt betöltése sikertelen volt.",
+          "load.full": "Projekt betöltése",
           "load.noImages": "A projektfájl nem tartalmaz képeket.",
           "load.progress": "Projekt betöltése: {current} / {total} kép előkészítése…",
           "load.replaceConfirm": "A projekt betöltése lecseréli a jelenlegi munkát. Folytatod?",
-          "load.cancelled": "A projekt betöltése megszakítva.",
+          "load.short": "Betöltés",
           "load.success": "JSON-projekt betöltve: {count} {noun}.",
-          "load.failed": "A projekt betöltése sikertelen volt.",
-          "export.start": "Exportálás folyamatban…",
-          "export.tooLarge": "A létrejövő kép túl nagy. Válassz kisebb exportminőséget vagy kevesebb oszlopot.",
-          "export.canvasFailed": "A böngésző nem tudta létrehozni az exportvásznat.",
-          "export.progress": "Exportálás: {current} / {total} kép…",
-          "export.pngFailed": "A PNG-fájl létrehozása sikertelen volt.",
-          "export.done": "Elkészült: {width} × {height} px",
-          "export.failed": "Az exportálás sikertelen volt.",
-          "images.added": "{count} {noun} hozzáadva.",
-          "images.unsupported": "A behúzott fájlok között nem volt támogatott kép.",
-          "images.addedAt": "{count} {noun} hozzáadva a(z) {position}. helytől.",
-          "images.dragToGrid": "A képeket a rács kívánt helyére húzd.",
-          "recovery.restored": "Az előző munkamenet automatikusan visszaállt: {count} {noun}."
+          "load.unsupported": "Ez nem támogatott képrács JSON-projektfájl.",
+          "mosaic.background": "Mozaik háttere",
+          "mosaic.backgroundAria": "Az exportált képrács háttérszíne",
+          "mosaic.backgroundHexAria": "Az exportált képrács háttérszínének hexakódja",
+          "mosaic.backgroundShort": "Mozaik háttere",
+          "page.description": "Rendezd, vágd és exportáld képeidet egyetlen látványos mozaikként, közvetlenül a böngészőből.",
+          "page.imageAlt": "KépMozaik - képek rendezése és mozaikként történő exportálása",
+          "page.siteName": "KépMozaik",
+          "page.title": "KépMozaik - Készíts látványos képmozaikot",
+          "page.twitterDescription": "Rendezd, vágd és exportáld képeidet egyetlen látványos mozaikként.",
+          "project.empty": "Üres projekt",
+          "quality": "Minőség",
+          "quality.compact": "Kompakt",
+          "quality.extraLarge": "Extra nagy",
+          "quality.large": "Nagy",
+          "recovery.restored": "Az előző munkamenet automatikusan visszaállt: {count} {noun}.",
+          "reorder.cancelled": "Az áthelyezés megszakadt.",
+          "reorder.inProgress": "Áthelyezés folyamatban. A kék helyőrző mutatja az új pozíciót.",
+          "reorder.moved": "A kép új helyre került.",
+          "reorder.movedTo": "A kép a(z) {position}. helyre került.",
+          "reorder.placeholder": "Ide kerül",
+          "reorder.position": "{position}. hely a(z) {total} közül",
+          "reorder.scrollLabel": "Görgetés",
+          "reorder.willMove": "A kép a(z) {position}. helyre kerül.",
+          "reorderMode.cardAria": "Kártya átrendezése húzással. A nyílbillentyűkkel is mozgatható.",
+          "reorderMode.disableAria": "Átrendezési mód kikapcsolása",
+          "reorderMode.disabled": "Átrendezési mód kikapcsolva.",
+          "reorderMode.enableAria": "Átrendezési mód bekapcsolása",
+          "reorderMode.enabled": "Átrendezési mód bekapcsolva. Fogd meg bárhol a kártyát, és húzd az új helyére.",
+          "reorderMode.full": "Átrendezés",
+          "reorderMode.short": "Rendezés",
+          "reorderMode.title": "Átrendezési mód",
+          "save.failed": "A projekt mentése sikertelen volt.",
+          "save.full": "Projekt mentése",
+          "save.progress": "Képek tömörítése és mentése: {current} / {total}…",
+          "save.short": "Mentés",
+          "save.sourceUnavailable": "Az egyik kép forrása nem érhető el.",
+          "save.start": "JSON-projekt mentése folyamatban…",
+          "save.success": "JSON elmentve: {count} {noun}, {size}. Képadatok: {original} → {optimized} ({reduction}% csökkenés).",
+          "settings.cancel": "Mégse",
+          "settings.cardWidth": "Kártyaméret",
+          "settings.cardWidthAria": "Kártyaméret pixelben",
+          "settings.cardWidthHelp": "A szerkesztőben megjelenő képkártyák alap-szélessége.",
+          "settings.close": "Beállítások bezárása",
+          "settings.description": "A szerkesztő működését és méreteit szabhatod személyre. Ezek a beállítások ezen a böngészőn megmaradnak.",
+          "settings.maxColumns": "Maximális oszlopszám",
+          "settings.maxColumnsAria": "Maximális oszlopszám",
+          "settings.maxColumnsHelp": "Az oszlopszám-léptető felső határa.",
+          "settings.maxColumnsUnit": "oszlop",
+          "settings.maxZoom": "Maximális zoom",
+          "settings.maxZoomAria": "Maximális zoom százalékban",
+          "settings.maxZoomHelp": "A képek nagyításának felső határa.",
+          "settings.open": "Beállítások megnyitása",
+          "settings.reset": "Alapértékek",
+          "settings.save": "Mentés",
+          "settings.saved": "Beállítások elmentve.",
+          "settings.title": "Beállítások",
+          "slot.addAria": "Kép hozzáadása a következő üres helyhez",
+          "slot.addDescription": "Kattints ide, vagy húzd ide a képeket.",
+          "slot.addTitle": "Kép hozzáadása",
+          "subtitle": "Képekből látványos mozaik, közvetlenül a böngészőben.",
+          "theme.enableDark": "Sötét téma bekapcsolása",
+          "theme.enableLight": "Világos téma bekapcsolása",
+          "theme.switch": "Megjelenési téma váltása",
+          "titles.background": "Felirat háttere",
+          "titles.backgroundAria": "A képcím hátterének színe",
+          "titles.backgroundHexAria": "A képcím háttérszínének hexakódja",
+          "titles.backgroundShort": "Felirat háttere",
+          "titles.color": "Felirat színe",
+          "titles.colorAria": "A képcím szövegszíne",
+          "titles.colorHexAria": "A képcím szövegszínének hexakódja",
+          "titles.show": "Feliratok megjelenítése",
+          "toast.close": "Értesítés bezárása",
+          "toolbar.fileActions": "Fájl- és projektműveletek",
+          "toolbar.label": "Szerkesztő eszköztár",
+          "width": "Szélesség",
+          "width.decrease": "Szélesség csökkentése",
+          "width.increase": "Szélesség növelése",
         },
         en: {
-          "brand.base": "Picture",
+          "aspectRatio": "Aspect ratio",
           "brand.accent": "Mosaic",
-          "page.siteName": "PictureMosaic",
-          "page.title": "PictureMosaic - Create a striking image mosaic",
-          "page.description": "Arrange, crop and export your images as a single striking mosaic directly in your browser.",
-          "page.twitterDescription": "Arrange, crop and export your images as a single striking mosaic.",
-          "page.imageAlt": "PictureMosaic - arrange images and export them as a mosaic",
-          "subtitle": "Turn your pictures into a striking mosaic, directly in your browser.",
-          "language.switch": "Switch to Hungarian",
-          "theme.switch": "Change appearance theme",
-          "theme.enableDark": "Enable dark theme",
-          "theme.enableLight": "Enable light theme",
-          "settings.open": "Open settings",
-          "settings.title": "Settings",
-          "settings.description": "Customize how the editor behaves and how large its cards appear. These settings are saved in this browser.",
-          "settings.close": "Close settings",
-          "settings.maxZoom": "Maximum zoom",
-          "settings.maxZoomHelp": "Sets the upper zoom limit for images.",
-          "settings.maxZoomAria": "Maximum zoom percent",
-          "settings.cardWidth": "Card size",
-          "settings.cardWidthHelp": "Base width of image cards in the editor.",
-          "settings.cardWidthAria": "Card size in pixels",
-          "settings.maxColumns": "Maximum columns",
-          "settings.maxColumnsHelp": "Sets the upper limit of the column stepper.",
-          "settings.maxColumnsAria": "Maximum number of columns",
-          "settings.maxColumnsUnit": "cols",
-          "settings.reset": "Defaults",
-          "settings.cancel": "Cancel",
-          "settings.save": "Save",
-          "settings.saved": "Settings saved.",
-          "project.empty": "Empty project",
-          "image.one": "image",
-          "image.many": "images",
-          "toolbar.label": "Editor toolbar",
-          "toolbar.fileActions": "File and project actions",
+          "brand.base": "Picture",
           "browse.full": "Browse images",
           "browse.short": "Browse",
-          "save.full": "Save project",
-          "save.short": "Save",
-          "load.full": "Load project",
-          "load.short": "Load",
-          "clear.full": "Clear all",
-          "clear.short": "Clear",
-          "reorderMode.full": "Rearrange",
-          "reorderMode.short": "Arrange",
-          "reorderMode.title": "Rearrange mode",
-          "reorderMode.enableAria": "Enable rearrange mode",
-          "reorderMode.disableAria": "Disable rearrange mode",
-          "reorderMode.enabled": "Rearrange mode is on. Grab any part of a card and drag it to its new position.",
-          "reorderMode.disabled": "Rearrange mode is off.",
-          "reorderMode.cardAria": "Drag to rearrange this card. You can also move it with the arrow keys.",
-          "aspectRatio": "Aspect ratio",
-          "custom": "Custom",
-          "customRatio": "Custom aspect ratio",
-          "width": "Width",
-          "height": "Height",
-          "width.decrease": "Decrease width",
-          "width.increase": "Increase width",
-          "height.decrease": "Decrease height",
-          "height.increase": "Increase height",
-          "columns": "Columns",
-          "columns.decrease": "Decrease the number of columns",
-          "columns.increase": "Increase the number of columns",
-          "columns.count": "{count} {noun}",
-          "columns.set": "Set to {count} {noun}.",
-          "export.label": "Export settings",
-          "export.action": "Export action",
-          "export.full": "Export PNG",
-          "export.short": "PNG export",
-          "quality": "Quality",
-          "quality.compact": "Compact",
-          "quality.large": "Large",
-          "quality.extraLarge": "Extra large",
-          "gridGap": "Grid gap",
-          "titles.show": "Show captions",
-          "titles.color": "Caption color",
-          "titles.background": "Caption background",
-          "titles.backgroundShort": "Caption BG",
-          "mosaic.background": "Mosaic background",
-          "mosaic.backgroundShort": "Mosaic BG",
-          "titles.colorAria": "Caption text color",
-          "titles.backgroundAria": "Caption background color",
-          "mosaic.backgroundAria": "Exported mosaic background color",
-          "titles.colorHexAria": "Caption text color hex code",
-          "titles.backgroundHexAria": "Caption background color hex code",
-          "mosaic.backgroundHexAria": "Exported mosaic background color hex code",
-          "toast.close": "Close notification",
-          "easter.careful": "Careful with all that clicking… 👀",
-          "clear.title": "Clear all images?",
-          "clear.description": "All loaded images and edits in the project will be removed. This cannot be undone.",
-          "clear.descriptionCount": "All {count} loaded images and edits in the project will be removed. This cannot be undone.",
-          "clear.cancel": "Cancel",
-          "clear.confirm": "Clear all",
-          "clear.fallback": "Clear all images?\n\n{description}",
-          "clear.deleted": "Deleted {count} {noun}.",
-          "drop.aria": "Add images by clicking or dragging them here",
-          "drop.add": "Add images",
-          "drop.release": "Drop the images here",
-          "drop.description": "Click to browse, or drag images here.",
-          "drop.note": "You can add multiple images at once.",
-          "grid.scrollHint": "Scroll sideways to see more columns.",
-          "grid.scrollable": "Horizontally scrollable image grid",
-          "grid.label": "Image grid",
-          "grid.descriptionScrollable": "The grid is wider than the screen and can be scrolled horizontally.",
-          "grid.descriptionVisible": "The complete image grid is visible without horizontal scrolling.",
-          "grid.empty": "No images have been uploaded yet.",
-          "card.frameAria": "Position the image crop",
-          "card.titlePlaceholder": "Image name",
-          "card.titleAria": "Image name; multiple lines are allowed",
-          "card.dragTitle": "Drag to reorder. The blue placeholder shows the exact new position.",
+          "card.delete": "Delete",
+          "card.deleteTitle": "Delete image",
           "card.dragAria": "Reorder card. The blue placeholder shows the exact new position.",
-          "card.panMouse": "Drag the image to adjust the crop",
-          "card.panTouch": "Move with one finger, zoom with two",
-          "card.zoom": "Zoom",
-          "card.zoomAria": "Zoom image",
-          "card.previous": "Previous",
-          "card.previousTitle": "Move card to the previous position",
+          "card.dragTitle": "Drag to reorder. The blue placeholder shows the exact new position.",
+          "card.frameAria": "Position the image crop",
           "card.next": "Next",
           "card.nextTitle": "Move card to the next position",
+          "card.panMouse": "Drag the image to adjust the crop",
+          "card.panTouch": "Move with one finger, zoom with two",
+          "card.previous": "Previous",
+          "card.previousTitle": "Move card to the previous position",
+          "card.reset": "Reset",
           "card.resetAria": "Reset zoom and image position",
           "card.resetAvailable": "Reset zoom and image position",
           "card.resetDisabled": "The image is already at its default position",
-          "card.reset": "Reset",
-          "card.delete": "Delete",
-          "card.deleteTitle": "Delete image",
+          "card.titleAria": "Image name; multiple lines are allowed",
+          "card.titlePlaceholder": "Image name",
           "card.uploadedImage": "Uploaded image",
-          "slot.addTitle": "Add image",
-          "slot.addDescription": "Click here, or drag images here.",
-          "slot.addAria": "Add an image to the next empty slot",
-          "reorder.placeholder": "Place here",
-          "reorder.position": "Position {position} of {total}",
-          "reorder.willMove": "The image will be placed at position {position}.",
-          "reorder.inProgress": "Reordering in progress. The blue placeholder shows the new position.",
-          "reorder.moved": "The image was moved to its new position.",
-          "reorder.cancelled": "Reordering was cancelled.",
-          "reorder.movedTo": "The image was moved to position {position}.",
-          "fileDrop.multipleHere": "{count} images will be placed here",
-          "fileDrop.singleHere": "The new image will be placed here",
-          "fileDrop.placeHere": "Place here",
-          "fileDrop.releaseMultiple": "Drop to insert {count} images starting here.",
-          "fileDrop.releaseSingle": "Drop the image to insert it here.",
-          "fileDrop.multiplePosition": "{count} new images will be inserted starting at position {position}.",
-          "fileDrop.singlePosition": "The new image will be inserted at position {position}.",
-          "error.imageRead": "The image could not be read.",
+          "card.zoom": "Zoom",
+          "card.zoomAria": "Zoom image",
+          "clear.cancel": "Cancel",
+          "clear.confirm": "Clear all",
+          "clear.deleted": "Deleted {count} {noun}.",
+          "clear.description": "All loaded images and edits in the project will be removed. This cannot be undone.",
+          "clear.descriptionCount": "All {count} loaded images and edits in the project will be removed. This cannot be undone.",
+          "clear.fallback": "Clear all images?\n\n{description}",
+          "clear.full": "Clear all",
+          "clear.short": "Clear",
+          "clear.title": "Clear all images?",
+          "columns": "Columns",
+          "columns.count": "{count} {noun}",
+          "columns.decrease": "Decrease the number of columns",
+          "columns.increase": "Increase the number of columns",
+          "columns.set": "Set to {count} {noun}.",
+          "custom": "Custom",
+          "customRatio": "Custom aspect ratio",
+          "drop.add": "Add images",
+          "drop.aria": "Add images by clicking or dragging them here",
+          "drop.description": "Click to browse, or drag images here.",
+          "drop.note": "You can add multiple images at once.",
+          "drop.release": "Drop the images here",
+          "easter.careful": "Careful with all that clicking… 👀",
           "error.compress": "The project image could not be compressed.",
           "error.decode": "The image could not be decoded.",
           "error.dimensions": "The dimensions of one image could not be determined.",
+          "error.imageRead": "The image could not be read.",
           "error.prepare": "The browser could not prepare the image.",
           "error.projectImage": "One of the project images is invalid or unsupported.",
           "error.restoreImage": "One of the project images could not be restored.",
-          "save.start": "Saving JSON project…",
-          "save.sourceUnavailable": "The source of one image is unavailable.",
-          "save.progress": "Compressing and saving images: {current} / {total}…",
-          "save.success": "JSON saved: {count} {noun}, {size}. Image data: {original} → {optimized} ({reduction}% reduction).",
-          "save.failed": "The project could not be saved.",
+          "export.action": "Export action",
+          "export.canvasFailed": "The browser could not create the export canvas.",
+          "export.done": "Done: {width} × {height} px",
+          "export.failed": "The export failed.",
+          "export.full": "Export PNG",
+          "export.label": "Export settings",
+          "export.pngFailed": "The PNG file could not be created.",
+          "export.progress": "Exporting image {current} of {total}…",
+          "export.short": "PNG export",
+          "export.start": "Exporting…",
+          "export.tooLarge": "The resulting image is too large. Choose a lower export quality or fewer columns.",
+          "fileDrop.multipleHere": "{count} images will be placed here",
+          "fileDrop.multiplePosition": "{count} new images will be inserted starting at position {position}.",
+          "fileDrop.placeHere": "Place here",
+          "fileDrop.releaseMultiple": "Drop to insert {count} images starting here.",
+          "fileDrop.releaseSingle": "Drop the image to insert it here.",
+          "fileDrop.singleHere": "The new image will be placed here",
+          "fileDrop.singlePosition": "The new image will be inserted at position {position}.",
+          "grid.descriptionScrollable": "The grid is wider than the screen and can be scrolled horizontally.",
+          "grid.descriptionVisible": "The complete image grid is visible without horizontal scrolling.",
+          "grid.empty": "No images have been uploaded yet.",
+          "grid.label": "Image grid",
+          "grid.scrollable": "Horizontally scrollable image grid",
+          "grid.scrollHint": "Scroll sideways to see more columns.",
+          "gridGap": "Grid gap",
+          "height": "Height",
+          "height.decrease": "Decrease height",
+          "height.increase": "Increase height",
+          "image.many": "images",
+          "image.one": "image",
+          "images.added": "Added {count} {noun}.",
+          "images.addedAt": "Added {count} {noun} starting at position {position}.",
+          "images.dragToGrid": "Drag the images to the desired position in the grid.",
+          "images.unsupported": "The dropped files did not include any supported images.",
+          "language.switch": "Switch to Hungarian",
+          "load.cancelled": "Project loading was cancelled.",
           "load.check": "Checking project file…",
-          "load.unsupported": "This is not a supported image-grid JSON project file.",
+          "load.failed": "The project could not be loaded.",
+          "load.full": "Load project",
           "load.noImages": "The project file contains no images.",
           "load.progress": "Loading project: preparing image {current} of {total}…",
           "load.replaceConfirm": "Loading the project will replace your current work. Continue?",
-          "load.cancelled": "Project loading was cancelled.",
+          "load.short": "Load",
           "load.success": "JSON project loaded: {count} {noun}.",
-          "load.failed": "The project could not be loaded.",
-          "export.start": "Exporting…",
-          "export.tooLarge": "The resulting image is too large. Choose a lower export quality or fewer columns.",
-          "export.canvasFailed": "The browser could not create the export canvas.",
-          "export.progress": "Exporting image {current} of {total}…",
-          "export.pngFailed": "The PNG file could not be created.",
-          "export.done": "Done: {width} × {height} px",
-          "export.failed": "The export failed.",
-          "images.added": "Added {count} {noun}.",
-          "images.unsupported": "The dropped files did not include any supported images.",
-          "images.addedAt": "Added {count} {noun} starting at position {position}.",
-          "images.dragToGrid": "Drag the images to the desired position in the grid.",
-          "recovery.restored": "The previous session was restored automatically: {count} {noun}."
+          "load.unsupported": "This is not a supported image-grid JSON project file.",
+          "mosaic.background": "Mosaic background",
+          "mosaic.backgroundAria": "Exported mosaic background color",
+          "mosaic.backgroundHexAria": "Exported mosaic background color hex code",
+          "mosaic.backgroundShort": "Mosaic BG",
+          "page.description": "Arrange, crop and export your images as a single striking mosaic directly in your browser.",
+          "page.imageAlt": "PictureMosaic - arrange images and export them as a mosaic",
+          "page.siteName": "PictureMosaic",
+          "page.title": "PictureMosaic - Create a striking image mosaic",
+          "page.twitterDescription": "Arrange, crop and export your images as a single striking mosaic.",
+          "project.empty": "Empty project",
+          "quality": "Quality",
+          "quality.compact": "Compact",
+          "quality.extraLarge": "Extra large",
+          "quality.large": "Large",
+          "recovery.restored": "The previous session was restored automatically: {count} {noun}.",
+          "reorder.cancelled": "Reordering was cancelled.",
+          "reorder.inProgress": "Reordering in progress. The blue placeholder shows the new position.",
+          "reorder.moved": "The image was moved to its new position.",
+          "reorder.movedTo": "The image was moved to position {position}.",
+          "reorder.placeholder": "Place here",
+          "reorder.position": "Position {position} of {total}",
+          "reorder.scrollLabel": "Scroll",
+          "reorder.willMove": "The image will be placed at position {position}.",
+          "reorderMode.cardAria": "Drag to rearrange this card. You can also move it with the arrow keys.",
+          "reorderMode.disableAria": "Disable rearrange mode",
+          "reorderMode.disabled": "Rearrange mode is off.",
+          "reorderMode.enableAria": "Enable rearrange mode",
+          "reorderMode.enabled": "Rearrange mode is on. Grab any part of a card and drag it to its new position.",
+          "reorderMode.full": "Rearrange",
+          "reorderMode.short": "Arrange",
+          "reorderMode.title": "Rearrange mode",
+          "save.failed": "The project could not be saved.",
+          "save.full": "Save project",
+          "save.progress": "Compressing and saving images: {current} / {total}…",
+          "save.short": "Save",
+          "save.sourceUnavailable": "The source of one image is unavailable.",
+          "save.start": "Saving JSON project…",
+          "save.success": "JSON saved: {count} {noun}, {size}. Image data: {original} → {optimized} ({reduction}% reduction).",
+          "settings.cancel": "Cancel",
+          "settings.cardWidth": "Card size",
+          "settings.cardWidthAria": "Card size in pixels",
+          "settings.cardWidthHelp": "Base width of image cards in the editor.",
+          "settings.close": "Close settings",
+          "settings.description": "Customize how the editor behaves and how large its cards appear. These settings are saved in this browser.",
+          "settings.maxColumns": "Maximum columns",
+          "settings.maxColumnsAria": "Maximum number of columns",
+          "settings.maxColumnsHelp": "Sets the upper limit of the column stepper.",
+          "settings.maxColumnsUnit": "cols",
+          "settings.maxZoom": "Maximum zoom",
+          "settings.maxZoomAria": "Maximum zoom percent",
+          "settings.maxZoomHelp": "Sets the upper zoom limit for images.",
+          "settings.open": "Open settings",
+          "settings.reset": "Defaults",
+          "settings.save": "Save",
+          "settings.saved": "Settings saved.",
+          "settings.title": "Settings",
+          "slot.addAria": "Add an image to the next empty slot",
+          "slot.addDescription": "Click here, or drag images here.",
+          "slot.addTitle": "Add image",
+          "subtitle": "Turn your pictures into a striking mosaic, directly in your browser.",
+          "theme.enableDark": "Enable dark theme",
+          "theme.enableLight": "Enable light theme",
+          "theme.switch": "Change appearance theme",
+          "titles.background": "Caption background",
+          "titles.backgroundAria": "Caption background color",
+          "titles.backgroundHexAria": "Caption background color hex code",
+          "titles.backgroundShort": "Caption BG",
+          "titles.color": "Caption color",
+          "titles.colorAria": "Caption text color",
+          "titles.colorHexAria": "Caption text color hex code",
+          "titles.show": "Show captions",
+          "toast.close": "Close notification",
+          "toolbar.fileActions": "File and project actions",
+          "toolbar.label": "Editor toolbar",
+          "width": "Width",
+          "width.decrease": "Decrease width",
+          "width.increase": "Increase width",
         }
       };
 
@@ -5010,6 +5143,7 @@
         setText(document, ".drop-zone-note", "drop.note");
         setText(document, "#gridScrollHint span", "grid.scrollHint");
         setText(document, "#emptyState", "grid.empty");
+        setText(document, ".reorder-scroll-gutter-label", "reorder.scrollLabel");
 
         translateCardRoot(cardTemplate.content);
         getCards().forEach((card) => {
@@ -5488,7 +5622,15 @@
         const horizontalPadding =
           (parseFloat(scrollStyles.paddingLeft) || 0) +
           (parseFloat(scrollStyles.paddingRight) || 0);
-        const availableGridWidth = Math.max(0, gridScroll.parentElement.clientWidth - horizontalPadding);
+        const useReorderScrollGutter =
+          reorderModeActive &&
+          window.matchMedia("(max-width: 1180px) and (pointer: coarse)").matches;
+        const availableGridWidth = Math.max(
+          0,
+          useReorderScrollGutter
+            ? gridScroll.clientWidth - horizontalPadding
+            : gridScroll.parentElement.clientWidth - horizontalPadding
+        );
 
         let gridGap = GRID_GAP;
         let fittedGridWidth;
@@ -5529,6 +5671,7 @@
         gridScroll.style.setProperty("--grid-gap", `${gridGap}px`);
         gridScroll.style.setProperty("--card-min-width", `${cardWidth}px`);
         gridScroll.style.setProperty("--editor-grid-width", editorGridWidth);
+        grid.classList.toggle("single-column-layout", hasCards && columns === 1);
 
         requestAnimationFrame(() => {
           const hasHorizontalOverflow = hasCards && gridScroll.scrollWidth > gridScroll.clientWidth + 2;
@@ -8206,6 +8349,106 @@
           ];
 
       console.log(banner.join("\n"));
+    })();
+  </script>
+
+
+  <script>
+    (() => {
+      const gutter = document.querySelector(".reorder-scroll-gutter");
+      const gridScroll = document.getElementById("gridScroll");
+      if (!gutter || !gridScroll) return;
+
+      let gutterFrame = 0;
+
+      function updateReorderScrollGutter() {
+        gutterFrame = 0;
+
+        if (gridScroll.hidden) {
+          gutter.classList.remove("is-grid-visible");
+          return;
+        }
+
+        const rect = gridScroll.getBoundingClientRect();
+        const top = rect.top + window.scrollY;
+        const left = rect.right + window.scrollX;
+        const height = gridScroll.offsetHeight;
+        const iconLeft = rect.right + 24;
+
+        gutter.style.setProperty("--reorder-gutter-top", `${top}px`);
+        gutter.style.setProperty("--reorder-gutter-left", `${left}px`);
+        gutter.style.setProperty("--reorder-gutter-height", `${height}px`);
+        gutter.style.setProperty("--reorder-gutter-icon-left", `${iconLeft}px`);
+        gutter.classList.toggle("is-grid-visible", height > 1);
+      }
+
+      function scheduleReorderScrollGutterUpdate() {
+        if (gutterFrame) return;
+        gutterFrame = requestAnimationFrame(updateReorderScrollGutter);
+      }
+
+      let iconFrame = 0;
+
+      function updateReorderScrollGutterIcon() {
+        iconFrame = 0;
+        const rect = gridScroll.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const visibleTop = Math.max(0, rect.top);
+        const visibleBottom = Math.min(viewportHeight, rect.bottom);
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+        if (visibleHeight <= 0) {
+          gutter.classList.remove("is-grid-in-view");
+          return;
+        }
+
+        const iconHalfHeight = 27;
+        const idealIconTop = visibleTop + visibleHeight / 2;
+
+        // A kapszula teljes kerete maradjon a sáv tényleges határain belül.
+        // Nem a viewport széléhez, hanem magához a gutterhez clampelünk.
+        const minIconTop = rect.top + iconHalfHeight;
+        const maxIconTop = rect.bottom - iconHalfHeight;
+        const iconTop = maxIconTop >= minIconTop
+          ? Math.min(maxIconTop, Math.max(minIconTop, idealIconTop))
+          : (rect.top + rect.bottom) / 2;
+
+        gutter.style.setProperty(
+          "--reorder-gutter-icon-top",
+          `${iconTop}px`
+        );
+        gutter.classList.add("is-grid-in-view");
+      }
+
+      function scheduleReorderScrollGutterIconUpdate() {
+        if (iconFrame) return;
+        iconFrame = requestAnimationFrame(updateReorderScrollGutterIcon);
+      }
+
+      window.addEventListener("resize", () => {
+        scheduleReorderScrollGutterUpdate();
+        scheduleReorderScrollGutterIconUpdate();
+      });
+      window.visualViewport?.addEventListener("resize", () => {
+        scheduleReorderScrollGutterUpdate();
+        scheduleReorderScrollGutterIconUpdate();
+      });
+
+      new ResizeObserver(scheduleReorderScrollGutterUpdate).observe(gridScroll);
+      new MutationObserver(scheduleReorderScrollGutterUpdate).observe(gridScroll, {
+        attributes: true,
+        attributeFilter: ["hidden", "class", "style"]
+      });
+      new MutationObserver(scheduleReorderScrollGutterUpdate).observe(document.body, {
+        attributes: true,
+        attributeFilter: ["class"]
+      });
+
+      window.addEventListener("scroll", scheduleReorderScrollGutterIconUpdate, { passive: true });
+      window.visualViewport?.addEventListener("scroll", scheduleReorderScrollGutterIconUpdate, { passive: true });
+
+      scheduleReorderScrollGutterUpdate();
+      scheduleReorderScrollGutterIconUpdate();
     })();
   </script>
 
