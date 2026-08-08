@@ -3138,6 +3138,28 @@
       background: #2b3443;
     }
 
+    :root[data-theme="dark"] .button.primary {
+      color: #fff;
+      border-color: color-mix(in srgb, var(--accent) 84%, #000);
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent) 88%, #fff) 0%,
+        color-mix(in srgb, var(--accent) 88%, #000) 100%
+      );
+      box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 24%, transparent);
+    }
+
+    :root[data-theme="dark"] .button.primary:hover:not(:disabled) {
+      color: #fff;
+      border-color: color-mix(in srgb, var(--accent) 78%, #000);
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent) 82%, #fff) 0%,
+        color-mix(in srgb, var(--accent) 84%, #000) 100%
+      );
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 30%, transparent);
+    }
+
     :root[data-theme="dark"] .button.export {
       border-color: #38a875;
       background: linear-gradient(135deg, #269b69 0%, #19784f 100%);
