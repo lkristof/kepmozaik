@@ -2145,7 +2145,11 @@
       font-weight: 650;
     }
 
-    .crop-control input { width: 100%; }
+    .crop-control input {
+      width: 100%;
+      min-width: 0;
+      accent-color: var(--accent);
+    }
 
     .card-actions {
       display: grid;
@@ -2844,6 +2848,16 @@
       width: 100%;
       min-width: 0;
       accent-color: var(--accent);
+    }
+
+    :root[data-theme="light"] .crop-control input[type="range"]:hover,
+    :root[data-theme="light"] .settings-control-row input[type="range"]:hover {
+      accent-color: color-mix(in srgb, var(--accent) 38%, #8b5cf6 62%);
+    }
+
+    :root[data-theme="dark"] .crop-control input[type="range"]:active,
+    :root[data-theme="dark"] .settings-control-row input[type="range"]:active {
+      accent-color: color-mix(in srgb, var(--accent) 78%, #ffffff 22%);
     }
 
     .settings-number-wrap {
