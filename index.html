@@ -1453,7 +1453,8 @@
       align-items: start;
     }
 
-    .grid.single-column-layout {
+    .grid.single-column-layout,
+    body.card-reorder-mode .grid {
       margin-inline: auto;
     }
 
@@ -1700,7 +1701,7 @@
       display: none;
     }
 
-    @media (max-width: 1180px) and (pointer: coarse) {
+    @media (max-width: 1400px) and (any-pointer: coarse) {
       .reorder-scroll-gutter {
         position: absolute;
         z-index: 9500;
@@ -5624,7 +5625,7 @@
           (parseFloat(scrollStyles.paddingRight) || 0);
         const useReorderScrollGutter =
           reorderModeActive &&
-          window.matchMedia("(max-width: 1180px) and (pointer: coarse)").matches;
+          window.matchMedia("(max-width: 1400px) and (any-pointer: coarse)").matches;
         const availableGridWidth = Math.max(
           0,
           useReorderScrollGutter
