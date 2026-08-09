@@ -573,16 +573,6 @@
       box-shadow: 0 8px 20px rgba(18, 131, 84, 0.26);
     }
 
-    #exportJpgButton {
-      border-color: color-mix(in srgb, #14855a 76%, #ffffff);
-      background: linear-gradient(135deg, #199767 0%, #11764f 100%);
-    }
-
-    #exportJpgButton:hover:not(:disabled) {
-      border-color: #0d6e49;
-      background: linear-gradient(135deg, #1ca46f 0%, #0e704a 100%);
-    }
-
     .button.danger {
       box-shadow: none;
       border-color: rgba(217,45,32,.15);
@@ -4319,7 +4309,7 @@
 
     <section class="export-panel" aria-label="Exportálási beállítások">
       <div class="toolbar-action-group export-action-group" aria-label="Exportálási művelet">
-        <button class="button export export-format-button" id="exportPngButton" type="button" disabled aria-label="Exportálás PNG-ként">
+        <button class="button export export-format-button export-png-button" type="button" disabled aria-label="Exportálás PNG-ként">
           <svg class="lucide lucide-image" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
             <circle cx="9" cy="9" r="2"></circle>
@@ -4327,7 +4317,7 @@
           </svg>
           <span class="export-format-label">PNG</span>
         </button>
-        <button class="button export export-format-button" id="exportJpgButton" type="button" disabled aria-label="Exportálás optimalizált JPG-ként">
+        <button class="button export export-format-button export-jpg-button" type="button" disabled aria-label="Exportálás optimalizált JPG-ként">
           <svg class="lucide lucide-image" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
             <circle cx="9" cy="9" r="2"></circle>
@@ -4682,8 +4672,8 @@
       const imageCount = document.getElementById("imageCount");
       const imageCountValue = document.getElementById("imageCountValue");
       const imageCountLabel = document.getElementById("imageCountLabel");
-      const exportPngButton = document.getElementById("exportPngButton");
-      const exportJpgButton = document.getElementById("exportJpgButton");
+      const exportPngButton = document.querySelector(".export-png-button");
+      const exportJpgButton = document.querySelector(".export-jpg-button");
       const exportCellWidth = document.getElementById("exportCellWidth");
       const exportGap = document.getElementById("exportGap");
       const exportTitles = document.getElementById("exportTitles");
@@ -5256,8 +5246,8 @@
 
         setAttribute(document, ".export-panel", "aria-label", "export.label");
         setAttribute(document, ".export-action-group", "aria-label", "export.action");
-        setAttribute(document, "#exportPngButton", "aria-label", "export.pngAria");
-        setAttribute(document, "#exportJpgButton", "aria-label", "export.jpgAria");
+        setAttribute(document, ".export-png-button", "aria-label", "export.pngAria");
+        setAttribute(document, ".export-jpg-button", "aria-label", "export.jpgAria");
         setText(document, 'label[for="exportCellWidth"] > span', "quality");
         setText(document, '#exportCellWidth option[value="240"]', "quality.compact");
         setText(document, '#exportCellWidth option[value="480"]', "quality.large");
