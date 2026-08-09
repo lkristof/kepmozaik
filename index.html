@@ -6030,12 +6030,16 @@
 
       function syncReorderModeCard(card) {
         if (!card) return;
+        const frame = card.querySelector(".image-frame");
+
         if (reorderModeActive) {
           card.tabIndex = 0;
           card.setAttribute("aria-label", t("reorderMode.cardAria"));
+          if (frame) frame.tabIndex = -1;
         } else {
           card.removeAttribute("tabindex");
           card.removeAttribute("aria-label");
+          if (frame) frame.tabIndex = 0;
         }
       }
 
