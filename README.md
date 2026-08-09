@@ -1,92 +1,92 @@
-# KépMozaik
+# PictureMosaic
 
-Reszponzív, teljesen böngészőben futó alkalmazás, amellyel több képből rendezett és testreszabható képmozaik készíthető.
+A responsive, fully browser-based application for creating organized and customizable image mosaics from multiple images.
 
-A képek átrendezhetők, kivághatók, nagyíthatók és feliratozhatók, majd az elkészült mozaik veszteségmentes PNG-ként vagy kisebb fájlméretre optimalizált JPG-ként exportálható.
+Images can be rearranged, cropped, zoomed, and captioned, and the finished mosaic can be exported either as a lossless PNG or as an optimized JPG with a smaller file size.
 
-## Online változat
+## Online Version
 
-**[KépMozaik megnyitása](https://lkristof.github.io/kepmozaik/)**
+**[Open PictureMosaic](https://lkristof.github.io/kepmozaik/)**
 
-![KépMozaik előnézet](./assets/images/screenshot-light.jpg)
+![PictureMosaic preview](./assets/images/screenshot-light.jpg)
 
-## Főbb funkciók
+## Key Features
 
-* Több kép egyidejű betöltése
-* Képek hozzáadása fájlválasztóval vagy drag and drop módszerrel
-* Képek sorrendjének átrendezése
-* Képek pozicionálása és nagyítása a kivágási területen
-* Érintőképernyős mozgatás és nagyítás
-* Előre definiált és egyéni képarányok
-* 1–10 oszlopos elrendezés
-* Többsoros képfeliratok
-* Feliratszín, feliratháttér és mozaikháttér beállítása
-* Állítható rácsköz
-* Több exportminőség
-* Veszteségmentes PNG-export
-* Optimalizált JPG-export kisebb fájlmérethez
-* Projekt mentése és visszatöltése JSON-fájlból
-* Automatikus helyreállítás véletlen oldalfrissítés után
-* Magyar és angol kezelőfelület
-* Világos és sötét megjelenés
-* Reszponzív asztali és mobil felület
-* Billentyűzettel is használható kezelőelemek
+* Load multiple images at once
+* Add images using the file picker or drag and drop
+* Rearrange the order of images
+* Position and zoom images within the crop area
+* Touchscreen panning and zooming
+* Predefined and custom aspect ratios
+* Layouts with 1–10 columns
+* Multi-line image captions
+* Configurable caption color, caption background, and mosaic background
+* Adjustable grid spacing
+* Multiple export quality options
+* Lossless PNG export
+* Optimized JPG export for smaller file sizes
+* Save and restore projects using JSON files
+* Automatic recovery after accidental page refreshes
+* Hungarian and English user interface
+* Light and dark themes
+* Responsive desktop and mobile interface
+* Keyboard-accessible controls
 
-## Adatvédelem
+## Privacy
 
-A képek feldolgozása helyben, közvetlenül a böngészőben történik.
+All image processing is performed locally, directly in the browser.
 
-Az alkalmazás nem tölti fel a kiválasztott képeket külső szerverre. Projekt mentésekor a böngésző helyi JSON-fájlt készít, exportáláskor pedig a kiválasztott formátumtól függően PNG- vagy JPG-fájlt generál.
+The application does not upload selected images to any external server. When saving a project, the browser creates a local JSON file, while exporting generates either a PNG or JPG file depending on the selected format.
 
-## Használat
+## Usage
 
-1. Nyisd meg az [online alkalmazást](https://lkristof.github.io/kepmozaik/).
-2. Kattints a **Képek tallózása** gombra, vagy húzd a képeket a feltöltési területre.
-3. Állítsd be a képarányt és az oszlopok számát.
-4. Mozgasd és nagyítsd a képeket a kívánt kivágás eléréséhez.
-5. Rendezd át a képeket a kívánt sorrendbe.
-6. Adj meg feliratokat, és állítsd be a megjelenésüket.
-7. Válaszd ki az exportálási minőséget, a rácsközt és a kívánt háttérbeállításokat.
-8. Kattints a **PNG** vagy **JPG** exportgombra a kívánt formátum letöltéséhez.
+1. Open the [online application](https://lkristof.github.io/kepmozaik/).
+2. Click the **Browse Images** button or drag images into the upload area.
+3. Set the aspect ratio and number of columns.
+4. Move and zoom the images to achieve the desired crop.
+5. Rearrange the images into the desired order.
+6. Add captions and customize their appearance.
+7. Select the export quality, grid spacing, and desired background settings.
+8. Click the **PNG** or **JPG** export button to download the mosaic in the desired format.
 
-## Projekt mentése
+## Saving a Project
 
-A **Projekt mentése** gombbal az aktuális munka JSON-fájlba menthető, így később ugyanonnan folytatható.
+Use the **Save Project** button to save your current work as a JSON file so you can continue from the same point later.
 
-A projektfájl többek között tartalmazza:
+The project file includes, among other things:
 
-* a képeket optimalizált formában;
-* a képek sorrendjét;
-* a kivágási pozíciókat;
-* a nagyítási értékeket;
-* a képfeliratokat;
-* az elrendezési beállításokat;
-* az exportálási beállításokat.
+* the images in an optimized format;
+* the image order;
+* crop positions;
+* zoom values;
+* image captions;
+* layout settings;
+* export settings.
 
-A mentett projekt a **Projekt betöltése** gombbal tölthető vissza.
+A saved project can be restored using the **Load Project** button.
 
-### Automatikus helyreállítás
+### Automatic Recovery
 
-A folyamatban lévő projekt állapota automatikusan mentésre kerül a böngésző helyi tárhelyére. Ennek köszönhetően egy véletlen oldalfrissítés után a munka visszaállítható.
+The current project state is automatically saved to the browser's local storage. This allows your work to be restored after an accidental page refresh.
 
-Az automatikus helyreállítás az adott böngészőhöz és eszközhöz kötődik, ezért nem helyettesíti a **Projekt mentése** funkcióval letölthető JSON-fájlt.
+Automatic recovery is tied to the specific browser and device, so it does not replace the downloadable JSON file created using the **Save Project** feature.
 
-> A projektfájl a beágyazott képek miatt nagy méretű lehet.
+> The project file may be large because it contains embedded images.
 
-## Technológiák
+## Technologies
 
 * HTML5
 * CSS3
 * Vanilla JavaScript
 * Canvas API
-* File API és Blob API
+* File API and Blob API
 * Pointer Events
-* Local Storage és IndexedDB
+* Local Storage and IndexedDB
 * GitHub Pages
 
-A projekt nem használ JavaScript frameworköt, csomagkezelőt vagy külső buildrendszert.
+The project does not use a JavaScript framework, package manager, or external build system.
 
-## Projektstruktúra
+## Project Structure
 
 ```text
 kepmozaik/
@@ -107,23 +107,23 @@ kepmozaik/
 └── site.webmanifest
 ```
 
-Az alkalmazás HTML-, CSS- és JavaScript-kódja jelenleg az `index.html` fájlban található.
+The application's HTML, CSS, and JavaScript code is currently contained in the `index.html` file.
 
-## Böngészőtámogatás
+## Browser Support
 
-Modern asztali vagy mobil böngésző használata ajánlott, például:
+A modern desktop or mobile browser is recommended, such as:
 
 * Google Chrome
 * Microsoft Edge
 * Mozilla Firefox
 * Safari
 
-Nagyméretű projektek esetén a memóriahasználat a képek számától, felbontásától és a választott exportminőségtől függ.
+For large projects, memory usage depends on the number and resolution of the images as well as the selected export quality.
 
-## Felhasznált ikonok
+## Icons
 
-A kezelőfelület a [Lucide Icons](https://lucide.dev/) ikonjait használja, amelyek az ISC licenc alatt érhetők el.
+The user interface uses icons from [Lucide Icons](https://lucide.dev/), which are available under the ISC License.
 
-## Licenc
+## License
 
-A projekt az MIT licenc alatt érhető el. További információ a [LICENSE](./LICENSE) fájlban található.
+This project is available under the MIT License. See the [LICENSE](./LICENSE) file for more information.
