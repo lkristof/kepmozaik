@@ -1614,12 +1614,13 @@
 
     @container (max-width: 220px) {
       .editor-empty-slot-content {
+        position: absolute;
+        inset: 0;
         width: 100%;
         height: 100%;
         padding: 0;
         gap: 0;
-        place-items: center;
-        align-content: center;
+        display: block;
       }
 
       .editor-empty-slot-title,
@@ -1628,7 +1629,18 @@
       }
 
       .editor-empty-slot-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
         margin: 0;
+        transform: translate(-50%, -50%) scale(1);
+        transform-origin: center;
+      }
+
+      .editor-empty-slot:hover .editor-empty-slot-icon,
+      .editor-empty-slot:focus-visible .editor-empty-slot-icon,
+      .editor-empty-slot.file-drop-target .editor-empty-slot-icon {
+        transform: translate(-50%, -50%) scale(1.08);
       }
     }
 
