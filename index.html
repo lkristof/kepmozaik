@@ -1704,6 +1704,12 @@
       transform: scale(1.08);
     }
 
+    @container (max-width: 220px) {
+      .editor-empty-slot.file-drop-target .editor-empty-slot-icon {
+        transform: translate(-50%, -50%) scale(1.08);
+      }
+    }
+
     .editor-empty-slot.file-drop-target .editor-empty-slot-title {
       color: var(--accent-ink);
     }
