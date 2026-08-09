@@ -474,6 +474,22 @@
 
     .export-action-group {
       flex: 0 0 auto;
+      flex-wrap: nowrap;
+      gap: 6px;
+    }
+
+    .export-format-button {
+      min-width: 88px;
+    }
+
+    .export-format-button .export-format-label {
+      font-weight: 850;
+      letter-spacing: 0.035em;
+    }
+
+    .export-format-button svg {
+      width: 19px;
+      height: 19px;
     }
 
     .button {
@@ -555,6 +571,16 @@
       border-color: #0f7650;
       background: linear-gradient(135deg, #1aaf75 0%, #0f7950 100%);
       box-shadow: 0 8px 20px rgba(18, 131, 84, 0.26);
+    }
+
+    #exportJpgButton {
+      border-color: color-mix(in srgb, #14855a 76%, #ffffff);
+      background: linear-gradient(135deg, #199767 0%, #11764f 100%);
+    }
+
+    #exportJpgButton:hover:not(:disabled) {
+      border-color: #0d6e49;
+      background: linear-gradient(135deg, #1ca46f 0%, #0e704a 100%);
     }
 
     .button.danger {
@@ -2689,6 +2715,11 @@
       }
     }
 
+    .export-panel > .export-action-group .button {
+      flex: 1 1 auto;
+      width: auto;
+    }
+
     .move-icon {
       width: 18px;
       height: 18px;
@@ -4288,14 +4319,21 @@
 
     <section class="export-panel" aria-label="Exportálási beállítások">
       <div class="toolbar-action-group export-action-group" aria-label="Exportálási művelet">
-        <button class="button export" id="exportButton" type="button" disabled>
-          <svg class="lucide lucide-download" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <path d="m7 10 5 5 5-5"></path>
-            <path d="M12 15V3"></path>
+        <button class="button export export-format-button" id="exportPngButton" type="button" disabled aria-label="Exportálás PNG-ként">
+          <svg class="lucide lucide-image" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+            <circle cx="9" cy="9" r="2"></circle>
+            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
           </svg>
-          <span class="button-label-full">PNG exportálás</span>
-          <span class="button-label-short">PNG export</span>
+          <span class="export-format-label">PNG</span>
+        </button>
+        <button class="button export export-format-button" id="exportJpgButton" type="button" disabled aria-label="Exportálás optimalizált JPG-ként">
+          <svg class="lucide lucide-image" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+            <circle cx="9" cy="9" r="2"></circle>
+            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+          </svg>
+          <span class="export-format-label">JPG</span>
         </button>
       </div>
 
@@ -4644,7 +4682,8 @@
       const imageCount = document.getElementById("imageCount");
       const imageCountValue = document.getElementById("imageCountValue");
       const imageCountLabel = document.getElementById("imageCountLabel");
-      const exportButton = document.getElementById("exportButton");
+      const exportPngButton = document.getElementById("exportPngButton");
+      const exportJpgButton = document.getElementById("exportJpgButton");
       const exportCellWidth = document.getElementById("exportCellWidth");
       const exportGap = document.getElementById("exportGap");
       const exportTitles = document.getElementById("exportTitles");
@@ -4699,6 +4738,7 @@
       const THEME_STORAGE_KEY = "kepmozaik-theme";
       const LANGUAGE_STORAGE_KEY = "kepmozaik-language";
       const SETTINGS_STORAGE_KEY = "kepmozaik-editor-settings";
+      const OPTIMIZED_JPEG_QUALITY = 0.90;
 
       const translations = {
         hu: {
@@ -4760,11 +4800,14 @@
           "export.canvasFailed": "A böngésző nem tudta létrehozni az exportvásznat.",
           "export.done": "Elkészült: {width} × {height} px",
           "export.failed": "Az exportálás sikertelen volt.",
-          "export.full": "PNG exportálás",
+          "export.full": "Exportálás",
+          "export.jpgFailed": "A JPG-fájl létrehozása sikertelen volt.",
           "export.label": "Exportálási beállítások",
+          "export.pngAria": "Exportálás PNG-ként",
+          "export.jpgAria": "Exportálás optimalizált JPG-ként",
           "export.pngFailed": "A PNG-fájl létrehozása sikertelen volt.",
           "export.progress": "Exportálás: {current} / {total} kép…",
-          "export.short": "PNG export",
+          "export.short": "Export",
           "export.start": "Exportálás folyamatban…",
           "export.tooLarge": "A létrejövő kép túl nagy. Válassz kisebb exportminőséget vagy kevesebb oszlopot.",
           "fileDrop.multipleHere": "{count} kép ide kerül",
@@ -4938,11 +4981,14 @@
           "export.canvasFailed": "The browser could not create the export canvas.",
           "export.done": "Done: {width} × {height} px",
           "export.failed": "The export failed.",
-          "export.full": "Export PNG",
+          "export.full": "Export",
+          "export.jpgFailed": "The JPG file could not be created.",
           "export.label": "Export settings",
+          "export.pngAria": "Export as PNG",
+          "export.jpgAria": "Export as optimized JPG",
           "export.pngFailed": "The PNG file could not be created.",
           "export.progress": "Exporting image {current} of {total}…",
-          "export.short": "PNG export",
+          "export.short": "Export",
           "export.start": "Exporting…",
           "export.tooLarge": "The resulting image is too large. Choose a lower export quality or fewer columns.",
           "fileDrop.multipleHere": "{count} images will be placed here",
@@ -5210,8 +5256,8 @@
 
         setAttribute(document, ".export-panel", "aria-label", "export.label");
         setAttribute(document, ".export-action-group", "aria-label", "export.action");
-        setText(document, "#exportButton .button-label-full", "export.full");
-        setText(document, "#exportButton .button-label-short", "export.short");
+        setAttribute(document, "#exportPngButton", "aria-label", "export.pngAria");
+        setAttribute(document, "#exportJpgButton", "aria-label", "export.jpgAria");
         setText(document, 'label[for="exportCellWidth"] > span', "quality");
         setText(document, '#exportCellWidth option[value="240"]', "quality.compact");
         setText(document, '#exportCellWidth option[value="480"]', "quality.large");
@@ -5805,7 +5851,8 @@
 
         clearButton.disabled = !hasCards;
         saveProjectButton.disabled = !hasCards;
-        exportButton.disabled = !hasCards;
+        exportPngButton.disabled = !hasCards;
+        exportJpgButton.disabled = !hasCards;
         imageCount.dataset.empty = String(!hasCards);
         imageCountValue.hidden = !hasCards;
         imageCountValue.textContent = String(cardCount);
@@ -7636,18 +7683,20 @@
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
 
-      function timestampFilename() {
+      function timestampFilename(extension = "png") {
         const date = new Date();
         const pad = (value) => String(value).padStart(2, "0");
         const prefix = currentLanguage === "en" ? "picturemosaic" : "kepmozaik";
-        return `${prefix}-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}.png`;
+        return `${prefix}-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}.${extension}`;
       }
 
-      async function exportGridAsPng() {
+      async function exportGrid(format = "png") {
         const cards = getCards();
         if (!cards.length) return;
 
-        exportButton.disabled = true;
+        const useOptimizedJpeg = format === "jpg";
+        exportPngButton.disabled = true;
+        exportJpgButton.disabled = true;
         showStatusToast(t("export.start"), { tone: "progress", persistent: true });
 
         try {
@@ -7702,16 +7751,21 @@
             }
           }
 
-          const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-          if (!blob) throw new Error(t("export.pngFailed"));
+          const outputType = useOptimizedJpeg ? "image/jpeg" : "image/png";
+          const outputExtension = useOptimizedJpeg ? "jpg" : "png";
+          const outputQuality = useOptimizedJpeg ? OPTIMIZED_JPEG_QUALITY : undefined;
+          const blob = await new Promise((resolve) => canvas.toBlob(resolve, outputType, outputQuality));
+          if (!blob) throw new Error(t(useOptimizedJpeg ? "export.jpgFailed" : "export.pngFailed"));
 
-          downloadBlob(blob, timestampFilename());
-          showStatusToast(t("export.done", { width: canvasWidth, height: canvasHeight }), { tone: "success", duration: 4800 });
+          downloadBlob(blob, timestampFilename(outputExtension));
+          showStatusToast(`${t("export.done", { width: canvasWidth, height: canvasHeight })} · ${outputExtension.toUpperCase()} · ${formatBytes(blob.size)}`, { tone: "success", duration: 4800 });
         } catch (error) {
           console.error(error);
           showStatusToast(error instanceof Error ? error.message : t("export.failed"), { tone: "error", duration: 6500 });
         } finally {
-          exportButton.disabled = getCards().length === 0;
+          const disableExport = getCards().length === 0;
+          exportPngButton.disabled = disableExport;
+          exportJpgButton.disabled = disableExport;
         }
       }
 
@@ -7870,7 +7924,8 @@
       ].forEach(([colorInput, codeInput]) => {
         connectEditableHexColor(colorInput, codeInput);
       });
-      exportButton.addEventListener("click", exportGridAsPng);
+      exportPngButton.addEventListener("click", () => exportGrid("png"));
+      exportJpgButton.addEventListener("click", () => exportGrid("jpg"));
 
       function syncPairedSettingInputs(rangeInput, numberInput, value) {
         const min = Number(numberInput.min || rangeInput.min) || 0;
