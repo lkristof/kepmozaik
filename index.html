@@ -1153,6 +1153,11 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+      .drop-zone-icon-glyph,
+      .editor-empty-slot-icon-glyph {
+        transition: none;
+      }
+
       .status {
         transition: none;
       }
@@ -1349,6 +1354,7 @@
       background: rgba(255,255,255,.92);
       color: var(--accent);
       box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 10%, transparent);
+      transform-origin: center;
     }
 
     .drop-zone:hover .drop-zone-icon,
@@ -1356,7 +1362,24 @@
       border-color: color-mix(in srgb, var(--accent) 52%, transparent);
       background: #ffffff;
       box-shadow: 0 8px 22px color-mix(in srgb, var(--accent) 18%, transparent);
-      transform: translateY(-2px) scale(1.04);
+      transform: scale(1.08);
+    }
+
+    .drop-zone-icon-glyph,
+    .editor-empty-slot-icon-glyph {
+      display: block;
+      line-height: 1;
+      transform: scale(1);
+      transform-origin: center;
+      transition: transform 0.2s ease;
+    }
+
+    .drop-zone:hover .drop-zone-icon-glyph,
+    .drop-zone.dragover .drop-zone-icon-glyph,
+    .editor-empty-slot:hover .editor-empty-slot-icon-glyph,
+    .editor-empty-slot:focus-visible .editor-empty-slot-icon-glyph,
+    .editor-empty-slot.file-drop-target .editor-empty-slot-icon-glyph {
+      transform: scale(1.14);
     }
 
     .drop-zone strong {
@@ -1559,6 +1582,7 @@
       font-weight: 500;
       line-height: 1;
       box-shadow: 0 4px 14px rgba(20, 30, 50, 0.07);
+      transform-origin: center;
       transition:
         transform 0.2s ease,
         border-color 0.2s ease,
@@ -1573,7 +1597,7 @@
       background: #ffffff;
       color: var(--accent);
       box-shadow: 0 6px 18px rgba(20, 30, 50, 0.08);
-      transform: translateY(-2px) scale(1.04);
+      transform: scale(1.08);
     }
 
     .editor-empty-slot-title {
@@ -3665,7 +3689,7 @@
         margin-left: 0;
         padding-right: 8px;
       }
-    
+
       .brand-icon-shell { width: 44px; height: 44px; border-radius: 14px; }
       .brand-name { font-size: 1.58rem; }
       .subtitle { font-size: .75rem; }
@@ -3857,7 +3881,7 @@
         width: 100%;
         min-height: 64px;
       }
-    
+
       .app { width: min(100% - 18px, 1880px); padding-top: 9px; }
 
       .toolbar, .export-panel { border-radius: 17px; padding: 8px; }
@@ -4461,7 +4485,7 @@
 
     <section class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Képek hozzáadása kattintással vagy behúzással">
       <div class="drop-zone-content">
-        <span class="drop-zone-icon" aria-hidden="true">＋</span>
+        <span class="drop-zone-icon" aria-hidden="true"><span class="drop-zone-icon-glyph">＋</span></span>
         <strong>
           <span class="drop-zone-default-message">Képek hozzáadása</span>
           <span class="drop-zone-drag-message">Engedd el a képeket itt</span>
@@ -5653,7 +5677,7 @@
           placeholder.setAttribute("aria-label", t("slot.addAria"));
           placeholder.innerHTML = `
             <span class="editor-empty-slot-content">
-              <span class="editor-empty-slot-icon" aria-hidden="true">＋</span>
+              <span class="editor-empty-slot-icon" aria-hidden="true"><span class="editor-empty-slot-icon-glyph">＋</span></span>
               <span class="editor-empty-slot-title">${t("slot.addTitle")}</span>
               <span class="editor-empty-slot-description">${t("slot.addDescription")}</span>
             </span>
