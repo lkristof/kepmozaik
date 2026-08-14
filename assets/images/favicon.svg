@@ -1,35 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 20 220 220" role="img" aria-labelledby="title desc" width="220" height="220"><title id="title">KépMozaik ikon</title><desc id="desc">Narancs-piros mozaikból kialakított modern fényképikon, különálló hegyekkel és tagoltabb bal oldali mozaikkal.</desc><defs>
-    <linearGradient id="tl" x1="20" y1="20" x2="145" y2="96" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFB13B"></stop>
-      <stop offset="1" stop-color="#FF7A1A"></stop>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">KépMozaik ikon</title>
+  <desc id="desc">Narancs-piros mozaikból kialakított modern fényképikon, különálló hegyekkel és tagoltabb bal oldali mozaikkal.</desc>
+  <defs>
+    <clipPath id="squircleClip">
+      <path d="M32 0C17.6 0 10.4 0 5.2 5.2C0 10.4 0 17.6 0 32C0 46.4 0 53.6 5.2 58.8C10.4 64 17.6 64 32 64C46.4 64 53.6 64 58.8 58.8C64 53.6 64 46.4 64 32C64 17.6 64 10.4 58.8 5.2C53.6 0 46.4 0 32 0Z"/>
+    </clipPath>
+    <linearGradient id="tl" x1="0" y1="0" x2="36.3636" y2="22.1091" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFB13B"/>
+      <stop offset="1" stop-color="#FF7A1A"/>
     </linearGradient>
-    <linearGradient id="tr" x1="155" y1="20" x2="240" y2="96" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FF6527"></stop>
-      <stop offset="1" stop-color="#E53A20"></stop>
+    <linearGradient id="tr" x1="39.2727" y1="0" x2="64" y2="22.1091" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF6527"/>
+      <stop offset="1" stop-color="#E53A20"/>
     </linearGradient>
-    <linearGradient id="blTop" x1="20" y1="106" x2="92" y2="160" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FF9224"></stop>
-      <stop offset="1" stop-color="#EF5A22"></stop>
+    <linearGradient id="blTop" x1="0" y1="25.0182" x2="20.9455" y2="40.7273" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF9224"/>
+      <stop offset="1" stop-color="#EF5A22"/>
     </linearGradient>
-    <linearGradient id="blBottom" x1="20" y1="170" x2="92" y2="240" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#F4511E"></stop>
-      <stop offset="1" stop-color="#D92F25"></stop>
+    <linearGradient id="blBottom" x1="0" y1="43.6364" x2="20.9455" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F4511E"/>
+      <stop offset="1" stop-color="#D92F25"/>
     </linearGradient>
-    <linearGradient id="br" x1="102" y1="106" x2="240" y2="240" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1, 0, 0, 1, 0, 0)">
-      <stop offset="0" stop-color="#F05A24"></stop>
-      <stop offset="1" stop-color="#B91825"></stop>
+    <linearGradient id="br" x1="23.8545" y1="25.0182" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F05A24"/>
+      <stop offset="1" stop-color="#B91825"/>
     </linearGradient>
-  </defs><g aria-label="KépMozaik ikon">
-    <path d="M58 20H145V96H20V58A38 38 0 0 1 58 20Z" fill="url(#tl)"></path>
-    <path d="M155 20H202A38 38 0 0 1 240 58V96H155Z" fill="url(#tr)"></path>
-    <path d="M20 106H92V160H20Z" fill="url(#blTop)"></path>
-    <path d="M20 170H92V240H58A38 38 0 0 1 20 202Z" fill="url(#blBottom)"></path>
-    <path d="M 102 106 L 240 106 L 240 202 C 240 222.987 222.987 240 202 240 L 102 240 L 102 106 Z" fill="url(#br)"></path>
-    <g transform="matrix(1, 0, 0, 1, 0.218498, 0.000504)">
-      <g>
-        <circle cx="212.17" cy="151.359" r="12" fill="#461116" style="stroke-width: 1;"></circle>
-        <path d="M 107.401 206.64 L 143.901 165.14 C 146.301 162.34 150.501 162.34 152.901 165.14 L 178.946 189.947 L 165.183 206.64 L 107.401 206.64 Z" fill="#461116" style="stroke-width: 1;"></path>
-        <path d="M 171.162 206.64 L 194.662 178.14 C 197.162 175.14 201.662 175.14 204.162 178.14 L 234.162 206.64 L 171.162 206.64 Z" fill="#461116" style="stroke-width: 1;"></path>
+  </defs>
+
+  <g clip-path="url(#squircleClip)">
+    <rect x="0" y="0" width="36.3636" height="22.1091" fill="url(#tl)"/>
+    <rect x="39.2727" y="0" width="24.7273" height="22.1091" fill="url(#tr)"/>
+    <rect x="0" y="25.0182" width="20.9455" height="15.7091" fill="url(#blTop)"/>
+    <rect x="0" y="43.6364" width="20.9455" height="20.3636" fill="url(#blBottom)"/>
+    <rect x="23.8545" y="25.0182" width="40.1455" height="38.9818" fill="url(#br)"/>
+
+    <g transform="translate(-5.81818182 -5.81818182) scale(0.2909090909)">
+      <g transform="matrix(1,0,0,1,0.218498,0.000504)" fill="#461116">
+        <circle cx="212.17" cy="151.359" r="12"/>
+        <path d="M107.401 206.64L143.901 165.14C146.301 162.34 150.501 162.34 152.901 165.14L178.946 189.947L165.183 206.64H107.401Z"/>
+        <path d="M171.162 206.64L194.662 178.14C197.162 175.14 201.662 175.14 204.162 178.14L234.162 206.64H171.162Z"/>
       </g>
     </g>
-  </g></svg>
+  </g>
+</svg>
