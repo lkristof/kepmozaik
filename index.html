@@ -3128,19 +3128,20 @@
 
     .language-switch-thumb {
       position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
       overflow: hidden;
       border: 1px solid rgba(16, 24, 40, 0.14);
       border-radius: 50%;
       background: #ffffff;
       box-shadow:
-        0 2px 5px rgba(16, 24, 40, 0.3),
+        0 2px 5px rgba(16, 24, 40, 0.28),
         inset 0 0 0 1px rgba(255, 255, 255, 0.28);
       transform: translateX(var(--language-thumb-x));
-      transition: transform 0.14s ease-out, box-shadow 0.16s ease;
+      transition: transform 0.11s ease-out, box-shadow 0.16s ease;
+      will-change: transform;
     }
 
     .language-flag {
@@ -3149,19 +3150,21 @@
       display: block;
       width: 100%;
       height: 100%;
+      opacity: 0;
+      transform: scale(0.86);
+      transform-origin: center;
+      transition: opacity 0.1s linear, transform 0.11s ease-out;
     }
 
-    .language-flag-en { display: none; }
-
-    :root[lang="hu"] .language-flag-hu { display: block; }
-    :root[lang="hu"] .language-flag-en { display: none; }
+    :root[lang="hu"] .language-flag-hu,
+    :root[lang="en"] .language-flag-en {
+      opacity: 1;
+      transform: scale(1);
+    }
 
     :root[lang="en"] .language-switch-track {
       --language-thumb-x: 18px;
     }
-
-    :root[lang="en"] .language-flag-hu { display: none; }
-    :root[lang="en"] .language-flag-en { display: block; }
 
     :root[lang="hu"] .language-switch-label-hu,
     :root[lang="en"] .language-switch-label-en {
@@ -3790,6 +3793,22 @@
       transition: transform 0.11s ease-out !important;
     }
 
+    :root.theme-updating.language-toggle-animating .language-switch-label {
+      transition: color 0.11s linear, opacity 0.11s linear !important;
+    }
+
+    :root.theme-updating.language-toggle-animating .language-switch-track {
+      transition: background-color 0.11s linear, box-shadow 0.11s linear !important;
+    }
+
+    :root.theme-updating.language-toggle-animating .language-switch-thumb {
+      transition: transform 0.11s ease-out, box-shadow 0.16s ease !important;
+    }
+
+    :root.theme-updating.language-toggle-animating .language-flag {
+      transition: opacity 0.1s linear, transform 0.11s ease-out !important;
+    }
+
     @media (prefers-reduced-motion: no-preference) {
       :root.theme-updating .status[data-tone="progress"]::before {
         animation: toast-spin 0.8s linear infinite !important;
@@ -3816,6 +3835,7 @@
       .language-switch-label,
       .language-switch-track,
       .language-switch-thumb,
+      .language-flag,
       .theme-switch,
       .settings-button,
       .theme-switch-icon,
@@ -5128,6 +5148,7 @@
       };
 
       let currentLanguage = document.documentElement.lang === "en" ? "en" : "hu";
+      let languageToggleAnimationTimer = null;
 
       function t(key, variables = {}) {
         const fallback = translations.hu[key] ?? key;
@@ -5323,9 +5344,18 @@
         });
       }
 
-      function applyLanguage(language) {
-        currentLanguage = language === "en" ? "en" : "hu";
+      function applyLanguage(language, { animateToggle = false } = {}) {
         const root = document.documentElement;
+
+        if (languageToggleAnimationTimer) {
+          clearTimeout(languageToggleAnimationTimer);
+          languageToggleAnimationTimer = null;
+        }
+
+        root.classList.toggle("language-toggle-animating", animateToggle);
+        if (animateToggle) void languageSwitch.offsetWidth;
+
+        currentLanguage = language === "en" ? "en" : "hu";
         root.lang = currentLanguage;
         root.dataset.language = currentLanguage;
         root.dataset.languagePreference = getStoredLanguage() ? "manual" : "system";
@@ -5348,6 +5378,15 @@
           clearDialogDescription.textContent = count
             ? t("clear.descriptionCount", { count })
             : t("clear.description");
+        }
+
+        if (animateToggle) {
+          languageToggleAnimationTimer = setTimeout(() => {
+            root.classList.remove("language-toggle-animating");
+            languageToggleAnimationTimer = null;
+          }, 180);
+        } else {
+          root.classList.remove("language-toggle-animating");
         }
       }
 
@@ -8011,7 +8050,7 @@
       languageSwitch.addEventListener("click", () => {
         const selectedLanguage = currentLanguage === "hu" ? "en" : "hu";
         storeLanguage(selectedLanguage);
-        applyLanguage(selectedLanguage);
+        applyLanguage(selectedLanguage, { animateToggle: true });
       });
 
       themeToggle.addEventListener("change", () => {
