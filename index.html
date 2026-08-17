@@ -1434,6 +1434,19 @@
     .drop-zone.dragover .drop-zone-default-message { display: none; }
     .drop-zone.dragover .drop-zone-drag-message { display: inline; }
 
+    .grid-scroll-hint-row {
+      position: sticky;
+      z-index: 2;
+      left: 0;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      max-width: 100%;
+      touch-action: auto;
+      overscroll-behavior-inline: auto;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     .grid-scroll-hint {
       display: flex;
       align-items: center;
@@ -1441,15 +1454,21 @@
       gap: 8px;
       width: max-content;
       max-width: 100%;
-      margin: 0 auto 12px;
+      margin: 0 auto 0;
       padding: 7px 11px;
       border: 1px solid var(--ring);
-      border-radius: 999px;
+      border-bottom-color: transparent;
+      border-radius: 14px 14px 0 0;
       background: color-mix(in srgb, var(--accent) 7%, transparent);
       color: var(--accent-ink);
       font-size: 0.82rem;
       font-weight: 650;
       text-align: center;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: auto;
+      overscroll-behavior-inline: auto;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .grid-scroll-hint svg {
@@ -1467,7 +1486,7 @@
       overflow-x: auto;
       overflow-y: visible;
       padding: 8px 8px 16px;
-      margin: -8px auto 0;
+      margin: -1px auto 0;
       scrollbar-gutter: auto;
       overscroll-behavior-inline: contain;
       -webkit-overflow-scrolling: touch;
@@ -3475,6 +3494,7 @@
 
     :root[data-theme="dark"] .grid-scroll-hint {
       border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+      border-bottom-color: transparent;
       background: color-mix(in srgb, var(--accent) 12%, transparent);
       color: color-mix(in srgb, var(--accent) 50%, var(--text));
     }
@@ -4645,25 +4665,27 @@
       </div>
     </section>
 
-    <div class="grid-scroll-hint" id="gridScrollHint" hidden>
-      <svg
-        class="lucide lucide-move-horizontal"
-        aria-hidden="true"
-        focusable="false"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="m18 8 4 4-4 4"></path>
-        <path d="M2 12h20"></path>
-        <path d="m6 8-4 4 4 4"></path>
-      </svg>
-      <span>További oszlopokért görgess oldalra.</span>
-    </div>
     <div class="grid-scroll" id="gridScroll" tabindex="0" aria-label="Vízszintesen görgethető képrács" hidden>
+      <div class="grid-scroll-hint-row">
+        <div class="grid-scroll-hint" id="gridScrollHint" hidden>
+          <svg
+            class="lucide lucide-move-horizontal"
+            aria-hidden="true"
+            focusable="false"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="m18 8 4 4-4 4"></path>
+            <path d="M2 12h20"></path>
+            <path d="m6 8-4 4 4 4"></path>
+          </svg>
+          <span>További oszlopokért görgess oldalra.</span>
+        </div>
+    </div>
       <section class="grid" id="grid" aria-live="polite">
         <div class="empty-state" id="emptyState">Még nincs feltöltött kép.</div>
       </section>
