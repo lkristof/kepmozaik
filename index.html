@@ -2918,9 +2918,36 @@
       background: rgba(248,250,252,.72);
     }
 
+    .settings-item-heading {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .settings-item-icon {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--line));
+      border-radius: 11px;
+      background: color-mix(in srgb, var(--accent) 8%, var(--surface-strong));
+      color: var(--accent-ink);
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.025);
+    }
+
+    .settings-item-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+
     .settings-item-copy {
       display: grid;
       gap: 3px;
+      min-width: 0;
     }
 
     .settings-item-title {
@@ -4516,9 +4543,19 @@
 
         <div class="settings-dialog-body">
           <div class="settings-item">
-            <div class="settings-item-copy">
-              <label class="settings-item-title" for="settingsMaxZoom">Maximális zoom</label>
-              <span class="settings-item-help" id="settingsMaxZoomHelp">A képek nagyításának felső határa.</span>
+            <div class="settings-item-heading">
+              <span class="settings-item-icon" aria-hidden="true">
+                <svg class="lucide lucide-zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                  <path d="M11 8v6"></path>
+                  <path d="M8 11h6"></path>
+                </svg>
+              </span>
+              <div class="settings-item-copy">
+                <label class="settings-item-title" for="settingsMaxZoom">Maximális zoom</label>
+                <span class="settings-item-help" id="settingsMaxZoomHelp">A képek nagyításának felső határa.</span>
+              </div>
             </div>
             <div class="settings-control-row">
               <input id="settingsMaxZoom" type="range" min="400" max="2000" step="25" value="400" aria-describedby="settingsMaxZoomHelp" />
@@ -4530,9 +4567,19 @@
           </div>
 
           <div class="settings-item">
-            <div class="settings-item-copy">
-              <label class="settings-item-title" for="settingsCardWidth">Kártyaméret</label>
-              <span class="settings-item-help" id="settingsCardWidthHelp">A szerkesztőben megjelenő képkártyák alap-szélessége.</span>
+            <div class="settings-item-heading">
+              <span class="settings-item-icon" aria-hidden="true">
+                <svg class="lucide lucide-scaling" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M14 15H9v-5"></path>
+                  <path d="M16 3h5v5"></path>
+                  <path d="M21 3 9 15"></path>
+                </svg>
+              </span>
+              <div class="settings-item-copy">
+                <label class="settings-item-title" for="settingsCardWidth">Kártyaméret</label>
+                <span class="settings-item-help" id="settingsCardWidthHelp">A szerkesztőben megjelenő képkártyák alap-szélessége.</span>
+              </div>
             </div>
             <div class="settings-control-row">
               <input id="settingsCardWidth" type="range" min="200" max="640" step="10" value="300" aria-describedby="settingsCardWidthHelp" />
@@ -4544,9 +4591,27 @@
           </div>
 
           <div class="settings-item">
-            <div class="settings-item-copy">
-              <label class="settings-item-title" for="settingsMaxColumns">Maximális oszlopszám</label>
-              <span class="settings-item-help" id="settingsMaxColumnsHelp">Az oszlopszám-léptető felső határa.</span>
+            <div class="settings-item-heading">
+              <span class="settings-item-icon" aria-hidden="true">
+                <svg class="lucide lucide-columns-3-cog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <path d="M10.5 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5.5"></path>
+                  <path d="m14.3 19.6 1-.4"></path>
+                  <path d="M15 3v7.5"></path>
+                  <path d="m15.2 16.9-.9-.3"></path>
+                  <path d="m16.6 21.7.3-.9"></path>
+                  <path d="m16.8 15.3-.4-1"></path>
+                  <path d="m19.1 15.2.3-.9"></path>
+                  <path d="m19.6 21.7-.4-1"></path>
+                  <path d="m20.7 16.8 1-.4"></path>
+                  <path d="m21.7 19.4-.9-.3"></path>
+                  <path d="M9 3v18"></path>
+                  <circle cx="18" cy="18" r="3"></circle>
+                </svg>
+              </span>
+              <div class="settings-item-copy">
+                <label class="settings-item-title" for="settingsMaxColumns">Maximális oszlopszám</label>
+                <span class="settings-item-help" id="settingsMaxColumnsHelp">Az oszlopszám-léptető felső határa.</span>
+              </div>
             </div>
             <div class="settings-control-row">
               <input id="settingsMaxColumns" type="range" min="10" max="20" step="1" value="10" aria-describedby="settingsMaxColumnsHelp" />
