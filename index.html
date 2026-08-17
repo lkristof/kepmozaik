@@ -8693,8 +8693,6 @@
         const iconHalfHeight = 27;
         const idealIconTop = visibleTop + visibleHeight / 2;
 
-        // A kapszula teljes kerete maradjon a sáv tényleges határain belül.
-        // Nem a viewport széléhez, hanem magához a gutterhez clampelünk.
         const minIconTop = rect.top + iconHalfHeight;
         const maxIconTop = rect.bottom - iconHalfHeight;
         const iconTop = maxIconTop >= minIconTop
