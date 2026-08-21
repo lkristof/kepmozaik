@@ -1495,9 +1495,28 @@
     }
 
     body.card-reorder-mode .grid-scroll {
+      width: 100%;
+      max-width: 100%;
+      padding-left: 0;
+      padding-right: 0;
       border-radius: 0;
-      background: var(--mosaic-background-color, #000000);
-      transition: background-color 0.16s ease;
+      background: transparent;
+      overflow-x: hidden;
+      overscroll-behavior-x: none;
+      touch-action: pan-y pinch-zoom;
+      scrollbar-width: none;
+    }
+
+    body.card-reorder-mode .grid-scroll::-webkit-scrollbar {
+      height: 0;
+    }
+
+    body.card-reorder-mode .grid {
+      box-sizing: content-box;
+      padding: var(--grid-gap);
+      border-radius: 0;
+      background-color: var(--mosaic-background-color, #000000);
+      transition: background-color 0.16s ease, padding 0.16s ease;
     }
 
     .grid-scroll.no-horizontal-overflow {
@@ -1529,6 +1548,8 @@
       grid-template-columns: repeat(var(--columns), var(--card-min-width));
       gap: var(--grid-gap);
       align-items: start;
+      background-color: transparent;
+      transition: none;
     }
 
     .grid.single-column-layout,
@@ -1781,9 +1802,8 @@
       overflow: hidden;
       container-type: inline-size;
       border: 1px solid var(--line);
-      outline: 2px solid transparent;
-      outline-offset: 2px;
-      transition: opacity 0.16s ease, transform 0.16s ease, outline-color 0.16s ease;
+      outline: none;
+      transition: opacity 0.16s ease, transform 0.16s ease;
       border-color: rgba(17,24,39,.09);
       border-radius: 18px;
       background: rgba(255,255,255,.90);
@@ -1974,10 +1994,10 @@
       cursor: grabbing !important;
     }
 
-    .grid.reordering {
-      border-radius: 18px;
-      background: color-mix(in srgb, var(--accent) 3.5%, transparent);
-      box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 3.5%, transparent);
+    body.card-reorder-mode .grid.reordering {
+      border-radius: 0;
+      background-color: var(--mosaic-background-color, #000000);
+      box-shadow: none;
     }
 
     .drop-placeholder {
@@ -1998,6 +2018,14 @@
         0 10px 28px color-mix(in srgb, var(--accent) 18%, transparent);
       pointer-events: none;
       animation: drop-placeholder-pulse 1.05s ease-in-out infinite alternate;
+    }
+
+    body.card-reorder-mode .drop-placeholder {
+      box-shadow: 0 10px 28px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+
+    :root[data-theme="dark"] body.card-reorder-mode .drop-placeholder {
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
     }
 
     .drop-placeholder-title {
@@ -2043,6 +2071,16 @@
     body.card-reorder-mode .image-frame-shell,
     body.card-reorder-mode .drag-ghost .image-frame-shell {
       background: var(--mosaic-background-color, #000000);
+    }
+
+    body.reorder-mode-exiting .card {
+      border-color: transparent !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    body.reorder-mode-exiting .image-frame {
+      background: transparent !important;
     }
 
     .image-frame {
@@ -3589,9 +3627,9 @@
       color: color-mix(in srgb, var(--accent) 44%, var(--text));
     }
 
-    :root[data-theme="dark"] .grid.reordering {
-      background: color-mix(in srgb, var(--accent) 5.5%, transparent);
-      box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 5.5%, transparent);
+    :root[data-theme="dark"] body.card-reorder-mode .grid.reordering {
+      background-color: var(--mosaic-background-color, #000000);
+      box-shadow: none;
     }
 
     :root[data-theme="dark"] .drop-placeholder {
@@ -4248,10 +4286,6 @@
       --card-preview-radius: 28px;
     }
 
-    /* Edit mode: preview the export rounding on the image area only.
-       The card's top corners follow the setting, while its control-panel
-       bottom keeps the normal UI radius. The image bottom corners mirror
-       the selected export rounding. */
     body:not(.card-reorder-mode) .card {
       border-radius: var(--card-preview-radius) var(--card-preview-radius) 18px 18px;
     }
@@ -4261,13 +4295,57 @@
       border-radius: 0 0 var(--card-preview-radius) var(--card-preview-radius);
     }
 
-    /* Arrange mode only shows the visual card, so the whole shape can
-       represent the selected corner rounding. */
     body.card-reorder-mode .card,
     body.card-reorder-mode .drag-ghost,
     .editor-empty-slot,
-    .drop-placeholder {
+    body.card-reorder-mode .drop-placeholder {
       border-radius: var(--card-preview-radius);
+    }
+
+    body:not(.card-reorder-mode) .drop-placeholder {
+      border-radius: var(--card-preview-radius) var(--card-preview-radius) 18px 18px;
+    }
+
+    :root[data-theme] body.card-reorder-mode .card,
+    :root[data-theme] body.card-reorder-mode .drag-ghost {
+      border: 0;
+      background: transparent;
+    }
+
+    :root[data-theme] body.card-reorder-mode .card {
+      outline: none;
+      box-shadow: none;
+    }
+
+    body.card-reorder-mode .card::after {
+      content: "";
+      position: absolute;
+      z-index: 24;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 2px transparent;
+      transition: box-shadow 0.16s ease;
+    }
+
+    body.card-reorder-mode .card:hover {
+      z-index: 2;
+      outline: none;
+    }
+
+    body.card-reorder-mode .card:hover::after {
+      box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 72%, transparent);
+    }
+
+    body.card-reorder-mode .card:focus-visible {
+      z-index: 3;
+      outline: none;
+    }
+
+    body.card-reorder-mode .card:focus-visible::after {
+      box-shadow:
+        inset 0 0 0 2px var(--accent),
+        inset 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
     }
 
     body.card-reorder-mode .card .image-frame-shell,
@@ -6051,7 +6129,9 @@
           window.matchMedia("(max-width: 1400px) and (any-pointer: coarse)").matches;
         const availableGridWidth = Math.max(
           0,
-          useReorderScrollGutter
+          reorderModeActive
+            ? gridScroll.clientWidth - horizontalPadding
+            : useReorderScrollGutter
             ? gridScroll.clientWidth - horizontalPadding
             : gridScroll.parentElement.clientWidth - horizontalPadding
         );
@@ -6061,11 +6141,15 @@
         let cardWidth;
 
         if (reorderModeActive && hasCards) {
-          gridGap = columns <= 6 ? 10 : columns <= 10 ? 8 : 4;
-          const totalGapWidth = Math.max(0, columns - 1) * gridGap;
+          const exportCellWidthValue = Math.max(1, Number(exportCellWidth.value) || 480);
+          const exportGapValue = Math.max(0, Number(exportGap.value) || 0);
+          const exportGapRatio = exportGapValue / exportCellWidthValue;
           const availableFitWidth = Math.max(columns, availableGridWidth - GRID_FIT_SAFETY_MARGIN);
-          const fittedCardWidth = Math.max(1, (availableFitWidth - totalGapWidth) / columns);
+          const fitUnits = columns + ((Math.max(0, columns - 1) + 2) * exportGapRatio);
+          const fittedCardWidth = Math.max(1, availableFitWidth / Math.max(1, fitUnits));
           cardWidth = Math.min(preferredCardWidth, fittedCardWidth);
+          gridGap = cardWidth * exportGapRatio;
+          const totalGapWidth = Math.max(0, columns - 1) * gridGap;
           fittedGridWidth = (columns * cardWidth) + totalGapWidth;
         } else {
           const totalGapWidth = Math.max(0, columns - 1) * GRID_GAP;
@@ -6098,13 +6182,19 @@
         grid.classList.toggle("single-column-layout", hasCards && columns === 1);
 
         requestAnimationFrame(() => {
-          const hasHorizontalOverflow = hasCards && gridScroll.scrollWidth > gridScroll.clientWidth + 2;
+          const hasHorizontalOverflow =
+            !reorderModeActive &&
+            hasCards &&
+            gridScroll.scrollWidth > gridScroll.clientWidth + 2;
           gridScroll.classList.toggle("has-horizontal-overflow", hasHorizontalOverflow);
-          gridScroll.classList.toggle("no-horizontal-overflow", hasCards && !hasHorizontalOverflow);
-          if (!hasHorizontalOverflow && gridScroll.scrollLeft !== 0) {
+          gridScroll.classList.toggle(
+            "no-horizontal-overflow",
+            hasCards && (reorderModeActive || !hasHorizontalOverflow)
+          );
+          if ((reorderModeActive || !hasHorizontalOverflow) && gridScroll.scrollLeft !== 0) {
             gridScroll.scrollLeft = 0;
           }
-          gridScrollHint.hidden = !hasHorizontalOverflow;
+          gridScrollHint.hidden = reorderModeActive || !hasHorizontalOverflow;
           gridScroll.setAttribute(
             "aria-label",
             hasHorizontalOverflow ? t("grid.scrollable") : t("grid.label")
@@ -6304,10 +6394,47 @@
         return reorderModeActive && window.matchMedia("(min-width: 761px)").matches;
       }
 
+      function animateCardsFromPreviousLayout(cards, previousRects) {
+        if (!previousRects || !cards.length) return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        cards.forEach((card) => {
+          const previousRect = previousRects.get(card);
+          if (!previousRect || !card.isConnected) return;
+
+          const nextRect = card.getBoundingClientRect();
+          const deltaX = previousRect.left - nextRect.left;
+          const deltaY = previousRect.top - nextRect.top;
+
+          if (Math.abs(deltaX) < 0.5 && Math.abs(deltaY) < 0.5) return;
+
+          card.animate(
+            [
+              { transform: `translate(${deltaX}px, ${deltaY}px)` },
+              { transform: "translate(0, 0)" }
+            ],
+            {
+              duration: 190,
+              easing: "cubic-bezier(.2, .8, .2, 1)"
+            }
+          );
+        });
+      }
+
       function setReorderMode(active, { announce = true } = {}) {
         const canReorder = getCards().length > 1;
         const nextActive = Boolean(active) && canReorder;
+        const exitingReorderMode = reorderModeActive && !nextActive;
         if (!nextActive && draggedCard) finishReorderDrag({ commit: false });
+
+        const modeSwitchCards = getCards();
+        const previousCardRects = exitingReorderMode
+          ? new Map(modeSwitchCards.map((card) => [card, card.getBoundingClientRect()]))
+          : null;
+
+        if (exitingReorderMode) {
+          document.body.classList.add("reorder-mode-exiting");
+        }
 
         reorderModeActive = nextActive;
         document.body.classList.toggle("card-reorder-mode", reorderModeActive);
@@ -6318,7 +6445,19 @@
         );
         getCards().forEach(syncReorderModeCard);
         updateGridLayout();
-        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+
+        getCards().forEach(updateImageGeometry);
+        if (exitingReorderMode) {
+          animateCardsFromPreviousLayout(modeSwitchCards, previousCardRects);
+        }
+        requestAnimationFrame(() => {
+          getCards().forEach(updateImageGeometry);
+          if (exitingReorderMode) {
+            requestAnimationFrame(() => {
+              document.body.classList.remove("reorder-mode-exiting");
+            });
+          }
+        });
 
         if (announce) {
           showStatusToast(
@@ -6373,8 +6512,8 @@
         const rect = card.getBoundingClientRect();
         placeholder.className = "drop-placeholder";
         placeholder.setAttribute("aria-hidden", "true");
-        placeholder.style.width = `${Math.max(1, Math.round(rect.width))}px`;
-        placeholder.style.height = `${Math.max(1, Math.round(rect.height))}px`;
+        placeholder.style.width = `${Math.max(1, rect.width)}px`;
+        placeholder.style.height = `${Math.max(1, rect.height)}px`;
         placeholder.innerHTML = `
           <span class="drop-placeholder-title">${t("reorder.placeholder")}</span>
           <span class="drop-placeholder-position"></span>
@@ -6525,8 +6664,8 @@
         ghost.querySelectorAll("input, textarea, button, select").forEach((element) => {
           element.tabIndex = -1;
         });
-        ghost.style.width = `${Math.round(rect.width)}px`;
-        ghost.style.height = `${Math.round(rect.height)}px`;
+        ghost.style.width = `${rect.width}px`;
+        ghost.style.height = `${rect.height}px`;
         dragOffsetX = clamp(event.clientX - rect.left, 0, rect.width);
         dragOffsetY = clamp(event.clientY - rect.top, 0, rect.height);
         document.body.appendChild(ghost);
@@ -8433,6 +8572,14 @@
 
       columnRange.addEventListener("input", () => {
         setColumnCount(columnRange.value, { announce: false });
+      });
+
+      exportGap.addEventListener("change", () => {
+        if (reorderModeActive) updateGridLayout();
+      });
+
+      exportCellWidth.addEventListener("change", () => {
+        if (reorderModeActive) updateGridLayout();
       });
 
       exportCornerRadius.addEventListener("change", () => {
