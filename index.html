@@ -107,6 +107,8 @@
       --scrollbar-thumb-hover: #858f9f;
       --brand-icon-fill: 90%;
       --control-hover-border: color-mix(in srgb, var(--accent) 48%, var(--line));
+      --accent-hover: color-mix(in srgb, var(--accent) 92%, var(--text) 8%);
+      --accent-active: color-mix(in srgb, var(--accent) 82%, var(--text) 18%);
     }
 
     html {
@@ -2995,14 +2997,14 @@
       accent-color: var(--accent);
     }
 
-    :root[data-theme="light"] .crop-control input[type="range"]:hover,
-    :root[data-theme="light"] .settings-control-row input[type="range"]:hover {
-      accent-color: color-mix(in srgb, var(--accent) 38%, #8b5cf6 62%);
+    .crop-control input[type="range"]:hover,
+    .settings-control-row input[type="range"]:hover {
+      accent-color: var(--accent-hover);
     }
 
-    :root[data-theme="dark"] .crop-control input[type="range"]:active,
-    :root[data-theme="dark"] .settings-control-row input[type="range"]:active {
-      accent-color: color-mix(in srgb, var(--accent) 78%, #ffffff 22%);
+    .crop-control input[type="range"]:active,
+    .settings-control-row input[type="range"]:active {
+      accent-color: var(--accent-active);
     }
 
     .settings-number-wrap {
