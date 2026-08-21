@@ -1494,6 +1494,12 @@
       -webkit-overflow-scrolling: touch;
     }
 
+    body.card-reorder-mode .grid-scroll {
+      border-radius: 0;
+      background: var(--mosaic-background-color, #000000);
+      transition: background-color 0.16s ease;
+    }
+
     .grid-scroll.no-horizontal-overflow {
       overflow-x: hidden;
       overscroll-behavior-x: none;
@@ -2031,6 +2037,11 @@
 
     .image-frame-shell {
       width: 100%;
+      background: transparent;
+    }
+
+    body.card-reorder-mode .image-frame-shell,
+    body.card-reorder-mode .drag-ghost .image-frame-shell {
       background: var(--mosaic-background-color, #000000);
     }
 
