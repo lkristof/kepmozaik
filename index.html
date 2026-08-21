@@ -1516,7 +1516,6 @@
       padding: var(--grid-gap);
       border-radius: 0;
       background-color: var(--mosaic-background-color, #000000);
-      transition: background-color 0.16s ease, padding 0.16s ease;
     }
 
     .grid-scroll.no-horizontal-overflow {
@@ -2071,16 +2070,6 @@
     body.card-reorder-mode .image-frame-shell,
     body.card-reorder-mode .drag-ghost .image-frame-shell {
       background: var(--mosaic-background-color, #000000);
-    }
-
-    body.reorder-mode-exiting .card {
-      border-color: transparent !important;
-      outline: none !important;
-      box-shadow: none !important;
-    }
-
-    body.reorder-mode-exiting .image-frame {
-      background: transparent !important;
     }
 
     .image-frame {
@@ -6394,47 +6383,10 @@
         return reorderModeActive && window.matchMedia("(min-width: 761px)").matches;
       }
 
-      function animateCardsFromPreviousLayout(cards, previousRects) {
-        if (!previousRects || !cards.length) return;
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-        cards.forEach((card) => {
-          const previousRect = previousRects.get(card);
-          if (!previousRect || !card.isConnected) return;
-
-          const nextRect = card.getBoundingClientRect();
-          const deltaX = previousRect.left - nextRect.left;
-          const deltaY = previousRect.top - nextRect.top;
-
-          if (Math.abs(deltaX) < 0.5 && Math.abs(deltaY) < 0.5) return;
-
-          card.animate(
-            [
-              { transform: `translate(${deltaX}px, ${deltaY}px)` },
-              { transform: "translate(0, 0)" }
-            ],
-            {
-              duration: 190,
-              easing: "cubic-bezier(.2, .8, .2, 1)"
-            }
-          );
-        });
-      }
-
       function setReorderMode(active, { announce = true } = {}) {
         const canReorder = getCards().length > 1;
         const nextActive = Boolean(active) && canReorder;
-        const exitingReorderMode = reorderModeActive && !nextActive;
         if (!nextActive && draggedCard) finishReorderDrag({ commit: false });
-
-        const modeSwitchCards = getCards();
-        const previousCardRects = exitingReorderMode
-          ? new Map(modeSwitchCards.map((card) => [card, card.getBoundingClientRect()]))
-          : null;
-
-        if (exitingReorderMode) {
-          document.body.classList.add("reorder-mode-exiting");
-        }
 
         reorderModeActive = nextActive;
         document.body.classList.toggle("card-reorder-mode", reorderModeActive);
@@ -6447,16 +6399,8 @@
         updateGridLayout();
 
         getCards().forEach(updateImageGeometry);
-        if (exitingReorderMode) {
-          animateCardsFromPreviousLayout(modeSwitchCards, previousCardRects);
-        }
         requestAnimationFrame(() => {
           getCards().forEach(updateImageGeometry);
-          if (exitingReorderMode) {
-            requestAnimationFrame(() => {
-              document.body.classList.remove("reorder-mode-exiting");
-            });
-          }
         });
 
         if (announce) {
