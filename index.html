@@ -2029,6 +2029,11 @@
       }
     }
 
+    .image-frame-shell {
+      width: 100%;
+      background: var(--mosaic-background-color, #000000);
+    }
+
     .image-frame {
       position: relative;
       width: 100%;
@@ -2665,6 +2670,10 @@
         grid-column: span 3;
       }
 
+      .export-panel > .export-compact-field {
+        grid-column: span 2;
+      }
+
       .export-panel > .toggle-field {
         grid-column: 1 / -1;
       }
@@ -2724,6 +2733,25 @@
       .toolbar.custom-ratio-active .column-stepper-button svg {
         width: 16px;
         height: 16px;
+      }
+
+      .export-panel > .export-compact-field {
+        padding-inline: 6px;
+      }
+
+      .export-panel > .export-compact-field > span {
+        padding-left: 0;
+        font-size: 0.63rem;
+        line-height: 1.15;
+        text-align: center;
+      }
+
+      .export-panel > .export-compact-field select {
+        padding-left: 8px;
+        padding-right: 27px;
+        background-position:
+          calc(100% - 14px) 50%,
+          calc(100% - 9px) 50%;
       }
 
       .export-panel > .color-field {
@@ -4188,6 +4216,61 @@
         display: none !important;
       }
     }
+
+    :root {
+      --card-preview-radius: 18px;
+    }
+
+    :root[data-ui-corner-radius="0"] {
+      --card-preview-radius: 0px;
+    }
+
+    :root[data-ui-corner-radius="4"] {
+      --card-preview-radius: 10px;
+    }
+
+    :root[data-ui-corner-radius="8"] {
+      --card-preview-radius: 18px;
+    }
+
+    :root[data-ui-corner-radius="12"] {
+      --card-preview-radius: 28px;
+    }
+
+    /* Edit mode: preview the export rounding on the image area only.
+       The card's top corners follow the setting, while its control-panel
+       bottom keeps the normal UI radius. The image bottom corners mirror
+       the selected export rounding. */
+    body:not(.card-reorder-mode) .card {
+      border-radius: var(--card-preview-radius) var(--card-preview-radius) 18px 18px;
+    }
+
+    body:not(.card-reorder-mode) .card .image-frame-shell,
+    body:not(.card-reorder-mode) .card .image-frame {
+      border-radius: 0 0 var(--card-preview-radius) var(--card-preview-radius);
+    }
+
+    /* Arrange mode only shows the visual card, so the whole shape can
+       represent the selected corner rounding. */
+    body.card-reorder-mode .card,
+    body.card-reorder-mode .drag-ghost,
+    .editor-empty-slot,
+    .drop-placeholder {
+      border-radius: var(--card-preview-radius);
+    }
+
+    body.card-reorder-mode .card .image-frame-shell,
+    body.card-reorder-mode .card .image-frame,
+    body.card-reorder-mode .drag-ghost .image-frame-shell,
+    body.card-reorder-mode .drag-ghost .image-frame {
+      border-radius: var(--card-preview-radius);
+    }
+
+    .editor-empty-slot::before {
+      border-radius: max(0px, calc(var(--card-preview-radius) - 4px));
+    }
+
+
   </style>
 </head>
 <body>
@@ -4421,7 +4504,7 @@
         </button>
       </div>
 
-      <label class="inline-field" for="exportCellWidth">
+      <label class="inline-field export-compact-field" for="exportCellWidth">
         <span>Minőség</span>
         <select id="exportCellWidth">
           <option value="240">Kompakt</option>
@@ -4430,13 +4513,23 @@
         </select>
       </label>
 
-      <label class="inline-field" for="exportGap">
+      <label class="inline-field export-compact-field" for="exportGap">
         <span>Rácsköz</span>
         <select id="exportGap">
           <option value="0">0 px</option>
           <option value="4">4 px</option>
           <option value="8" selected>8 px</option>
           <option value="16">16 px</option>
+        </select>
+      </label>
+
+      <label class="inline-field export-compact-field" for="exportCornerRadius">
+        <span>Sarokkerekítés</span>
+        <select id="exportCornerRadius">
+          <option value="0" selected>Nincs</option>
+          <option value="4">Finom</option>
+          <option value="8">Közepes</option>
+          <option value="12">Erős</option>
         </select>
       </label>
 
@@ -4708,6 +4801,7 @@
 
   <template id="cardTemplate">
     <article class="card">
+      <div class="image-frame-shell">
       <div class="image-frame" tabindex="0" aria-label="Kép kivágásának pozicionálása">
         <img alt="" />
         <textarea class="title-input" rows="1" maxlength="300" placeholder="Kép neve" aria-label="Kép neve, több sor is megadható" spellcheck="true"></textarea>
@@ -4720,6 +4814,7 @@
           <path d="m9 5 3-3 3 3"></path>
         </svg></div>
         <div class="pan-hint"><span class="mouse-crop-hint">Húzd a képet a vágáshoz</span><span class="touch-crop-hint">Egy ujjal mozgasd, két ujjal nagyítsd</span></div>
+      </div>
       </div>
 
       <div class="controls">
@@ -4810,6 +4905,7 @@
       const exportJpgButton = document.querySelector(".export-jpg-button");
       const exportCellWidth = document.getElementById("exportCellWidth");
       const exportGap = document.getElementById("exportGap");
+      const exportCornerRadius = document.getElementById("exportCornerRadius");
       const exportTitles = document.getElementById("exportTitles");
       const titleTextColor = document.getElementById("titleTextColor");
       const titleBackgroundColor = document.getElementById("titleBackgroundColor");
@@ -4948,6 +5044,11 @@
           "grid.scrollable": "Vízszintesen görgethető képrács",
           "grid.scrollHint": "További oszlopokért görgess oldalra.",
           "gridGap": "Rácsköz",
+          "cornerRadius": "Sarokkerekítés",
+          "cornerRadius.none": "Nincs",
+          "cornerRadius.subtle": "Finom",
+          "cornerRadius.medium": "Közepes",
+          "cornerRadius.strong": "Erős",
           "height": "Magasság",
           "height.decrease": "Magasság csökkentése",
           "height.increase": "Magasság növelése",
@@ -5129,6 +5230,11 @@
           "grid.scrollable": "Horizontally scrollable image grid",
           "grid.scrollHint": "Scroll sideways to see more columns.",
           "gridGap": "Grid gap",
+          "cornerRadius": "Corner rounding",
+          "cornerRadius.none": "None",
+          "cornerRadius.subtle": "Subtle",
+          "cornerRadius.medium": "Medium",
+          "cornerRadius.strong": "Strong",
           "height": "Height",
           "height.decrease": "Decrease height",
           "height.increase": "Increase height",
@@ -5388,6 +5494,11 @@
         setText(document, '#exportCellWidth option[value="480"]', "quality.large");
         setText(document, '#exportCellWidth option[value="720"]', "quality.extraLarge");
         setText(document, 'label[for="exportGap"] > span', "gridGap");
+        setText(document, 'label[for="exportCornerRadius"] > span', "cornerRadius");
+        setText(document, '#exportCornerRadius option[value="0"]', "cornerRadius.none");
+        setText(document, '#exportCornerRadius option[value="4"]', "cornerRadius.subtle");
+        setText(document, '#exportCornerRadius option[value="8"]', "cornerRadius.medium");
+        setText(document, '#exportCornerRadius option[value="12"]', "cornerRadius.strong");
         setText(document, 'label[for="exportTitles"] .control-label', "titles.show");
         setText(document, 'label[for="titleTextColor"]', "titles.color");
         setText(document, 'label[for="titleBackgroundColor"] .responsive-label-desktop', "titles.background");
@@ -5574,7 +5685,10 @@
         });
 
         updateGridLayout();
-        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+        requestAnimationFrame(() => {
+          getCards().forEach(updateImageGeometry);
+          applyCornerRadiusPreview();
+        });
       }
       const DEFAULT_TITLE_TEXT_COLOR = "#ffffff";
       const DEFAULT_TITLE_BACKGROUND_COLOR = "#121821";
@@ -5794,6 +5908,13 @@
           hexToRgba(backgroundColor, EDITOR_TITLE_BACKGROUND_ALPHA)
         );
         document.documentElement.style.setProperty("--empty-slot-background", finalBackgroundColor);
+        document.documentElement.style.setProperty("--mosaic-background-color", finalBackgroundColor);
+      }
+
+      function applyCornerRadiusPreview() {
+        const value = String(exportCornerRadius.value || "0");
+        const supportedValues = new Set(["0", "4", "8", "12"]);
+        document.documentElement.dataset.uiCornerRadius = supportedValues.has(value) ? value : "0";
       }
 
       function applyEditableHexColor(colorInput, codeInput) {
@@ -5980,6 +6101,7 @@
           gridScroll.setAttribute("aria-description", hasHorizontalOverflow
             ? t("grid.descriptionScrollable")
             : t("grid.descriptionVisible"));
+          applyCornerRadiusPreview();
         });
       }
 
@@ -6146,7 +6268,10 @@
         toolbar?.classList.toggle("custom-ratio-active", customRatioActive);
         getCards().forEach(setCardRatio);
         updateEditorPlaceholders();
-        requestAnimationFrame(() => getCards().forEach(updateImageGeometry));
+        requestAnimationFrame(() => {
+          getCards().forEach(updateImageGeometry);
+          applyCornerRadiusPreview();
+        });
       }
 
       function syncReorderModeCard(card) {
@@ -6966,6 +7091,7 @@
         if (typeof ResizeObserver !== "undefined") {
           const observer = new ResizeObserver(() => {
             updateImageGeometry(card);
+            applyCornerRadiusPreview(card);
           });
           observer.observe(frame);
           card._resizeObserver = observer;
@@ -6980,6 +7106,7 @@
         });
         requestAnimationFrame(() => {
           updateImageGeometry(card);
+          applyCornerRadiusPreview(card);
         });
       }
 
@@ -7399,6 +7526,8 @@
         exportCellWidth.value = selectHasValue(exportCellWidth, cellWidth) ? cellWidth : "480";
         const gap = String(settings.exportGap ?? "8");
         exportGap.value = selectHasValue(exportGap, gap) ? gap : "8";
+        const cornerRadius = String(settings.exportCornerRadius ?? "0");
+        exportCornerRadius.value = selectHasValue(exportCornerRadius, cornerRadius) ? cornerRadius : "0";
         exportTitles.checked = settings.exportTitles !== false;
         syncCaptionEditorState();
         titleTextColor.value = normalizeHexColor(settings.titleTextColor, DEFAULT_TITLE_TEXT_COLOR);
@@ -7406,6 +7535,7 @@
         exportBackgroundColor.value = normalizeHexColor(settings.exportBackgroundColor, DEFAULT_EXPORT_BACKGROUND_COLOR);
         applyColorSettings();
         applyGlobalRatio();
+        requestAnimationFrame(applyCornerRadiusPreview);
       }
 
       function recoveryRequest(request) {
@@ -7453,6 +7583,7 @@
           columns: Number(columnRange.value),
           exportCellWidth: Number(exportCellWidth.value),
           exportGap: Number(exportGap.value),
+          exportCornerRadius: Number(exportCornerRadius.value),
           exportTitles: exportTitles.checked,
           titleTextColor: normalizeHexColor(titleTextColor.value, DEFAULT_TITLE_TEXT_COLOR),
           titleBackgroundColor: normalizeHexColor(titleBackgroundColor.value, DEFAULT_TITLE_BACKGROUND_COLOR),
@@ -7630,6 +7761,7 @@
               columns: Number(columnRange.value),
               exportCellWidth: Number(exportCellWidth.value),
               exportGap: Number(exportGap.value),
+              exportCornerRadius: Number(exportCornerRadius.value),
               exportTitles: exportTitles.checked,
               titleTextColor: normalizeHexColor(titleTextColor.value, DEFAULT_TITLE_TEXT_COLOR),
               titleBackgroundColor: normalizeHexColor(titleBackgroundColor.value, DEFAULT_TITLE_BACKGROUND_COLOR),
@@ -7707,7 +7839,31 @@
         }
       }
 
-      function drawCroppedImage(ctx, source, x, y, width, height, posX, posY, zoom) {
+      function traceRoundedRect(ctx, x, y, width, height, radius = 0) {
+        const r = Math.max(0, Math.min(Number(radius) || 0, width / 2, height / 2));
+        if (!r) {
+          ctx.rect(x, y, width, height);
+          return;
+        }
+
+        if (typeof ctx.roundRect === "function") {
+          ctx.roundRect(x, y, width, height, r);
+          return;
+        }
+
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + width - r, y);
+        ctx.arcTo(x + width, y, x + width, y + r, r);
+        ctx.lineTo(x + width, y + height - r);
+        ctx.arcTo(x + width, y + height, x + width - r, y + height, r);
+        ctx.lineTo(x + r, y + height);
+        ctx.arcTo(x, y + height, x, y + height - r, r);
+        ctx.lineTo(x, y + r);
+        ctx.arcTo(x, y, x + r, y, r);
+        ctx.closePath();
+      }
+
+      function drawCroppedImage(ctx, source, x, y, width, height, posX, posY, zoom, cornerRadius = 0) {
         const sourceWidth = Number(source.naturalWidth || source.videoWidth || source.width || 0);
         const sourceHeight = Number(source.naturalHeight || source.videoHeight || source.height || 0);
         if (!sourceWidth || !sourceHeight) return;
@@ -7723,7 +7879,7 @@
 
         ctx.save();
         ctx.beginPath();
-        ctx.rect(x, y, width, height);
+        traceRoundedRect(ctx, x, y, width, height, cornerRadius);
         ctx.clip();
         ctx.fillStyle = "#15181d";
         ctx.fillRect(x, y, width, height);
@@ -7765,7 +7921,7 @@
         return lines;
       }
 
-      function drawTitle(ctx, title, x, y, cellWidth, cellHeight) {
+      function drawTitle(ctx, title, x, y, cellWidth, cellHeight, cornerRadius = 0) {
         if (!title) return;
 
         const fontSize = Math.max(14, Math.round(cellWidth * 0.045));
@@ -7806,8 +7962,9 @@
         const textBlockHeight = glyphHeight + Math.max(0, lines.length - 1) * lineHeight;
         const boxWidth = Math.min(maxBoxWidth, Math.ceil(widestLine + padX * 2));
         const boxHeight = Math.ceil(textBlockHeight + padY * 2);
-        const boxX = x + 10;
-        const boxY = y + 10;
+        const cornerInset = Math.max(10, Math.ceil((Number(cornerRadius) || 0) * 0.4));
+        const boxX = x + cornerInset;
+        const boxY = y + cornerInset;
         const firstBaseline = boxY + padY + ascent;
 
         ctx.fillStyle = hexToRgba(titleBackgroundColor.value, TITLE_BACKGROUND_ALPHA);
@@ -7854,6 +8011,8 @@
           const cellWidth = Number(exportCellWidth.value);
           const cellHeight = Math.max(1, Math.round(cellWidth / getGlobalAspectRatio()));
           const gap = Number(exportGap.value);
+          const cornerRadiusPercent = clamp(Number(exportCornerRadius.value) || 0, 0, 50);
+          const cornerRadius = Math.min(cellWidth, cellHeight) * (cornerRadiusPercent / 100);
           const rows = Math.ceil(cards.length / columns);
           const canvasWidth = columns * cellWidth + (columns + 1) * gap;
           const canvasHeight = rows * cellHeight + (rows + 1) * gap;
@@ -7875,6 +8034,16 @@
           ctx.fillStyle = normalizeHexColor(exportBackgroundColor.value, DEFAULT_EXPORT_BACKGROUND_COLOR);
           ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
+          const cornerSupersampleScale = cornerRadius > 0 ? 2 : 1;
+          const cellRenderCanvas = cornerSupersampleScale > 1 ? document.createElement("canvas") : null;
+          const cellRenderCtx = cellRenderCanvas?.getContext("2d", { alpha: true }) || null;
+          if (cellRenderCanvas && cellRenderCtx) {
+            cellRenderCanvas.width = Math.max(1, Math.round(cellWidth * cornerSupersampleScale));
+            cellRenderCanvas.height = Math.max(1, Math.round(cellHeight * cornerSupersampleScale));
+            cellRenderCtx.imageSmoothingEnabled = true;
+            cellRenderCtx.imageSmoothingQuality = "high";
+          }
+
           for (let index = 0; index < cards.length; index += 1) {
             const card = cards[index];
             const row = Math.floor(index / columns);
@@ -7888,13 +8057,73 @@
             showStatusToast(t("export.progress", { current: index + 1, total: cards.length }), { tone: "progress", persistent: true });
             const decoded = await decodeImageBlob(card._imageBlob);
             try {
-              drawCroppedImage(ctx, decoded.source, x, y, cellWidth, cellHeight, posX, posY, zoom);
+              if (cellRenderCanvas && cellRenderCtx) {
+                cellRenderCtx.setTransform(1, 0, 0, 1, 0, 0);
+                cellRenderCtx.clearRect(0, 0, cellRenderCanvas.width, cellRenderCanvas.height);
+                cellRenderCtx.setTransform(
+                  cornerSupersampleScale,
+                  0,
+                  0,
+                  cornerSupersampleScale,
+                  0,
+                  0
+                );
+
+                drawCroppedImage(
+                  cellRenderCtx,
+                  decoded.source,
+                  0,
+                  0,
+                  cellWidth,
+                  cellHeight,
+                  posX,
+                  posY,
+                  zoom,
+                  cornerRadius
+                );
+
+                if (exportTitles.checked) {
+                  cellRenderCtx.save();
+                  cellRenderCtx.beginPath();
+                  traceRoundedRect(cellRenderCtx, 0, 0, cellWidth, cellHeight, cornerRadius);
+                  cellRenderCtx.clip();
+                  drawTitle(
+                    cellRenderCtx,
+                    card.querySelector(".title-input").value.trim(),
+                    0,
+                    0,
+                    cellWidth,
+                    cellHeight,
+                    cornerRadius
+                  );
+                  cellRenderCtx.restore();
+                }
+
+                ctx.drawImage(
+                  cellRenderCanvas,
+                  0,
+                  0,
+                  cellRenderCanvas.width,
+                  cellRenderCanvas.height,
+                  x,
+                  y,
+                  cellWidth,
+                  cellHeight
+                );
+              } else {
+                drawCroppedImage(ctx, decoded.source, x, y, cellWidth, cellHeight, posX, posY, zoom, cornerRadius);
+
+                if (exportTitles.checked) {
+                  ctx.save();
+                  ctx.beginPath();
+                  traceRoundedRect(ctx, x, y, cellWidth, cellHeight, cornerRadius);
+                  ctx.clip();
+                  drawTitle(ctx, card.querySelector(".title-input").value.trim(), x, y, cellWidth, cellHeight, cornerRadius);
+                  ctx.restore();
+                }
+              }
             } finally {
               decoded.cleanup();
-            }
-
-            if (exportTitles.checked) {
-              drawTitle(ctx, card.querySelector(".title-input").value.trim(), x, y, cellWidth, cellHeight);
             }
           }
 
@@ -8195,6 +8424,10 @@
         setColumnCount(columnRange.value, { announce: false });
       });
 
+      exportCornerRadius.addEventListener("change", () => {
+        applyCornerRadiusPreview();
+      });
+
       updateColumnStepperState();
 
       let resizeLayoutFrame = null;
@@ -8204,6 +8437,7 @@
         resizeLayoutFrame = requestAnimationFrame(() => {
           resizeLayoutFrame = null;
           updateGridLayout();
+          applyCornerRadiusPreview();
 
           if (typeof ResizeObserver === "undefined") {
             getCards().forEach(updateImageGeometry);
@@ -8226,7 +8460,7 @@
       document.addEventListener("input", (event) => {
         if (event.target.matches?.(
           ".title-input, .zoom-range, #customRatioWidth, #customRatioHeight, " +
-          "#globalRatio, #exportCellWidth, #exportGap, #exportTitles, " +
+          "#globalRatio, #exportCellWidth, #exportGap, #exportCornerRadius, #exportTitles, " +
           "#titleTextColor, #titleBackgroundColor, #exportBackgroundColor, " +
           "#titleTextColorValue, #titleBackgroundColorValue, #exportBackgroundColorValue"
         )) {
@@ -8325,6 +8559,7 @@
       applyGlobalRatio();
       syncSettingsDialog();
       applyEditorSettings({ clampExistingZoom: false });
+      applyCornerRadiusPreview();
       updateEmptyState();
       refreshMoveButtons();
       void restoreRecoverySnapshot();
