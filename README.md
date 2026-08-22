@@ -2,7 +2,7 @@
 
 A responsive, fully browser-based application for creating organized and customizable image mosaics from multiple images.
 
-Images can be rearranged, cropped, zoomed, and captioned, and the finished mosaic can be exported either as a lossless PNG or as an optimized JPG with a smaller file size.
+Images can be rearranged, cropped, zoomed, and captioned, and the finished mosaic can be exported as PNG, JPEG, or WebP with configurable output size and compression quality.
 
 ## Online Version
 
@@ -22,9 +22,11 @@ Images can be rearranged, cropped, zoomed, and captioned, and the finished mosai
 * Multi-line image captions
 * Configurable caption color, caption background, and mosaic background
 * Adjustable grid spacing
-* Multiple export quality options
+* Multiple export size options
+* Configurable JPEG and WebP compression quality with quick presets
 * Lossless PNG export
-* Optimized JPG export for smaller file sizes
+* JPEG export for broad compatibility
+* WebP export on supported browsers for smaller modern image files
 * Save and restore projects using JSON files
 * Automatic recovery after accidental page refreshes
 * Hungarian and English user interface
@@ -36,7 +38,7 @@ Images can be rearranged, cropped, zoomed, and captioned, and the finished mosai
 
 All image processing is performed locally, directly in the browser.
 
-The application does not upload selected images to any external server. When saving a project, the browser creates a local JSON file, while exporting generates either a PNG or JPG file depending on the selected format.
+The application does not upload selected images to any external server. When saving a project, the browser creates a local JSON file, while exporting generates a PNG, JPEG, or WebP file depending on the selected format and browser support.
 
 ## Usage
 
@@ -46,8 +48,9 @@ The application does not upload selected images to any external server. When sav
 4. Move and zoom the images to achieve the desired crop.
 5. Rearrange the images into the desired order.
 6. Add captions and customize their appearance.
-7. Select the export quality, grid spacing, and desired background settings.
-8. Click the **PNG** or **JPG** export button to download the mosaic in the desired format.
+7. Select the export size, grid spacing, corner rounding, caption visibility, and desired colors.
+8. Click **Export**, choose PNG, JPEG, or WebP, and adjust compression quality for JPEG or WebP if needed.
+9. Click the export button in the dialog to download the finished mosaic.
 
 ## Saving a Project
 
@@ -118,7 +121,9 @@ A modern desktop or mobile browser is recommended, such as:
 * Mozilla Firefox
 * Safari
 
-For large projects, memory usage depends on the number and resolution of the images as well as the selected export quality.
+For large projects, memory usage depends on the number and resolution of the images as well as the selected export size.
+
+WebP export is enabled only when the browser can generate WebP files through the Canvas API. On unsupported browsers, the WebP option is disabled and JPEG or PNG can be used instead.
 
 ## Icons
 
