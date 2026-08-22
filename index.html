@@ -2937,6 +2937,337 @@
       --shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 14px 36px rgba(0, 0, 0, 0.24);
     }
 
+    .export-dialog {
+      width: min(560px, calc(100% - 24px));
+      max-width: none;
+      max-height: calc(100vh - 24px);
+      max-height: calc(100dvh - 24px);
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 30px 90px rgba(16, 24, 40, 0.26);
+      backdrop-filter: blur(22px) saturate(1.2);
+      -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    }
+
+    .export-dialog::backdrop {
+      background: var(--dialog-backdrop);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .export-dialog-content {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 24px);
+      max-height: calc(100dvh - 24px);
+      margin: 0;
+    }
+
+    .export-dialog-header {
+      display: grid;
+      flex: 0 0 auto;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 16px;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .export-dialog-heading { min-width: 0; }
+
+    .export-dialog-title {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.25;
+    }
+
+    .export-dialog-description {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .export-dialog-close {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .export-dialog-close:hover {
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+      color: var(--text);
+    }
+
+    .export-dialog-close:focus-visible {
+      outline: 3px solid var(--ring);
+      outline-offset: 1px;
+    }
+
+    .export-dialog-body {
+      display: grid;
+      flex: 1 1 auto;
+      align-content: start;
+      gap: 14px;
+      min-height: 0;
+      padding: 18px 20px 20px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .export-format-fieldset {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .export-section-label {
+      display: block;
+      margin: 0 0 8px;
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 850;
+      line-height: 1.2;
+    }
+
+    .export-format-options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .export-format-option { min-width: 0; cursor: pointer; }
+
+    .export-format-card {
+      display: grid;
+      gap: 4px;
+      min-height: 78px;
+      padding: 13px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface-soft) 72%, var(--white));
+      box-shadow: 0 1px 2px rgba(16,24,40,.025);
+      transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+
+    .export-format-option:hover .export-format-card {
+      border-color: var(--control-hover-border);
+      background: color-mix(in srgb, var(--accent) 4%, var(--surface-strong));
+    }
+
+    .export-format-option.is-disabled { cursor: not-allowed; }
+
+    .export-format-option.is-disabled .export-format-card {
+      opacity: 0.48;
+      filter: saturate(0.6);
+      box-shadow: none;
+    }
+
+    .export-format-option.is-disabled:hover .export-format-card {
+      border-color: var(--line);
+      background: color-mix(in srgb, var(--surface-soft) 72%, var(--white));
+    }
+
+    .export-format-radio:focus-visible + .export-format-card {
+      outline: 3px solid var(--ring);
+      outline-offset: 2px;
+    }
+
+    .export-format-radio:checked + .export-format-card {
+      border-color: color-mix(in srgb, var(--accent) 72%, var(--line));
+      background: color-mix(in srgb, var(--accent) 10%, var(--surface-strong));
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+
+    .export-format-name {
+      color: var(--text);
+      font-size: 0.98rem;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: 0.025em;
+    }
+
+    .export-format-help {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 650;
+      line-height: 1.3;
+    }
+
+    .export-quality-section {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface-soft) 78%, transparent);
+    }
+
+    .export-quality-section.is-disabled {
+      opacity: 0.52;
+      filter: saturate(0.68);
+    }
+
+    .export-quality-section.is-disabled .export-quality-value {
+      color: var(--muted);
+      border-color: var(--line);
+      background: var(--surface-strong);
+    }
+
+    .export-quality-heading {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .export-quality-heading .export-section-label { margin-bottom: 3px; }
+
+    .export-quality-help {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.74rem;
+      line-height: 1.35;
+    }
+
+    .export-quality-value {
+      min-width: 58px;
+      padding: 6px 9px;
+      border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 8%, var(--surface-strong));
+      color: var(--accent-ink);
+      font-size: 0.82rem;
+      font-weight: 850;
+      line-height: 1;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #exportQualityRange {
+      width: 100%;
+      min-width: 0;
+      accent-color: var(--accent);
+    }
+
+    .export-quality-scale {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: -5px;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 650;
+    }
+
+    .export-quality-presets {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .export-quality-preset {
+      min-width: 0;
+      min-height: 34px;
+      padding: 6px 7px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--surface-strong);
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 750;
+      cursor: pointer;
+      transition: border-color .16s ease, background .16s ease, color .16s ease;
+    }
+
+    .export-quality-preset:hover:not(:disabled) {
+      border-color: var(--control-hover-border);
+      color: var(--text);
+    }
+
+    .export-quality-preset[aria-pressed="true"] {
+      border-color: color-mix(in srgb, var(--accent) 58%, var(--line));
+      background: color-mix(in srgb, var(--accent) 10%, var(--surface-strong));
+      color: var(--accent-ink);
+    }
+
+    .export-quality-preset:disabled {
+      cursor: not-allowed;
+      opacity: 0.72;
+    }
+
+    .export-quality-preset:focus-visible {
+      outline: 3px solid var(--ring);
+      outline-offset: 1px;
+    }
+
+    .export-dialog-actions {
+      display: grid;
+      flex: 0 0 auto;
+      grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+      gap: 10px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 58%, var(--panel));
+    }
+
+    .export-dialog-actions .button {
+      width: 100%;
+      min-height: 46px;
+    }
+
+    :root[data-theme="dark"] .export-dialog {
+      background: rgba(20, 25, 34, 0.97);
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46);
+    }
+
+    :root[data-theme="dark"] .export-format-card,
+    :root[data-theme="dark"] .export-quality-preset {
+      background: var(--dark-control-surface);
+    }
+
+    :root[data-theme="dark"] .export-quality-section {
+      background: color-mix(in srgb, var(--surface-soft) 86%, transparent);
+    }
+
+    @media (max-width: 520px) {
+      .export-dialog {
+        width: calc(100% - 16px);
+        border-radius: 18px;
+      }
+
+      .export-dialog-header,
+      .export-dialog-body {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .export-format-card {
+        min-height: 72px;
+        padding: 11px 9px;
+      }
+
+      .export-format-help { font-size: 0.66rem; }
+
+      .export-dialog-actions { padding: 12px 14px; }
+    }
+
     .settings-button {
       display: inline-grid;
       place-items: center;
@@ -4631,28 +4962,19 @@
 
     <section class="export-panel" aria-label="Exportálási beállítások">
       <div class="toolbar-action-group export-action-group" aria-label="Exportálási művelet">
-        <button class="button export export-format-button export-png-button" type="button" disabled aria-label="Exportálás PNG-ként">
+        <button class="button export export-open-button" id="exportOpenButton" type="button" disabled aria-label="Exportálás megnyitása">
           <svg class="lucide lucide-image-down" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1a2 2 0 0 0-2.814.014L6 21"></path>
             <path d="m14 19 3 3v-5.5"></path>
             <path d="m17 22 3-3"></path>
             <circle cx="9" cy="9" r="2"></circle>
           </svg>
-          <span class="export-format-label">PNG</span>
-        </button>
-        <button class="button export export-format-button export-jpg-button" type="button" disabled aria-label="Exportálás optimalizált JPG-ként">
-          <svg class="lucide lucide-image-down" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1a2 2 0 0 0-2.814.014L6 21"></path>
-            <path d="m14 19 3 3v-5.5"></path>
-            <path d="m17 22 3-3"></path>
-            <circle cx="9" cy="9" r="2"></circle>
-          </svg>
-          <span class="export-format-label">JPG</span>
+          <span class="export-open-label">Exportálás</span>
         </button>
       </div>
 
       <label class="inline-field export-compact-field" for="exportCellWidth">
-        <span>Minőség</span>
+        <span>Méret</span>
         <select id="exportCellWidth">
           <option value="240">Kompakt</option>
           <option value="480" selected>Nagy</option>
@@ -4779,6 +5101,79 @@
         <div class="clear-dialog-actions">
           <button class="button" id="clearDialogCancel" type="submit" value="cancel">Mégse</button>
           <button class="button clear-dialog-confirm" id="clearDialogConfirm" type="button">Összes törlése</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog
+      class="export-dialog"
+      id="exportDialog"
+      aria-labelledby="exportDialogTitle"
+      aria-describedby="exportDialogDescription"
+    >
+      <form class="export-dialog-content" id="exportForm" method="dialog">
+        <div class="export-dialog-header">
+          <div class="export-dialog-heading">
+            <h2 class="export-dialog-title" id="exportDialogTitle">Exportálás</h2>
+            <p class="export-dialog-description" id="exportDialogDescription">
+              Válassz formátumot és tömörítési minőséget. A méretet és a mozaik megjelenését a lenti exportbeállítások adják.
+            </p>
+          </div>
+          <button class="export-dialog-close" id="exportDialogClose" type="submit" value="cancel" aria-label="Exportálás bezárása">×</button>
+        </div>
+
+        <div class="export-dialog-body">
+          <fieldset class="export-format-fieldset">
+            <legend class="export-section-label" id="exportFormatLegend">Formátum</legend>
+            <div class="export-format-options">
+              <label class="export-format-option">
+                <input class="visually-hidden export-format-radio" type="radio" name="exportFormat" value="png" />
+                <span class="export-format-card">
+                  <strong class="export-format-name">PNG</strong>
+                  <span class="export-format-help" data-format-help="png">Veszteségmentes</span>
+                </span>
+              </label>
+              <label class="export-format-option">
+                <input class="visually-hidden export-format-radio" type="radio" name="exportFormat" value="jpg" checked />
+                <span class="export-format-card">
+                  <strong class="export-format-name">JPEG</strong>
+                  <span class="export-format-help" data-format-help="jpg">Fotókhoz</span>
+                </span>
+              </label>
+              <label class="export-format-option">
+                <input class="visually-hidden export-format-radio" type="radio" name="exportFormat" value="webp" />
+                <span class="export-format-card">
+                  <strong class="export-format-name">WebP</strong>
+                  <span class="export-format-help" data-format-help="webp">Modern, kisebb fájl</span>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          <section class="export-quality-section" id="exportQualitySection" aria-labelledby="exportQualityLabel">
+            <div class="export-quality-heading">
+              <div>
+                <label class="export-section-label" id="exportQualityLabel" for="exportQualityRange">Minőség</label>
+                <p class="export-quality-help" id="exportQualityHelp">JPEG és WebP tömörítési minősége.</p>
+              </div>
+              <output class="export-quality-value" id="exportQualityValue" for="exportQualityRange">90%</output>
+            </div>
+            <input id="exportQualityRange" type="range" min="40" max="100" step="1" value="90" aria-describedby="exportQualityHelp" />
+            <div class="export-quality-scale" aria-hidden="true">
+              <span id="exportQualitySmaller">Kisebb fájl</span>
+              <span id="exportQualityBetter">Jobb minőség</span>
+            </div>
+            <div class="export-quality-presets" aria-label="Minőségi gyorsbeállítások">
+              <button class="export-quality-preset" type="button" data-quality="70">Kisebb fájl</button>
+              <button class="export-quality-preset" type="button" data-quality="90">Ajánlott</button>
+              <button class="export-quality-preset" type="button" data-quality="100">Maximum</button>
+            </div>
+          </section>
+        </div>
+
+        <div class="export-dialog-actions">
+          <button class="button" id="exportDialogCancel" type="submit" value="cancel">Mégse</button>
+          <button class="button export" id="exportConfirmButton" type="button">Exportálás PNG-ként</button>
         </div>
       </form>
     </dialog>
@@ -5045,8 +5440,17 @@
       const imageCount = document.getElementById("imageCount");
       const imageCountValue = document.getElementById("imageCountValue");
       const imageCountLabel = document.getElementById("imageCountLabel");
-      const exportPngButton = document.querySelector(".export-png-button");
-      const exportJpgButton = document.querySelector(".export-jpg-button");
+      const exportOpenButton = document.getElementById("exportOpenButton");
+      const exportDialog = document.getElementById("exportDialog");
+      const exportForm = document.getElementById("exportForm");
+      const exportDialogClose = document.getElementById("exportDialogClose");
+      const exportDialogCancel = document.getElementById("exportDialogCancel");
+      const exportConfirmButton = document.getElementById("exportConfirmButton");
+      const exportFormatRadios = Array.from(document.querySelectorAll('input[name="exportFormat"]'));
+      const exportQualitySection = document.getElementById("exportQualitySection");
+      const exportQualityRange = document.getElementById("exportQualityRange");
+      const exportQualityValue = document.getElementById("exportQualityValue");
+      const exportQualityPresets = Array.from(document.querySelectorAll(".export-quality-preset"));
       const exportCellWidth = document.getElementById("exportCellWidth");
       const exportGap = document.getElementById("exportGap");
       const exportCornerRadius = document.getElementById("exportCornerRadius");
@@ -5102,7 +5506,8 @@
       const THEME_STORAGE_KEY = "kepmozaik-theme";
       const LANGUAGE_STORAGE_KEY = "kepmozaik-language";
       const SETTINGS_STORAGE_KEY = "kepmozaik-editor-settings";
-      const OPTIMIZED_JPEG_QUALITY = 0.90;
+      const EXPORT_FORMAT_STORAGE_KEY = "kepmozaik-export-format";
+      const EXPORT_QUALITY_STORAGE_KEY = "kepmozaik-export-quality";
 
       const translations = {
         hu: {
@@ -5161,11 +5566,34 @@
           "error.projectImage": "A projekt egyik képe hibás vagy nem támogatott.",
           "error.restoreImage": "A projekt egyik képét nem lehetett visszaállítani.",
           "export.action": "Exportálási művelet",
+          "export.openAria": "Exportálás megnyitása",
+          "export.dialogTitle": "Exportálás",
+          "export.dialogDescription": "Válassz formátumot és tömörítési minőséget. A méretet és a mozaik megjelenését a lenti exportbeállítások adják.",
+          "export.dialogClose": "Exportálás bezárása",
+          "export.format": "Formátum",
+          "export.formatPngHelp": "Veszteségmentes",
+          "export.formatJpgHelp": "Fotókhoz",
+          "export.formatWebpHelp": "Modern, kisebb fájl",
+          "export.formatWebpUnsupported": "Nem támogatott ezen az eszközön",
+          "export.qualityHelp": "JPEG és WebP tömörítési minősége.",
+          "export.qualitySmaller": "Kisebb fájl",
+          "export.qualityBetter": "Jobb minőség",
+          "export.presetSmall": "Kisebb fájl",
+          "export.presetRecommended": "Ajánlott",
+          "export.presetMaximum": "Maximum",
+          "export.presetsAria": "Minőségi gyorsbeállítások",
+          "export.cancel": "Mégse",
+          "export.confirmPng": "Exportálás PNG-ként",
+          "export.confirmJpg": "Exportálás JPEG-ként",
+          "export.confirmWebp": "Exportálás WebP-ként",
+          "export.size": "Méret",
           "export.canvasFailed": "A böngésző nem tudta létrehozni az exportvásznat.",
           "export.done": "Elkészült: {width} × {height} px",
           "export.failed": "Az exportálás sikertelen volt.",
           "export.full": "Exportálás",
-          "export.jpgFailed": "A JPG-fájl létrehozása sikertelen volt.",
+          "export.jpgFailed": "A JPEG-fájl létrehozása sikertelen volt.",
+          "export.webpFailed": "A WebP-fájl létrehozása sikertelen volt.",
+          "export.webpUnsupported": "Ez a böngésző nem támogatja a WebP-exportot. Válassz JPEG-et vagy PNG-t.",
           "export.label": "Exportálási beállítások",
           "export.pngAria": "Exportálás PNG-ként",
           "export.jpgAria": "Exportálás optimalizált JPG-ként",
@@ -5347,11 +5775,34 @@
           "error.projectImage": "One of the project images is invalid or unsupported.",
           "error.restoreImage": "One of the project images could not be restored.",
           "export.action": "Export action",
+          "export.openAria": "Open export options",
+          "export.dialogTitle": "Export",
+          "export.dialogDescription": "Choose a format and compression quality. Output size and mosaic appearance use the export settings below.",
+          "export.dialogClose": "Close export options",
+          "export.format": "Format",
+          "export.formatPngHelp": "Lossless",
+          "export.formatJpgHelp": "Best for photos",
+          "export.formatWebpHelp": "Modern, smaller files",
+          "export.formatWebpUnsupported": "Not supported on this device",
+          "export.qualityHelp": "Compression quality for JPEG and WebP.",
+          "export.qualitySmaller": "Smaller file",
+          "export.qualityBetter": "Better quality",
+          "export.presetSmall": "Smaller file",
+          "export.presetRecommended": "Recommended",
+          "export.presetMaximum": "Maximum",
+          "export.presetsAria": "Quality presets",
+          "export.cancel": "Cancel",
+          "export.confirmPng": "Export as PNG",
+          "export.confirmJpg": "Export as JPEG",
+          "export.confirmWebp": "Export as WebP",
+          "export.size": "Size",
           "export.canvasFailed": "The browser could not create the export canvas.",
           "export.done": "Done: {width} × {height} px",
           "export.failed": "The export failed.",
           "export.full": "Export",
-          "export.jpgFailed": "The JPG file could not be created.",
+          "export.jpgFailed": "The JPEG file could not be created.",
+          "export.webpFailed": "The WebP file could not be created.",
+          "export.webpUnsupported": "This browser cannot export WebP. Choose JPEG or PNG instead.",
           "export.label": "Export settings",
           "export.pngAria": "Export as PNG",
           "export.jpgAria": "Export as optimized JPG",
@@ -5631,9 +6082,26 @@
 
         setAttribute(document, ".export-panel", "aria-label", "export.label");
         setAttribute(document, ".export-action-group", "aria-label", "export.action");
-        setAttribute(document, ".export-png-button", "aria-label", "export.pngAria");
-        setAttribute(document, ".export-jpg-button", "aria-label", "export.jpgAria");
-        setText(document, 'label[for="exportCellWidth"] > span', "quality");
+        setAttribute(document, "#exportOpenButton", "aria-label", "export.openAria");
+        setText(document, "#exportOpenButton .export-open-label", "export.full");
+        setText(document, "#exportDialogTitle", "export.dialogTitle");
+        setText(document, "#exportDialogDescription", "export.dialogDescription");
+        setAttribute(document, "#exportDialogClose", "aria-label", "export.dialogClose");
+        setText(document, "#exportFormatLegend", "export.format");
+        setText(document, '[data-format-help="png"]', "export.formatPngHelp");
+        setText(document, '[data-format-help="jpg"]', "export.formatJpgHelp");
+        setText(document, '[data-format-help="webp"]', webpExportSupported ? "export.formatWebpHelp" : "export.formatWebpUnsupported");
+        setText(document, "#exportQualityLabel", "quality");
+        setText(document, "#exportQualityHelp", "export.qualityHelp");
+        setText(document, "#exportQualitySmaller", "export.qualitySmaller");
+        setText(document, "#exportQualityBetter", "export.qualityBetter");
+        setText(document, '.export-quality-preset[data-quality="70"]', "export.presetSmall");
+        setText(document, '.export-quality-preset[data-quality="90"]', "export.presetRecommended");
+        setText(document, '.export-quality-preset[data-quality="100"]', "export.presetMaximum");
+        setAttribute(document, ".export-quality-presets", "aria-label", "export.presetsAria");
+        setText(document, "#exportDialogCancel", "export.cancel");
+        syncExportDialogState();
+        setText(document, 'label[for="exportCellWidth"] > span', "export.size");
         setText(document, '#exportCellWidth option[value="240"]', "quality.compact");
         setText(document, '#exportCellWidth option[value="480"]', "quality.large");
         setText(document, '#exportCellWidth option[value="720"]', "quality.extraLarge");
@@ -6274,8 +6742,7 @@
 
         clearButton.disabled = !hasCards;
         saveProjectButton.disabled = !hasCards;
-        exportPngButton.disabled = !hasCards;
-        exportJpgButton.disabled = !hasCards;
+        exportOpenButton.disabled = !hasCards;
         imageCount.dataset.empty = String(!hasCards);
         imageCountValue.hidden = !hasCards;
         imageCountValue.textContent = String(cardCount);
@@ -7498,6 +7965,19 @@
         });
       }
 
+      function supportsCanvasWebpExport() {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = 1;
+          canvas.height = 1;
+          return canvas.toDataURL("image/webp", 0.8).startsWith("data:image/webp");
+        } catch (_) {
+          return false;
+        }
+      }
+
+      const webpExportSupported = supportsCanvasWebpExport();
+
       function canvasToBlob(canvas, type, quality) {
         return new Promise((resolve, reject) => {
           canvas.toBlob((blob) => {
@@ -8188,13 +8668,18 @@
         return `${prefix}-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}.${extension}`;
       }
 
-      async function exportGrid(format = "png") {
+      async function exportGrid(format = "png", qualityPercent = 90) {
         const cards = getCards();
         if (!cards.length) return;
 
-        const useOptimizedJpeg = format === "jpg";
-        exportPngButton.disabled = true;
-        exportJpgButton.disabled = true;
+        const normalizedFormat = ["png", "jpg", "webp"].includes(format) ? format : "png";
+        if (normalizedFormat === "webp" && !webpExportSupported) {
+          showStatusToast(t("export.webpUnsupported"), { tone: "warning", duration: 6500 });
+          return;
+        }
+        const normalizedQuality = clamp(Number(qualityPercent) || 90, 40, 100) / 100;
+        exportOpenButton.disabled = true;
+        exportConfirmButton.disabled = true;
         showStatusToast(t("export.start"), { tone: "progress", persistent: true });
 
         try {
@@ -8321,21 +8806,25 @@
             }
           }
 
-          const outputType = useOptimizedJpeg ? "image/jpeg" : "image/png";
-          const outputExtension = useOptimizedJpeg ? "jpg" : "png";
-          const outputQuality = useOptimizedJpeg ? OPTIMIZED_JPEG_QUALITY : undefined;
-          const blob = await new Promise((resolve) => canvas.toBlob(resolve, outputType, outputQuality));
-          if (!blob) throw new Error(t(useOptimizedJpeg ? "export.jpgFailed" : "export.pngFailed"));
+          const outputConfig = {
+            png: { type: "image/png", extension: "png", quality: undefined, failureKey: "export.pngFailed", label: "PNG" },
+            jpg: { type: "image/jpeg", extension: "jpg", quality: normalizedQuality, failureKey: "export.jpgFailed", label: "JPEG" },
+            webp: { type: "image/webp", extension: "webp", quality: normalizedQuality, failureKey: "export.webpFailed", label: "WebP" }
+          }[normalizedFormat];
+          const blob = await new Promise((resolve) => canvas.toBlob(resolve, outputConfig.type, outputConfig.quality));
+          if (!blob || (normalizedFormat === "webp" && blob.type && blob.type !== "image/webp")) {
+            throw new Error(t(outputConfig.failureKey));
+          }
 
-          downloadBlob(blob, timestampFilename(outputExtension));
-          showStatusToast(`${t("export.done", { width: canvasWidth, height: canvasHeight })} · ${outputExtension.toUpperCase()} · ${formatBytes(blob.size)}`, { tone: "success", duration: 4800 });
+          downloadBlob(blob, timestampFilename(outputConfig.extension));
+          showStatusToast(`${t("export.done", { width: canvasWidth, height: canvasHeight })} · ${outputConfig.label} · ${formatBytes(blob.size)}`, { tone: "success", duration: 4800 });
         } catch (error) {
           console.error(error);
           showStatusToast(error instanceof Error ? error.message : t("export.failed"), { tone: "error", duration: 6500 });
         } finally {
           const disableExport = getCards().length === 0;
-          exportPngButton.disabled = disableExport;
-          exportJpgButton.disabled = disableExport;
+          exportOpenButton.disabled = disableExport;
+          exportConfirmButton.disabled = disableExport;
         }
       }
 
@@ -8359,7 +8848,7 @@
       window.addEventListener("pointermove", handleReorderPointerMove, { passive: false });
       window.addEventListener("pointerup", handleReorderPointerEnd, { passive: false });
       document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape" || !reorderModeActive || settingsDialog.open) return;
+        if (event.key !== "Escape" || !reorderModeActive || settingsDialog.open || exportDialog.open) return;
         setReorderMode(false);
       });
       window.addEventListener("pointercancel", (event) => {
@@ -8494,8 +8983,122 @@
       ].forEach(([colorInput, codeInput]) => {
         connectEditableHexColor(colorInput, codeInput);
       });
-      exportPngButton.addEventListener("click", () => exportGrid("png"));
-      exportJpgButton.addEventListener("click", () => exportGrid("jpg"));
+      function syncWebpExportAvailability() {
+        const webpRadio = exportFormatRadios.find((radio) => radio.value === "webp");
+        if (!webpRadio) return;
+        webpRadio.disabled = !webpExportSupported;
+        const option = webpRadio.closest(".export-format-option");
+        option?.classList.toggle("is-disabled", !webpExportSupported);
+        option?.setAttribute("aria-disabled", String(!webpExportSupported));
+        const help = option?.querySelector('[data-format-help="webp"]');
+        if (help) help.textContent = t(webpExportSupported ? "export.formatWebpHelp" : "export.formatWebpUnsupported");
+        if (!webpExportSupported && webpRadio.checked) {
+          const jpegRadio = exportFormatRadios.find((radio) => radio.value === "jpg");
+          if (jpegRadio) jpegRadio.checked = true;
+        }
+      }
+
+      function getSelectedExportFormat() {
+        const selected = exportFormatRadios.find((radio) => radio.checked && !radio.disabled);
+        return selected?.value || "jpg";
+      }
+
+      function getStoredExportPreferences() {
+        let format = "jpg";
+        let quality = 90;
+        try {
+          const storedFormat = localStorage.getItem(EXPORT_FORMAT_STORAGE_KEY);
+          const storedQualityValue = localStorage.getItem(EXPORT_QUALITY_STORAGE_KEY);
+          const storedQuality = storedQualityValue === null || storedQualityValue === ""
+            ? NaN
+            : Number(storedQualityValue);
+          if (["png", "jpg", "webp"].includes(storedFormat)) format = storedFormat;
+          if (format === "webp" && !webpExportSupported) format = "jpg";
+          if (Number.isFinite(storedQuality)) quality = clamp(storedQuality, 40, 100);
+        } catch (_) {}
+        return { format, quality };
+      }
+
+      function saveExportPreferences(format, quality) {
+        try {
+          localStorage.setItem(EXPORT_FORMAT_STORAGE_KEY, format);
+          localStorage.setItem(EXPORT_QUALITY_STORAGE_KEY, String(quality));
+        } catch (_) {}
+      }
+
+      function syncExportQualityPresets() {
+        const quality = Number(exportQualityRange.value);
+        exportQualityValue.value = `${quality}%`;
+        exportQualityValue.textContent = `${quality}%`;
+        exportQualityPresets.forEach((button) => {
+          button.setAttribute("aria-pressed", String(Number(button.dataset.quality) === quality));
+        });
+      }
+
+      function syncExportDialogState() {
+        const format = getSelectedExportFormat();
+        const usesQuality = format !== "png";
+        exportQualitySection.classList.toggle("is-disabled", !usesQuality);
+        exportQualitySection.setAttribute("aria-disabled", String(!usesQuality));
+        exportQualityRange.disabled = !usesQuality;
+        exportQualityPresets.forEach((button) => {
+          button.disabled = !usesQuality;
+        });
+        const confirmKey = format === "jpg"
+          ? "export.confirmJpg"
+          : format === "webp"
+            ? "export.confirmWebp"
+            : "export.confirmPng";
+        exportConfirmButton.textContent = t(confirmKey);
+        syncExportQualityPresets();
+      }
+
+      function openExportDialog() {
+        if (!getCards().length) return;
+        syncWebpExportAvailability();
+        const preferences = getStoredExportPreferences();
+        const preferredRadio = exportFormatRadios.find((radio) => radio.value === preferences.format);
+        if (preferredRadio) preferredRadio.checked = true;
+        exportQualityRange.value = String(preferences.quality);
+        syncExportDialogState();
+        exportConfirmButton.disabled = false;
+
+        if (typeof exportDialog.showModal === "function") exportDialog.showModal();
+        else exportDialog.setAttribute("open", "");
+
+        requestAnimationFrame(() => {
+          const checked = exportFormatRadios.find((radio) => radio.checked);
+          checked?.focus({ preventScroll: true });
+        });
+      }
+
+      syncWebpExportAvailability();
+      exportOpenButton.addEventListener("click", openExportDialog);
+      exportDialog.addEventListener("click", (event) => {
+        if (event.target !== exportDialog) return;
+        const rect = exportDialog.getBoundingClientRect();
+        const isInside =
+          event.clientX >= rect.left &&
+          event.clientX <= rect.right &&
+          event.clientY >= rect.top &&
+          event.clientY <= rect.bottom;
+        if (!isInside) exportDialog.close("cancel");
+      });
+      exportFormatRadios.forEach((radio) => radio.addEventListener("change", syncExportDialogState));
+      exportQualityRange.addEventListener("input", syncExportQualityPresets);
+      exportQualityPresets.forEach((button) => {
+        button.addEventListener("click", () => {
+          exportQualityRange.value = button.dataset.quality || "90";
+          syncExportQualityPresets();
+        });
+      });
+      exportConfirmButton.addEventListener("click", () => {
+        const format = getSelectedExportFormat();
+        const quality = Number(exportQualityRange.value) || 90;
+        saveExportPreferences(format, quality);
+        exportDialog.close("export");
+        exportGrid(format, quality);
+      });
 
       function syncPairedSettingInputs(rangeInput, numberInput, value) {
         const min = Number(numberInput.min || rangeInput.min) || 0;
