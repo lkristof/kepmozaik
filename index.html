@@ -2012,6 +2012,26 @@
       display: none !important;
     }
 
+    .drag-ghost.image-only-drag-ghost {
+      overflow: hidden;
+      border: 0;
+      border-radius: var(--card-preview-radius);
+      background: #101319;
+    }
+
+    .drag-ghost.image-only-drag-ghost .image-frame-shell,
+    .drag-ghost.image-only-drag-ghost .image-frame {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+    }
+
+    .drag-ghost.image-only-drag-ghost .title-input,
+    .drag-ghost.image-only-drag-ghost .drag-badge,
+    .drag-ghost.image-only-drag-ghost .pan-hint {
+      display: none !important;
+    }
+
     body.reorder-dragging,
     body.reorder-dragging * {
       cursor: grabbing !important;
@@ -2073,6 +2093,39 @@
     .file-drop-placeholder {
       border-style: solid;
       background: color-mix(in srgb, var(--accent) 16%, transparent);
+    }
+
+    .drop-placeholder.image-only-drop-placeholder {
+      place-items: stretch;
+      align-content: start;
+      gap: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      animation: none;
+    }
+
+    .drop-placeholder-image-target {
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 5px;
+      width: 100%;
+      min-width: 0;
+      padding: 12px;
+      border: 3px dashed var(--accent);
+      border-radius: var(--card-preview-radius);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      box-shadow:
+        inset 0 0 0 2px rgba(255, 255, 255, 0.72),
+        0 10px 28px color-mix(in srgb, var(--accent) 18%, transparent);
+      animation: drop-placeholder-pulse 1.05s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    :root[data-theme="dark"] .drop-placeholder-image-target {
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
     }
 
     @keyframes drop-placeholder-pulse {
@@ -6474,10 +6527,27 @@
         placeholder.setAttribute("aria-hidden", "true");
         placeholder.style.width = `${Math.max(1, rect.width)}px`;
         placeholder.style.height = `${Math.max(1, rect.height)}px`;
-        placeholder.innerHTML = `
-          <span class="drop-placeholder-title">${t("reorder.placeholder")}</span>
-          <span class="drop-placeholder-position"></span>
-        `;
+
+        if (!reorderModeActive) {
+          const imageFrame = card.querySelector(".image-frame");
+          const imageRect = imageFrame?.getBoundingClientRect();
+          placeholder.classList.add("image-only-drop-placeholder");
+          placeholder.innerHTML = `
+            <span class="drop-placeholder-image-target">
+              <span class="drop-placeholder-title">${t("reorder.placeholder")}</span>
+              <span class="drop-placeholder-position"></span>
+            </span>
+          `;
+          const imageTarget = placeholder.querySelector(".drop-placeholder-image-target");
+          if (imageTarget) {
+            imageTarget.style.height = `${Math.max(1, imageRect?.height || rect.width)}px`;
+          }
+        } else {
+          placeholder.innerHTML = `
+            <span class="drop-placeholder-title">${t("reorder.placeholder")}</span>
+            <span class="drop-placeholder-position"></span>
+          `;
+        }
         return placeholder;
       }
 
@@ -6616,18 +6686,32 @@
       }
 
       function createDragGhost(card, event) {
-        const rect = card.getBoundingClientRect();
-        const ghost = card.cloneNode(true);
-        ghost.classList.remove("dragging", "dragging-source-hidden");
-        ghost.classList.add("drag-ghost");
+        const cardRect = card.getBoundingClientRect();
+        let ghost;
+        let dragRect = cardRect;
+
+        if (!reorderModeActive) {
+          const imageFrameShell = card.querySelector(".image-frame-shell");
+          const imageFrame = card.querySelector(".image-frame");
+          const imageRect = imageFrame?.getBoundingClientRect();
+          dragRect = imageRect || cardRect;
+          ghost = document.createElement("div");
+          ghost.className = "drag-ghost image-only-drag-ghost";
+          if (imageFrameShell) ghost.appendChild(imageFrameShell.cloneNode(true));
+        } else {
+          ghost = card.cloneNode(true);
+          ghost.classList.remove("dragging", "dragging-source-hidden");
+          ghost.classList.add("drag-ghost");
+        }
+
         ghost.setAttribute("aria-hidden", "true");
         ghost.querySelectorAll("input, textarea, button, select").forEach((element) => {
           element.tabIndex = -1;
         });
-        ghost.style.width = `${rect.width}px`;
-        ghost.style.height = `${rect.height}px`;
-        dragOffsetX = clamp(event.clientX - rect.left, 0, rect.width);
-        dragOffsetY = clamp(event.clientY - rect.top, 0, rect.height);
+        ghost.style.width = `${Math.max(1, dragRect.width)}px`;
+        ghost.style.height = `${Math.max(1, dragRect.height)}px`;
+        dragOffsetX = clamp(event.clientX - dragRect.left, 0, dragRect.width);
+        dragOffsetY = clamp(event.clientY - dragRect.top, 0, dragRect.height);
         document.body.appendChild(ghost);
         dragGhost = ghost;
         positionDragGhost(event.clientX, event.clientY);
