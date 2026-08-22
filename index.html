@@ -1646,13 +1646,6 @@
       border-color: var(--accent);
     }
 
-    .editor-empty-slot::before {
-      content: "";
-      position: absolute;
-      inset: 12px;
-      border: 1px solid rgba(102, 112, 133, 0.2);
-      border-radius: 10px;
-    }
 
     .editor-empty-slot-content {
       position: relative;
@@ -3616,10 +3609,6 @@
         0 8px 22px rgba(0, 0, 0, 0.25);
     }
 
-    :root[data-theme="dark"] .editor-empty-slot::before {
-      border-color: rgba(165, 176, 191, 0.24);
-    }
-
     :root[data-theme="dark"] .editor-empty-slot-title {
       color: #c5cfdd;
     }
@@ -4373,10 +4362,6 @@
     body.card-reorder-mode .drag-ghost .image-frame-shell,
     body.card-reorder-mode .drag-ghost .image-frame {
       border-radius: var(--card-preview-radius);
-    }
-
-    .editor-empty-slot::before {
-      border-radius: max(0px, calc(var(--card-preview-radius) - 4px));
     }
 
 
@@ -6088,6 +6073,8 @@
       function updateEditorPlaceholders() {
         clearEditorPlaceholders();
 
+        if (reorderModeActive) return;
+
         const cardCount = getCards().length;
         if (!cardCount) return;
 
@@ -6424,6 +6411,7 @@
           t(reorderModeActive ? "reorderMode.disableAria" : "reorderMode.enableAria")
         );
         getCards().forEach(syncReorderModeCard);
+        updateEditorPlaceholders();
         updateGridLayout();
 
         getCards().forEach(updateImageGeometry);
