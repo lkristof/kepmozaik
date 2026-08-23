@@ -8429,27 +8429,42 @@
         };
       }
 
-      function captureRecoveryImages() {
-        return getCards().map((card, index) => {
-          const blob = card._imageBlob;
+      async function captureRecoveryImages() {
+        const cards = getCards();
+        const images = [];
+
+        for (let index = 0; index < cards.length; index += 1) {
+          const card = cards[index];
+          const sourceBlob = card._imageBlob;
+          if (!(sourceBlob instanceof Blob)) continue;
+
           const meta = card._fileMeta || {};
-          return {
+          const projectImage = await getProjectImage(card);
+          const blob = projectImage.blob;
+
+          images.push({
             blob,
             state: {
               fileName: String(meta.name || `kep-${index + 1}`),
-              fileType: String(blob?.type || meta.type || "image/png"),
-              fileSize: Number(blob?.size || meta.size || 0),
-              originalFileType: String(meta.type || blob?.type || "image/png"),
-              originalFileSize: Number(meta.size || blob?.size || 0),
+              fileType: String(blob.type || "image/webp"),
+              fileSize: Number(blob.size || 0),
+              originalFileType: String(meta.type || sourceBlob.type || "image/png"),
+              originalFileSize: Number(meta.size || sourceBlob.size || 0),
               lastModified: Number(meta.lastModified || Date.now()),
               title: card.querySelector(".title-input")?.value || "",
               posX: Number(card.dataset.posX || 50),
               posY: Number(card.dataset.posY || 50),
               zoom: Number(card.dataset.zoom || 1),
-              storageOptimized: false
+              storageOptimized: true,
+              storedWidth: Number(projectImage.width || 0),
+              storedHeight: Number(projectImage.height || 0),
+              originalWidth: Number(projectImage.originalWidth || projectImage.width || 0),
+              originalHeight: Number(projectImage.originalHeight || projectImage.height || 0)
             }
-          };
-        }).filter((item) => item.blob instanceof Blob);
+          });
+        }
+
+        return images;
       }
 
       async function persistRecoverySnapshot() {
@@ -8457,20 +8472,20 @@
         if (recoverySaveTimer) clearTimeout(recoverySaveTimer);
         recoverySaveTimer = null;
 
-        const images = captureRecoveryImages();
-        const record = images.length
-          ? {
-              id: RECOVERY_RECORD_KEY,
-              version: 1,
-              savedAt: new Date().toISOString(),
-              settings: captureRecoverySettings(),
-              images
-            }
-          : null;
-
         const operation = recoverySaveChain
           .catch(() => {})
           .then(async () => {
+            const images = await captureRecoveryImages();
+            const record = images.length
+              ? {
+                  id: RECOVERY_RECORD_KEY,
+                  version: 1,
+                  savedAt: new Date().toISOString(),
+                  settings: captureRecoverySettings(),
+                  images
+                }
+              : null;
+
             const database = await openRecoveryDatabase();
             const transaction = database.transaction(RECOVERY_STORE_NAME, "readwrite");
             const store = transaction.objectStore(RECOVERY_STORE_NAME);
@@ -8514,13 +8529,23 @@
 
           if (!record || !Array.isArray(record.images) || !record.images.length) return;
 
+          const isSupportedRecovery = record.version === 1 && record.images.every((item) =>
+            item?.blob instanceof Blob && item?.state?.storageOptimized === true
+          );
+
+          if (!isSupportedRecovery) {
+            const cleanupTransaction = database.transaction(RECOVERY_STORE_NAME, "readwrite");
+            cleanupTransaction.objectStore(RECOVERY_STORE_NAME).delete(RECOVERY_RECORD_KEY);
+            await recoveryTransaction(cleanupTransaction);
+            return;
+          }
+
           recoveryRestoreInProgress = true;
           applyProjectSettings(record.settings || {});
 
           let restoredCount = 0;
           for (const item of record.images) {
-            if (!(item?.blob instanceof Blob)) continue;
-            createCard(item.blob, item.state || {});
+            createCard(item.blob, item.state);
             restoredCount += 1;
           }
 
