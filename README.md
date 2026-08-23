@@ -18,17 +18,19 @@ Images can be rearranged, cropped, zoomed, and captioned, and the finished mosai
 * Position and zoom images within the crop area
 * Touchscreen panning and zooming
 * Predefined and custom aspect ratios
-* Layouts with 1–10 columns
+* Layouts with 1–20 columns, with a configurable maximum
 * Multi-line image captions
 * Configurable caption color, caption background, and mosaic background
 * Adjustable grid spacing
 * Multiple export size options
+* Live export preview with output dimensions and format details
+* Pre-export output-size validation with an in-preview warning for oversized mosaics
 * Configurable JPEG and WebP compression quality with quick presets
 * Lossless PNG export
 * JPEG export for broad compatibility
 * WebP export on supported browsers for smaller modern image files
 * Save and restore projects using JSON files
-* Automatic recovery after accidental page refreshes
+* Automatic recovery from optimized browser-local snapshots
 * Hungarian and English user interface
 * Light and dark themes
 * Responsive desktop and mobile interface
@@ -38,7 +40,7 @@ Images can be rearranged, cropped, zoomed, and captioned, and the finished mosai
 
 All image processing is performed locally, directly in the browser.
 
-The application does not upload selected images to any external server. When saving a project, the browser creates a local JSON file, while exporting generates a PNG, JPEG, or WebP file depending on the selected format and browser support.
+The application does not upload selected images to any external server. Project files and automatic recovery snapshots are created locally in the browser, while exporting generates a PNG, JPEG, or WebP file depending on the selected format and browser support.
 
 ## Usage
 
@@ -49,7 +51,7 @@ The application does not upload selected images to any external server. When sav
 5. Rearrange the images into the desired order.
 6. Add captions and customize their appearance.
 7. Select the export size, grid spacing, corner rounding, caption visibility, and desired colors.
-8. Click **Export**, choose PNG, JPEG, or WebP, and adjust compression quality for JPEG or WebP if needed.
+8. Click **Export** to review the live preview, choose PNG, JPEG, or WebP, and adjust compression quality for JPEG or WebP if needed. Oversized output dimensions are flagged in the preview before rendering.
 9. Click the export button in the dialog to download the finished mosaic.
 
 ## Saving a Project
@@ -70,9 +72,9 @@ A saved project can be restored using the **Load Project** button.
 
 ### Automatic Recovery
 
-The current project state is automatically saved to the browser's local storage. This allows your work to be restored after an accidental page refresh.
+The current project state is automatically saved to IndexedDB in the browser. Recovery snapshots store optimized image data together with the image order, crop positions, zoom values, captions, layout settings, and export settings, so the session can be restored quickly after an accidental page refresh.
 
-Automatic recovery is tied to the specific browser and device, so it does not replace the downloadable JSON file created using the **Save Project** feature.
+Automatic recovery is tied to the specific browser and device. It is intended for local session continuity and does not replace the portable JSON file created using the **Save Project** feature.
 
 > The project file may be large because it contains embedded images.
 
@@ -121,7 +123,7 @@ A modern desktop or mobile browser is recommended, such as:
 * Mozilla Firefox
 * Safari
 
-For large projects, memory usage depends on the number and resolution of the images as well as the selected export size.
+For large projects, memory usage depends on the number and resolution of the images as well as the selected export size. The application checks the planned output dimensions before rendering and disables export when the mosaic exceeds its internal canvas safety limits.
 
 WebP export is enabled only when the browser can generate WebP files through the Canvas API. On unsupported browsers, the WebP option is disabled and JPEG or PNG can be used instead.
 
