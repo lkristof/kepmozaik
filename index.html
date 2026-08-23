@@ -3194,6 +3194,11 @@
       -webkit-backdrop-filter: blur(5px);
     }
 
+    .export-preview-status[data-tone="warning"] {
+      background: color-mix(in srgb, var(--warning) 12%, var(--surface-strong) 88%);
+      color: color-mix(in srgb, var(--warning) 82%, var(--text));
+    }
+
     .export-preview-status[hidden] { display: none; }
 
     .export-options-column {
@@ -5756,7 +5761,8 @@
           "export.progress": "Exportálás: {current} / {total} kép…",
           "export.short": "Export",
           "export.start": "Exportálás folyamatban…",
-          "export.tooLarge": "A létrejövő kép túl nagy. Válassz kisebb exportminőséget vagy kevesebb oszlopot.",
+          "export.tooLarge": "A létrejövő kép túl nagy. Módosítsd az exportbeállításokat úgy, hogy a teljes kimeneti kép kisebb legyen.",
+          "export.previewTooLarge": "A tervezett export ({width} × {height} px) túl nagy. Módosítsd az exportbeállításokat úgy, hogy a teljes kimeneti kép kisebb legyen.",
           "fileDrop.multipleHere": "{count} kép ide kerül",
           "fileDrop.multiplePosition": "{count} új kép a(z) {position}. helytől kerül be.",
           "fileDrop.placeHere": "Ide kerül",
@@ -5971,7 +5977,8 @@
           "export.progress": "Exporting image {current} of {total}…",
           "export.short": "Export",
           "export.start": "Exporting…",
-          "export.tooLarge": "The resulting image is too large. Choose a lower export quality or fewer columns.",
+          "export.tooLarge": "The resulting image is too large. Adjust the export settings so the overall output image is smaller.",
+          "export.previewTooLarge": "The planned export ({width} × {height} px) is too large. Adjust the export settings so the overall output image is smaller.",
           "fileDrop.multipleHere": "{count} images will be placed here",
           "fileDrop.multiplePosition": "{count} new images will be inserted starting at position {position}.",
           "fileDrop.placeHere": "Place here",
@@ -6379,6 +6386,8 @@
       const EDITOR_PREVIEW_QUALITY = 0.82;
       const PROJECT_IMAGE_MAX_DIMENSION = 1600;
       const PROJECT_IMAGE_QUALITY = 0.82;
+      const EXPORT_MAX_DIMENSION = 16384;
+      const EXPORT_MAX_PIXELS = 180000000;
       const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
       const DEFAULT_EDITOR_SETTINGS = Object.freeze({ maxZoom: 4, cardWidth: 300, maxColumns: 10 });
       const EDITOR_SETTINGS_LIMITS = Object.freeze({
@@ -8874,20 +8883,21 @@
         try {
           await Promise.all(cards.map((card) => card._previewPromise).filter(Boolean));
 
-          const requestedColumns = Number(columnRange.value);
-          const columns = Math.round(clamp(requestedColumns || 1, 1, getMaxColumns()));
-          const cellWidth = Number(exportCellWidth.value);
-          const cellHeight = Math.max(1, Math.round(cellWidth / getGlobalAspectRatio()));
-          const gap = Number(exportGap.value);
+          const dimensions = getExportOutputDimensions();
+          if (!dimensions) return;
+          const {
+            columns,
+            rows,
+            cellWidth,
+            cellHeight,
+            gap,
+            width: canvasWidth,
+            height: canvasHeight
+          } = dimensions;
           const cornerRadiusPercent = clamp(Number(exportCornerRadius.value) || 0, 0, 50);
           const cornerRadius = Math.min(cellWidth, cellHeight) * (cornerRadiusPercent / 100);
-          const rows = Math.ceil(cards.length / columns);
-          const canvasWidth = columns * cellWidth + (columns + 1) * gap;
-          const canvasHeight = rows * cellHeight + (rows + 1) * gap;
-          const maxDimension = 16384;
-          const maxPixels = 180000000;
 
-          if (canvasWidth > maxDimension || canvasHeight > maxDimension || canvasWidth * canvasHeight > maxPixels) {
+          if (isExportOutputTooLarge(dimensions)) {
             throw new Error(t("export.tooLarge"));
           }
 
@@ -9238,6 +9248,35 @@
         };
       }
 
+      function isExportOutputTooLarge(dimensions) {
+        if (!dimensions) return false;
+        return dimensions.width > EXPORT_MAX_DIMENSION
+          || dimensions.height > EXPORT_MAX_DIMENSION
+          || dimensions.width * dimensions.height > EXPORT_MAX_PIXELS;
+      }
+
+      function syncExportSizeAvailability({ showWarning = false } = {}) {
+        const dimensions = getExportOutputDimensions();
+        exportPreviewDimensions = dimensions;
+        updateExportPreviewMeta();
+
+        const tooLarge = isExportOutputTooLarge(dimensions);
+        exportConfirmButton.disabled = !dimensions || tooLarge;
+
+        if (showWarning && tooLarge) {
+          exportPreviewCanvas.width = 1;
+          exportPreviewCanvas.height = 1;
+          exportPreviewStatus.hidden = false;
+          exportPreviewStatus.dataset.tone = "warning";
+          exportPreviewStatus.textContent = t("export.previewTooLarge", {
+            width: dimensions.width,
+            height: dimensions.height
+          });
+        }
+
+        return { dimensions, tooLarge };
+      }
+
       function updateExportPreviewMeta() {
         const dimensions = exportPreviewDimensions || getExportOutputDimensions();
         if (!dimensions) {
@@ -9261,17 +9300,16 @@
         const cards = getCards();
         if (!cards.length || !exportPreviewCanvas) return;
         const renderToken = ++exportPreviewRenderToken;
+        const { dimensions, tooLarge } = syncExportSizeAvailability({ showWarning: true });
+        if (!dimensions || tooLarge) return;
+
         exportPreviewStatus.hidden = false;
+        delete exportPreviewStatus.dataset.tone;
         exportPreviewStatus.textContent = t("export.previewLoading");
 
         try {
           await Promise.all(cards.map((card) => card._previewPromise).filter(Boolean));
           if (renderToken !== exportPreviewRenderToken) return;
-
-          const dimensions = getExportOutputDimensions();
-          if (!dimensions) return;
-          exportPreviewDimensions = dimensions;
-          updateExportPreviewMeta();
 
           const maxPreviewDimension = 1200;
           const previewScale = Math.min(1, maxPreviewDimension / Math.max(dimensions.width, dimensions.height));
@@ -9331,11 +9369,15 @@
             }
           }
 
-          if (renderToken === exportPreviewRenderToken) exportPreviewStatus.hidden = true;
+          if (renderToken === exportPreviewRenderToken) {
+            exportPreviewStatus.hidden = true;
+            delete exportPreviewStatus.dataset.tone;
+          }
         } catch (error) {
           console.error(error);
           if (renderToken !== exportPreviewRenderToken) return;
           exportPreviewStatus.hidden = false;
+          delete exportPreviewStatus.dataset.tone;
           exportPreviewStatus.textContent = t("export.previewFailed");
         }
       }
@@ -9366,6 +9408,7 @@
             : "export.confirmPng";
         exportConfirmButton.textContent = t(confirmKey);
         syncExportQualityPresets();
+        syncExportSizeAvailability();
       }
 
       function openExportDialog() {
@@ -9377,7 +9420,6 @@
         if (preferredRadio) preferredRadio.checked = true;
         exportQualityRange.value = String(preferences.quality);
         syncExportDialogState();
-        exportConfirmButton.disabled = false;
 
         if (typeof exportDialog.showModal === "function") exportDialog.showModal();
         else exportDialog.setAttribute("open", "");
