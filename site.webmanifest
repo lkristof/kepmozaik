@@ -1,7 +1,7 @@
 {
   "name": "KépMozaik",
   "short_name": "KépMozaik",
-  "id": "/kepmozaik/",
+  "id": "/kepmozaik",
   "start_url": "./",
   "scope": "./",
   "icons": [
