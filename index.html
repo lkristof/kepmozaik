@@ -8450,9 +8450,11 @@
           const meta = card._fileMeta || {};
           const projectImage = await getProjectImage(card);
           const blob = projectImage.blob;
+          const bytes = await blob.arrayBuffer();
 
           images.push({
-            blob,
+            bytes,
+            type: String(blob.type || "image/webp"),
             state: {
               fileName: String(meta.name || `kep-${index + 1}`),
               fileType: String(blob.type || "image/webp"),
@@ -8539,7 +8541,7 @@
           if (!record || !Array.isArray(record.images) || !record.images.length) return;
 
           const isSupportedRecovery = record.version === 1 && record.images.every((item) =>
-            item?.blob instanceof Blob && item?.state?.storageOptimized === true
+            item?.bytes instanceof ArrayBuffer && item?.state?.storageOptimized === true
           );
 
           if (!isSupportedRecovery) {
@@ -8554,7 +8556,10 @@
 
           let restoredCount = 0;
           for (const item of record.images) {
-            createCard(item.blob, item.state);
+            const blob = new Blob([item.bytes], {
+              type: String(item.type || item.state?.fileType || "image/webp")
+            });
+            createCard(blob, item.state);
             restoredCount += 1;
           }
 
