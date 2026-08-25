@@ -6,7 +6,9 @@ Images can be rearranged, cropped, zoomed, and captioned, and the finished mosai
 
 ## Online Version
 
-**[Open PictureMosaic](https://lkristof.github.io/kepmozaik/)**
+**Recommended:** [kepmozaik.pages.dev](https://kepmozaik.pages.dev)
+
+Mirror: [GitHub Pages](https://lkristof.github.io/kepmozaik/)
 
 ![PictureMosaic preview](./assets/images/screenshot-light.jpg)
 
@@ -44,7 +46,7 @@ The application does not upload selected images to any external server. Project 
 
 ## Usage
 
-1. Open the [online application](https://lkristof.github.io/kepmozaik/).
+1. Open the [online application](https://kepmozaik.pages.dev).
 2. Click the **Browse Images** button or drag images into the upload area.
 3. Set the aspect ratio and number of columns.
 4. Move and zoom the images to achieve the desired crop.
@@ -87,6 +89,7 @@ Automatic recovery is tied to the specific browser and device. It is intended fo
 * File API and Blob API
 * Pointer Events
 * Local Storage and IndexedDB
+* Cloudflare Pages
 * GitHub Pages
 
 The project does not use a JavaScript framework, package manager, or external build system.
