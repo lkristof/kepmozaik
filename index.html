@@ -4879,6 +4879,244 @@
       border-radius: var(--card-preview-radius);
     }
 
+    .tutorial-overlay[hidden] { display: none !important; }
+
+    .tutorial-overlay {
+      position: fixed;
+      z-index: 20000;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .tutorial-click-shield {
+      position: fixed;
+      z-index: 0;
+      inset: 0;
+      pointer-events: auto;
+      cursor: default;
+      touch-action: none;
+    }
+
+    .tutorial-spotlight {
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 0;
+      height: 0;
+      border: 2px solid color-mix(in srgb, var(--accent) 88%, var(--white));
+      border-radius: 16px;
+      background: transparent;
+      box-shadow:
+        0 0 0 9999px rgba(8, 12, 20, 0.62),
+        0 0 0 5px color-mix(in srgb, var(--accent) 18%, transparent),
+        0 14px 40px rgba(0, 0, 0, 0.24);
+      pointer-events: none;
+      transition:
+        left 0.22s ease,
+        top 0.22s ease,
+        width 0.22s ease,
+        height 0.22s ease,
+        border-radius 0.22s ease;
+    }
+
+    .tutorial-card {
+      --tutorial-arrow-x: 50%;
+      --tutorial-arrow-y: 50%;
+      position: fixed;
+      z-index: 2;
+      width: min(370px, calc(100vw - 24px));
+      padding: 16px;
+      border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--panel) 96%, var(--surface-strong));
+      color: var(--text);
+      box-shadow: 0 24px 72px rgba(0, 0, 0, 0.28);
+      pointer-events: auto;
+      backdrop-filter: blur(20px) saturate(1.2);
+      -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    }
+
+    .tutorial-card::before {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: color-mix(in srgb, var(--panel) 96%, var(--surface-strong));
+      transform: rotate(45deg);
+    }
+
+    .tutorial-card[data-placement="bottom"]::before {
+      top: -7px;
+      left: var(--tutorial-arrow-x);
+      border-top: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      border-left: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    .tutorial-card[data-placement="top"]::before {
+      bottom: -7px;
+      left: var(--tutorial-arrow-x);
+      border-right: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      border-bottom: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    .tutorial-card[data-placement="right"]::before {
+      top: var(--tutorial-arrow-y);
+      left: -7px;
+      border-left: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      border-bottom: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    .tutorial-card[data-placement="left"]::before {
+      top: var(--tutorial-arrow-y);
+      right: -7px;
+      border-top: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      border-right: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    .tutorial-card[data-placement="center"]::before { display: none; }
+
+    .tutorial-card-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 12px;
+    }
+
+    .tutorial-card-heading { min-width: 0; }
+
+    .tutorial-step-label {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      margin-bottom: 7px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 10%, transparent);
+      color: var(--accent-ink);
+      font-size: 0.7rem;
+      font-weight: 850;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .tutorial-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.08rem;
+      line-height: 1.28;
+      letter-spacing: -0.015em;
+    }
+
+    .tutorial-close {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1.25rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .tutorial-close:hover {
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+      color: var(--text);
+    }
+
+    .tutorial-close:focus-visible {
+      outline: 3px solid var(--ring);
+      outline-offset: 1px;
+    }
+
+    .tutorial-description {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.52;
+      text-wrap: pretty;
+    }
+
+    .tutorial-progress-track {
+      width: 100%;
+      height: 4px;
+      margin-top: 14px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--text) 10%, transparent);
+    }
+
+    .tutorial-progress-bar {
+      width: var(--tutorial-progress, 0%);
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      transition: width 0.2s ease;
+    }
+
+    .tutorial-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .tutorial-actions-left,
+    .tutorial-actions-right {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .tutorial-actions .button {
+      min-height: 38px;
+      padding: 8px 11px;
+      font-size: 0.82rem;
+    }
+
+    .tutorial-back[hidden] { display: none !important; }
+
+    @media (max-width: 520px) {
+      .tutorial-card {
+        width: calc(100vw - 16px);
+        padding: 14px;
+        border-radius: 16px;
+      }
+
+      .tutorial-actions {
+        align-items: stretch;
+      }
+
+      .tutorial-actions-left,
+      .tutorial-actions-right {
+        flex: 1 1 auto;
+      }
+
+      .tutorial-actions-right { justify-content: flex-end; }
+
+      .tutorial-actions .button {
+        min-width: 0;
+        padding-inline: 9px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tutorial-spotlight,
+      .tutorial-progress-bar {
+        transition: none;
+      }
+    }
+
 
   </style>
 </head>
@@ -4949,6 +5187,14 @@
             <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
           </svg>
           </label>
+
+          <button class="settings-button tutorial-help-button" id="tutorialHelpButton" type="button" aria-label="Interaktív súgó megnyitása" title="Interaktív súgó">
+            <svg class="lucide lucide-circle-help" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 1 1 5.83 1c0 2-3 2-3 4"></path>
+              <path d="M12 17h.01"></path>
+            </svg>
+          </button>
 
           <button class="settings-button" id="settingsButton" type="button" aria-label="Beállítások megnyitása" title="Beállítások">
             <svg class="lucide lucide-settings" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -5489,6 +5735,41 @@
     </div>
   </main>
 
+  <div class="tutorial-overlay" id="tutorialOverlay" hidden>
+    <div class="tutorial-click-shield" id="tutorialClickShield" aria-hidden="true"></div>
+    <div class="tutorial-spotlight" id="tutorialSpotlight" aria-hidden="true"></div>
+    <section
+      class="tutorial-card"
+      id="tutorialCard"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tutorialTitle"
+      aria-describedby="tutorialDescription"
+      data-placement="bottom"
+    >
+      <div class="tutorial-card-header">
+        <div class="tutorial-card-heading">
+          <span class="tutorial-step-label" id="tutorialStepLabel">1 / 9</span>
+          <h2 class="tutorial-title" id="tutorialTitle">Gyors bemutató</h2>
+        </div>
+        <button class="tutorial-close" id="tutorialClose" type="button" aria-label="Bemutató bezárása">×</button>
+      </div>
+      <p class="tutorial-description" id="tutorialDescription"></p>
+      <div class="tutorial-progress-track" aria-hidden="true">
+        <div class="tutorial-progress-bar" id="tutorialProgressBar"></div>
+      </div>
+      <div class="tutorial-actions">
+        <div class="tutorial-actions-left">
+          <button class="button subtle tutorial-skip" id="tutorialSkip" type="button">Kihagyás</button>
+        </div>
+        <div class="tutorial-actions-right">
+          <button class="button tutorial-back" id="tutorialBack" type="button" hidden>Vissza</button>
+          <button class="button primary tutorial-next" id="tutorialNext" type="button">Tovább</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <template id="cardTemplate">
     <article class="card">
       <div class="image-frame-shell">
@@ -5641,6 +5922,19 @@
       const languageSwitch = document.getElementById("languageSwitch");
       const themeToggle = document.getElementById("themeToggle");
       const settingsButton = document.getElementById("settingsButton");
+      const tutorialHelpButton = document.getElementById("tutorialHelpButton");
+      const tutorialOverlay = document.getElementById("tutorialOverlay");
+      const tutorialClickShield = document.getElementById("tutorialClickShield");
+      const tutorialSpotlight = document.getElementById("tutorialSpotlight");
+      const tutorialCard = document.getElementById("tutorialCard");
+      const tutorialStepLabel = document.getElementById("tutorialStepLabel");
+      const tutorialTitle = document.getElementById("tutorialTitle");
+      const tutorialDescription = document.getElementById("tutorialDescription");
+      const tutorialProgressBar = document.getElementById("tutorialProgressBar");
+      const tutorialClose = document.getElementById("tutorialClose");
+      const tutorialSkip = document.getElementById("tutorialSkip");
+      const tutorialBack = document.getElementById("tutorialBack");
+      const tutorialNext = document.getElementById("tutorialNext");
       const settingsDialog = document.getElementById("settingsDialog");
       const settingsForm = document.getElementById("settingsForm");
       const settingsCloseButton = document.getElementById("settingsCloseButton");
@@ -5662,6 +5956,7 @@
       const SETTINGS_STORAGE_KEY = "kepmozaik-editor-settings";
       const EXPORT_FORMAT_STORAGE_KEY = "kepmozaik-export-format";
       const EXPORT_QUALITY_STORAGE_KEY = "kepmozaik-export-quality";
+      const TUTORIAL_STORAGE_KEY = "kepmozaik-tutorial-seen";
 
       const translations = {
         hu: {
@@ -6098,6 +6393,65 @@
         }
       };
 
+      const tutorialTranslations = {
+        hu: {
+          open: "Interaktív súgó",
+          openAria: "Interaktív bemutató megnyitása",
+          closeAria: "Bemutató bezárása",
+          skip: "Kihagyás",
+          back: "Vissza",
+          next: "Tovább",
+          finish: "Kész",
+          step: "{current} / {total}",
+          welcomeTitle: "Ismerd meg a KépMozaikot",
+          welcomeBody: "Ez a rövid bemutató végigvezet a legfontosabb lépéseken. A kiemelt terület mindig azt mutatja, miről van szó.",
+          addTitle: "Adj hozzá képeket",
+          addBody: "A Tallózás gombbal egyszerre több képet is kiválaszthatsz. Ugyanezt megteheted a nagy behúzási területen drag & drop módszerrel is.",
+          ratioTitle: "Állítsd be a képarányt",
+          ratioBody: "Itt adhatod meg az összes mozaikcella arányát. A beépített arányok mellett egyéni szélesség/magasság is megadható.",
+          columnsTitle: "Válaszd ki az oszlopszámot",
+          columnsBody: "A + és − gombokkal szabályozhatod, hány oszlopból álljon a mozaik. Keskeny kijelzőn a rács oldalra is görgethető.",
+          editTitle: "Igazítsd a képeket",
+          editBody: "Minden kép saját kártyát kap: húzással pozicionálhatod, nagyíthatod, címet adhatsz neki, vagy törölheted.",
+          reorderTitle: "Rendezd át a sorrendet",
+          reorderBody: "Itt egyszerűen és gyorsan a kívánt sorrendbe rendezheted a képeket.",
+          exportTitle: "Készítsd el az exportot",
+          exportBody: "Az Exportálás gomb megnyitja az előnézetet, ahol PNG, JPEG vagy WebP formátumot és tömörítési minőséget választhatsz.",
+          saveTitle: "Mentsd el a projektet is",
+          saveBody: "Ha később folytatnád, a teljes szerkeszthető projektet JSON-fájlba mentheted, majd a Projekt betöltése gombbal visszaállíthatod.",
+          helpTitle: "Megjelenés, nyelv és súgó",
+          helpBody: "Itt válthatsz nyelvet és világos/sötét témát, megnyithatod a beállításokat, a ? gombbal pedig bármikor újraindíthatod ezt a bemutatót."
+        },
+        en: {
+          open: "Interactive help",
+          openAria: "Open interactive walkthrough",
+          closeAria: "Close walkthrough",
+          skip: "Skip",
+          back: "Back",
+          next: "Next",
+          finish: "Done",
+          step: "{current} / {total}",
+          welcomeTitle: "Meet PictureMosaic",
+          welcomeBody: "This short walkthrough covers the main workflow. The highlighted area always shows the control currently being explained.",
+          addTitle: "Add your images",
+          addBody: "Use Browse to select multiple images at once. You can also drag and drop images onto the large upload area.",
+          ratioTitle: "Set the aspect ratio",
+          ratioBody: "Choose the ratio used by every mosaic cell. Alongside the presets, you can enter a custom width and height.",
+          columnsTitle: "Choose the column count",
+          columnsBody: "Use the + and − buttons to control how many columns the mosaic uses. On narrow screens, the grid can also scroll horizontally.",
+          editTitle: "Fine-tune each image",
+          editBody: "Every image gets its own card: drag to reposition the crop, zoom, add a caption, move the card, or delete it.",
+          reorderTitle: "Rearrange the order",
+          reorderBody: "Here you can quickly and easily arrange your images in the order you want.",
+          exportTitle: "Create the export",
+          exportBody: "Export opens a preview where you can choose PNG, JPEG or WebP and compression quality.",
+          saveTitle: "Save the editable project",
+          saveBody: "If you want to continue later, save the whole editable project as JSON and restore it with Load project.",
+          helpTitle: "Appearance, language and help",
+          helpBody: "These controls switch language and light/dark appearance, open editor settings, and the ? button lets you restart this walkthrough at any time."
+        }
+      };
+
       let currentLanguage = document.documentElement.lang === "en" ? "en" : "hu";
       let languageToggleAnimationTimer = null;
 
@@ -6348,6 +6702,8 @@
         updateEmptyState();
         refreshMoveButtons();
         applyTheme(root.dataset.theme || resolvePreferredTheme());
+        updateTutorialStaticText();
+        if (tutorialActive) renderTutorialStep({ scroll: false, focus: false });
 
         if (clearDialog.open) {
           const count = getCards().length;
@@ -6365,6 +6721,365 @@
           root.classList.remove("language-toggle-animating");
         }
       }
+
+      const tutorialSteps = [
+        { targets: [".brand-lockup"], title: "welcomeTitle", body: "welcomeBody" },
+        { targets: ["#browseButton"], title: "addTitle", body: "addBody" },
+        { targets: ['label[for="globalRatio"]'], title: "ratioTitle", body: "ratioBody" },
+        { targets: [".column-stepper-field"], title: "columnsTitle", body: "columnsBody" },
+        { targets: [".card", "#browseButton"], title: "editTitle", body: "editBody" },
+        { targets: ["#reorderModeButton"], title: "reorderTitle", body: "reorderBody" },
+        { targets: ["#exportOpenButton"], title: "exportTitle", body: "exportBody" },
+        { targets: ["#saveProjectButton"], title: "saveTitle", body: "saveBody" },
+        { targets: [".appearance-controls"], title: "helpTitle", body: "helpBody" }
+      ];
+
+      let tutorialActive = false;
+      let tutorialIndex = 0;
+      let tutorialTarget = null;
+      let tutorialPreviousFocus = null;
+      let tutorialPositionFrame = null;
+      let tutorialScrollTimer = null;
+      let tutorialCreatedSampleImages = false;
+
+      function tutorialT(key, variables = {}) {
+        const table = tutorialTranslations[currentLanguage] || tutorialTranslations.hu;
+        const fallback = tutorialTranslations.hu[key] || key;
+        const template = table[key] || fallback;
+        return String(template).replace(/\{(\w+)\}/g, (_, name) =>
+          Object.prototype.hasOwnProperty.call(variables, name) ? String(variables[name]) : `{${name}}`
+        );
+      }
+
+      function updateTutorialStaticText() {
+        if (!tutorialHelpButton) return;
+        tutorialHelpButton.setAttribute("aria-label", tutorialT("openAria"));
+        tutorialHelpButton.title = tutorialT("open");
+        tutorialClose.setAttribute("aria-label", tutorialT("closeAria"));
+        tutorialSkip.textContent = tutorialT("skip");
+        tutorialBack.textContent = tutorialT("back");
+        tutorialNext.textContent = tutorialIndex === tutorialSteps.length - 1
+          ? tutorialT("finish")
+          : tutorialT("next");
+      }
+
+      function isTutorialTargetVisible(element) {
+        if (!element || !element.isConnected) return false;
+        const style = window.getComputedStyle(element);
+        if (style.display === "none" || style.visibility === "hidden") return false;
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      }
+
+      function getTutorialTarget(step) {
+        for (const selector of step.targets) {
+          const candidates = Array.from(document.querySelectorAll(selector));
+          const visible = candidates.find(isTutorialTargetVisible);
+          if (visible) return visible;
+        }
+        return document.querySelector(".header") || document.body;
+      }
+
+      function storeTutorialSeen() {
+        try {
+          localStorage.setItem(TUTORIAL_STORAGE_KEY, "1");
+        } catch (_) {}
+      }
+
+      function hasSeenTutorial() {
+        try {
+          return localStorage.getItem(TUTORIAL_STORAGE_KEY) === "1";
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function scheduleTutorialPosition() {
+        if (!tutorialActive || !tutorialTarget) return;
+        if (tutorialPositionFrame !== null) cancelAnimationFrame(tutorialPositionFrame);
+        tutorialPositionFrame = requestAnimationFrame(() => {
+          tutorialPositionFrame = null;
+          positionTutorial();
+        });
+      }
+
+      function positionTutorial() {
+        if (!tutorialActive || !tutorialTarget || !isTutorialTargetVisible(tutorialTarget)) return;
+
+        const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        const viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+        const targetRect = tutorialTarget.getBoundingClientRect();
+        const spotlightPadding = viewportWidth <= 520 ? 6 : 8;
+        const spotlightLeft = Math.max(6, targetRect.left - spotlightPadding);
+        const spotlightTop = Math.max(6, targetRect.top - spotlightPadding);
+        const spotlightRight = Math.min(viewportWidth - 6, targetRect.right + spotlightPadding);
+        const spotlightBottom = Math.min(viewportHeight - 6, targetRect.bottom + spotlightPadding);
+
+        tutorialSpotlight.style.left = `${Math.round(spotlightLeft)}px`;
+        tutorialSpotlight.style.top = `${Math.round(spotlightTop)}px`;
+        tutorialSpotlight.style.width = `${Math.max(0, Math.round(spotlightRight - spotlightLeft))}px`;
+        tutorialSpotlight.style.height = `${Math.max(0, Math.round(spotlightBottom - spotlightTop))}px`;
+        tutorialSpotlight.style.borderRadius = `${Math.min(22, Math.max(12, Math.round(Math.min(targetRect.width, targetRect.height) * 0.12)))}px`;
+
+        const margin = viewportWidth <= 520 ? 8 : 12;
+        const gap = viewportWidth <= 520 ? 12 : 16;
+        const cardWidth = tutorialCard.offsetWidth;
+        const cardHeight = tutorialCard.offsetHeight;
+        const centerX = targetRect.left + targetRect.width / 2;
+        const centerY = targetRect.top + targetRect.height / 2;
+        const clampPos = (value, min, max) => Math.min(Math.max(value, min), Math.max(min, max));
+
+        let placement = "center";
+        let left = clampPos(centerX - cardWidth / 2, margin, viewportWidth - cardWidth - margin);
+        let top = clampPos(centerY - cardHeight / 2, margin, viewportHeight - cardHeight - margin);
+
+        const fitsBelow = targetRect.bottom + gap + cardHeight <= viewportHeight - margin;
+        const fitsAbove = targetRect.top - gap - cardHeight >= margin;
+        const fitsRight = targetRect.right + gap + cardWidth <= viewportWidth - margin;
+        const fitsLeft = targetRect.left - gap - cardWidth >= margin;
+
+        if (fitsBelow) {
+          placement = "bottom";
+          top = targetRect.bottom + gap;
+          left = clampPos(centerX - cardWidth / 2, margin, viewportWidth - cardWidth - margin);
+        } else if (fitsAbove) {
+          placement = "top";
+          top = targetRect.top - gap - cardHeight;
+          left = clampPos(centerX - cardWidth / 2, margin, viewportWidth - cardWidth - margin);
+        } else if (fitsRight) {
+          placement = "right";
+          left = targetRect.right + gap;
+          top = clampPos(centerY - cardHeight / 2, margin, viewportHeight - cardHeight - margin);
+        } else if (fitsLeft) {
+          placement = "left";
+          left = targetRect.left - gap - cardWidth;
+          top = clampPos(centerY - cardHeight / 2, margin, viewportHeight - cardHeight - margin);
+        } else {
+          top = clampPos(viewportHeight - cardHeight - margin, margin, viewportHeight - cardHeight - margin);
+          left = clampPos((viewportWidth - cardWidth) / 2, margin, viewportWidth - cardWidth - margin);
+        }
+
+        tutorialCard.dataset.placement = placement;
+        tutorialCard.style.left = `${Math.round(left)}px`;
+        tutorialCard.style.top = `${Math.round(top)}px`;
+        tutorialCard.style.setProperty(
+          "--tutorial-arrow-x",
+          `${Math.round(clampPos(centerX - left, 18, cardWidth - 18))}px`
+        );
+        tutorialCard.style.setProperty(
+          "--tutorial-arrow-y",
+          `${Math.round(clampPos(centerY - top, 18, cardHeight - 18))}px`
+        );
+      }
+
+      function renderTutorialStep({ scroll = true, focus = true } = {}) {
+        if (!tutorialActive) return;
+        syncTutorialSampleImages();
+        const step = tutorialSteps[tutorialIndex];
+        tutorialTarget = getTutorialTarget(step);
+
+        tutorialStepLabel.textContent = tutorialT("step", {
+          current: tutorialIndex + 1,
+          total: tutorialSteps.length
+        });
+        tutorialTitle.textContent = tutorialT(step.title);
+        tutorialDescription.textContent = tutorialT(step.body);
+        tutorialBack.hidden = tutorialIndex === 0;
+        tutorialNext.textContent = tutorialIndex === tutorialSteps.length - 1
+          ? tutorialT("finish")
+          : tutorialT("next");
+        tutorialProgressBar.style.setProperty(
+          "--tutorial-progress",
+          `${((tutorialIndex + 1) / tutorialSteps.length) * 100}%`
+        );
+
+        if (scroll && tutorialTarget?.scrollIntoView) {
+          tutorialTarget.scrollIntoView({
+            behavior: reducedMotionQuery.matches ? "auto" : "smooth",
+            block: "center",
+            inline: "center"
+          });
+        }
+
+        scheduleTutorialPosition();
+        if (tutorialScrollTimer) clearTimeout(tutorialScrollTimer);
+        tutorialScrollTimer = setTimeout(scheduleTutorialPosition, reducedMotionQuery.matches ? 0 : 260);
+        if (focus) tutorialNext.focus({ preventScroll: true });
+      }
+
+      function createTutorialSampleFile(name, variant = 0) {
+        const svg = variant === 0
+          ? `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+              <defs>
+                <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#80b9e6"/><stop offset="1" stop-color="#eaf4f7"/></linearGradient>
+                <linearGradient id="water" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#3b839d"/><stop offset="1" stop-color="#173f57"/></linearGradient>
+              </defs>
+              <rect width="1200" height="900" fill="url(#sky)"/>
+              <circle cx="930" cy="180" r="86" fill="#ffe2a4" opacity=".92"/>
+              <path d="M0 550 230 285 410 475 595 205 835 515 1005 345 1200 565V900H0Z" fill="#43596b"/>
+              <path d="M230 285 294 360 344 332 410 475 595 205 672 310 725 290 835 515 1005 345 1088 448 1200 565" fill="none" stroke="#eef5f8" stroke-width="34" stroke-linejoin="round" opacity=".9"/>
+              <path d="M0 565C190 530 330 620 505 588c185-34 305-15 420 34 93 40 182 35 275-3V900H0Z" fill="url(#water)"/>
+              <path d="M0 690c210-52 398 35 590-4 217-43 386 44 610-6" fill="none" stroke="#c8e6e8" stroke-width="13" opacity=".3"/>
+              <g fill="#173728"><path d="m105 610 52-115 52 115Z"/><path d="m145 610 68-150 68 150Z"/><path d="m1010 610 58-128 58 128Z"/><path d="m1070 610 72-158 72 158Z"/></g>
+            </svg>`
+          : `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+              <defs>
+                <linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#7057a8"/><stop offset=".48" stop-color="#ef8b73"/><stop offset="1" stop-color="#ffd29a"/></linearGradient>
+                <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#365a7a"/><stop offset="1" stop-color="#162c42"/></linearGradient>
+              </defs>
+              <rect width="1200" height="900" fill="url(#sunset)"/>
+              <circle cx="600" cy="420" r="118" fill="#ffe5a6"/>
+              <path d="M0 545c170-20 286 26 436 9 169-20 329-17 470 13 112 24 199 19 294-2V900H0Z" fill="url(#sea)"/>
+              <path d="M0 635c177 26 319-22 486 1 194 27 341-6 495 16 80 11 149 7 219-10" fill="none" stroke="#f4c8a2" stroke-width="16" opacity=".34"/>
+              <path d="M0 760c205-34 352 28 536-5 183-32 368 35 664-16" fill="none" stroke="#d7e8ef" stroke-width="11" opacity=".22"/>
+              <path d="M80 575c105-58 185-59 279-25-87 12-150 37-210 77Z" fill="#172333" opacity=".9"/>
+              <path d="M930 590c82-43 147-44 224-17-69 12-118 31-169 61Z" fill="#172333" opacity=".82"/>
+              <g fill="#fff3dd" opacity=".72"><path d="M250 250q28-23 56 0-28-10-56 0Z"/><path d="M310 205q22-19 44 0-22-8-44 0Z"/><path d="M875 278q30-24 60 0-30-10-60 0Z"/></g>
+            </svg>`;
+        return new File([svg], name, { type: "image/svg+xml", lastModified: Date.now() });
+      }
+
+      function addTutorialSampleImages() {
+        if (tutorialCreatedSampleImages || getCards().length) return;
+
+        const samples = [
+          {
+            file: createTutorialSampleFile("tutorial-minta-hegyi-to.svg", 0),
+            title: currentLanguage === "en" ? "Mountain lake" : "Hegyi tó",
+            posX: 48,
+            posY: 52,
+            zoom: 1.06
+          },
+          {
+            file: createTutorialSampleFile("tutorial-minta-naplemente.svg", 1),
+            title: currentLanguage === "en" ? "Sunset" : "Naplemente",
+            posX: 52,
+            posY: 48,
+            zoom: 1.03
+          }
+        ];
+
+        samples.forEach((sample) => {
+          const previousCount = getCards().length;
+          createCard(sample.file, {
+            title: sample.title,
+            posX: sample.posX,
+            posY: sample.posY,
+            zoom: sample.zoom
+          });
+          const createdCard = getCards()[previousCount];
+          if (createdCard) createdCard.dataset.tutorialSample = "true";
+        });
+
+        tutorialCreatedSampleImages = true;
+        updateEmptyState();
+        refreshMoveButtons();
+      }
+
+      function removeTutorialSampleImages() {
+        const sampleCards = getCards().filter((card) => card.dataset.tutorialSample === "true");
+        sampleCards.forEach((card) => {
+          revokeCardResources(card);
+          card.remove();
+        });
+        tutorialCreatedSampleImages = false;
+        if (sampleCards.length) {
+          updateEmptyState();
+          refreshMoveButtons();
+        }
+      }
+
+      function syncTutorialSampleImages() {
+        if (!tutorialActive) return;
+        if (tutorialIndex >= 4) {
+          if (!getCards().length) addTutorialSampleImages();
+        } else if (tutorialCreatedSampleImages) {
+          removeTutorialSampleImages();
+        }
+      }
+
+      function startTutorial() {
+        if (tutorialActive) return;
+        tutorialPreviousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        tutorialActive = true;
+        tutorialIndex = 0;
+        document.body.classList.add("tutorial-active");
+        tutorialOverlay.hidden = false;
+        updateTutorialStaticText();
+        renderTutorialStep();
+      }
+
+      function closeTutorial({ markSeen = true } = {}) {
+        if (!tutorialActive) return;
+        tutorialActive = false;
+        removeTutorialSampleImages();
+        if (markSeen) storeTutorialSeen();
+        document.body.classList.remove("tutorial-active");
+        tutorialOverlay.hidden = true;
+        tutorialTarget = null;
+        if (tutorialPositionFrame !== null) cancelAnimationFrame(tutorialPositionFrame);
+        tutorialPositionFrame = null;
+        if (tutorialScrollTimer) clearTimeout(tutorialScrollTimer);
+        tutorialScrollTimer = null;
+        if (tutorialPreviousFocus?.isConnected) tutorialPreviousFocus.focus({ preventScroll: true });
+        tutorialPreviousFocus = null;
+      }
+
+      function goToTutorialStep(index) {
+        if (!tutorialActive) return;
+        tutorialIndex = Math.min(Math.max(index, 0), tutorialSteps.length - 1);
+        renderTutorialStep();
+      }
+
+      function maybeAutoStartTutorial() {
+        if (hasSeenTutorial()) return;
+        setTimeout(() => {
+          if (!tutorialActive && !clearDialog.open && !exportDialog.open && !settingsDialog.open) {
+            startTutorial();
+          }
+        }, 650);
+      }
+
+      tutorialHelpButton.addEventListener("click", startTutorial);
+      tutorialClose.addEventListener("click", () => closeTutorial());
+      tutorialSkip.addEventListener("click", () => closeTutorial());
+      tutorialBack.addEventListener("click", () => goToTutorialStep(tutorialIndex - 1));
+      tutorialNext.addEventListener("click", () => {
+        if (tutorialIndex >= tutorialSteps.length - 1) {
+          closeTutorial();
+          return;
+        }
+        goToTutorialStep(tutorialIndex + 1);
+      });
+
+      tutorialClickShield.addEventListener("click", (event) => event.preventDefault());
+      tutorialClickShield.addEventListener("wheel", (event) => event.preventDefault(), { passive: false });
+      tutorialClickShield.addEventListener("touchmove", (event) => event.preventDefault(), { passive: false });
+
+      tutorialOverlay.addEventListener("keydown", (event) => {
+        if (!tutorialActive) return;
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          closeTutorial();
+          return;
+        }
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          event.stopPropagation();
+          if (tutorialIndex >= tutorialSteps.length - 1) closeTutorial();
+          else goToTutorialStep(tutorialIndex + 1);
+          return;
+        }
+        if (event.key === "ArrowLeft" && tutorialIndex > 0) {
+          event.preventDefault();
+          event.stopPropagation();
+          goToTutorialStep(tutorialIndex - 1);
+        }
+      });
+
+      window.addEventListener("resize", scheduleTutorialPosition);
+      window.addEventListener("scroll", scheduleTutorialPosition, true);
 
       let draggedCard = null;
       let dropPlaceholder = null;
@@ -9735,6 +10450,7 @@
       updateEmptyState();
       refreshMoveButtons();
       void restoreRecoverySnapshot();
+      maybeAutoStartTutorial();
     })();
   </script>
 
