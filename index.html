@@ -4990,6 +4990,11 @@
     .tutorial-card {
       --tutorial-arrow-x: 50%;
       --tutorial-arrow-y: 50%;
+      --tutorial-arrow-border-color: color-mix(
+        in srgb,
+        var(--accent) 18%,
+        color-mix(in srgb, #111827 10%, var(--surface-strong))
+      );
       position: fixed;
       z-index: 2;
       width: min(370px, calc(100vw - 24px));
@@ -5004,48 +5009,97 @@
       -webkit-backdrop-filter: blur(20px) saturate(1.2);
     }
 
-    .tutorial-card::before {
+    :root[data-theme="dark"] .tutorial-card {
+      --tutorial-arrow-border-color: color-mix(
+        in srgb,
+        var(--accent) 18%,
+        color-mix(in srgb, #ffffff 8.5%, var(--surface-strong))
+      );
+    }
+
+    .tutorial-card::before,
+    .tutorial-card::after {
       content: "";
       position: absolute;
-      width: 12px;
-      height: 12px;
-      background: color-mix(in srgb, var(--panel) 96%, var(--surface-strong));
-      transform: rotate(45deg);
+      width: 0;
+      height: 0;
+      pointer-events: none;
     }
 
+    .tutorial-card[data-placement="bottom"]::before,
+    .tutorial-card[data-placement="bottom"]::after {
+      left: var(--tutorial-arrow-x);
+      transform: translateX(-50%);
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+    }
     .tutorial-card[data-placement="bottom"]::before {
-      top: -7px;
-      left: var(--tutorial-arrow-x);
-      border-top: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
-      border-left: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
-      transform: translateX(-50%) rotate(45deg);
+      top: -9px;
+      border-bottom: 9px solid var(--tutorial-arrow-border-color);
+    }
+    .tutorial-card[data-placement="bottom"]::after {
+      top: -8px;
+      border-left-width: 8px;
+      border-right-width: 8px;
+      border-bottom: 8px solid color-mix(in srgb, var(--panel) 96%, var(--surface-strong));
     }
 
+    .tutorial-card[data-placement="top"]::before,
+    .tutorial-card[data-placement="top"]::after {
+      left: var(--tutorial-arrow-x);
+      transform: translateX(-50%);
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+    }
     .tutorial-card[data-placement="top"]::before {
-      bottom: -7px;
-      left: var(--tutorial-arrow-x);
-      border-right: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
-      border-bottom: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
-      transform: translateX(-50%) rotate(45deg);
+      bottom: -9px;
+      border-top: 9px solid var(--tutorial-arrow-border-color);
+    }
+    .tutorial-card[data-placement="top"]::after {
+      bottom: -8px;
+      border-left-width: 8px;
+      border-right-width: 8px;
+      border-top: 8px solid color-mix(in srgb, var(--panel) 96%, var(--surface-strong));
     }
 
+    .tutorial-card[data-placement="right"]::before,
+    .tutorial-card[data-placement="right"]::after {
+      top: var(--tutorial-arrow-y);
+      transform: translateY(-50%);
+      border-top: 9px solid transparent;
+      border-bottom: 9px solid transparent;
+    }
     .tutorial-card[data-placement="right"]::before {
-      top: var(--tutorial-arrow-y);
-      left: -7px;
-      border-left: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
-      border-bottom: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
-      transform: translateY(-50%) rotate(45deg);
+      left: -9px;
+      border-right: 9px solid var(--tutorial-arrow-border-color);
+    }
+    .tutorial-card[data-placement="right"]::after {
+      left: -8px;
+      border-top-width: 8px;
+      border-bottom-width: 8px;
+      border-right: 8px solid color-mix(in srgb, var(--panel) 96%, var(--surface-strong));
     }
 
+    .tutorial-card[data-placement="left"]::before,
+    .tutorial-card[data-placement="left"]::after {
+      top: var(--tutorial-arrow-y);
+      transform: translateY(-50%);
+      border-top: 9px solid transparent;
+      border-bottom: 9px solid transparent;
+    }
     .tutorial-card[data-placement="left"]::before {
-      top: var(--tutorial-arrow-y);
-      right: -7px;
-      border-top: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
-      border-right: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
-      transform: translateY(-50%) rotate(45deg);
+      right: -9px;
+      border-left: 9px solid var(--tutorial-arrow-border-color);
+    }
+    .tutorial-card[data-placement="left"]::after {
+      right: -8px;
+      border-top-width: 8px;
+      border-bottom-width: 8px;
+      border-left: 8px solid color-mix(in srgb, var(--panel) 96%, var(--surface-strong));
     }
 
-    .tutorial-card[data-placement="center"]::before { display: none; }
+    .tutorial-card[data-placement="center"]::before,
+    .tutorial-card[data-placement="center"]::after { display: none; }
 
     .tutorial-card-header {
       display: grid;
