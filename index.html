@@ -4612,6 +4612,73 @@
       .drop-zone { min-height: 150px; border-radius: 18px; }
     }
 
+    @media (max-width: 760px) {
+      .header-controls.is-tight {
+        gap: 2px;
+      }
+
+      .header-controls.is-compact {
+        gap: 2px;
+      }
+
+      .header-controls.is-compact .image-count {
+        gap: 3px;
+        padding: 3px 5px 3px 3px;
+      }
+
+      .header-controls.is-compact .image-count-icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      .header-controls.is-compact .language-switch,
+      .header-controls.is-compact .theme-switch {
+        width: 76px;
+        min-width: 76px;
+        max-width: 76px;
+        flex: 0 0 76px;
+        gap: 2px;
+        padding-inline: 2px;
+      }
+
+      .header-controls.is-compact .language-switch-label {
+        width: 13px;
+        flex-basis: 13px;
+        font-size: 0.62rem;
+      }
+
+      .header-controls.is-compact .language-switch-track,
+      .header-controls.is-compact .theme-switch-track {
+        width: 36px;
+        height: 22px;
+      }
+
+      .header-controls.is-compact .language-switch-thumb,
+      .header-controls.is-compact .theme-switch-track::after {
+        width: 16px;
+        height: 16px;
+      }
+
+      :root[lang="en"] .header-controls.is-compact .language-switch-track {
+        --language-thumb-x: 14px;
+      }
+
+      .header-controls.is-compact .theme-switch input:checked + .theme-switch-track::after {
+        transform: translateX(14px);
+      }
+
+      .header-controls.is-compact .theme-switch-icon {
+        width: 14px;
+        height: 14px;
+      }
+
+      .header-controls.is-compact .appearance-controls .settings-button {
+        width: 34px;
+        min-width: 34px;
+        flex-basis: 34px;
+      }
+    }
+
     @media (hover: hover) and (pointer: fine) {
       .inline-field,
       .control-field {
