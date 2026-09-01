@@ -6843,6 +6843,74 @@
         }
       }
 
+      function setupResponsiveHeaderControls() {
+        const headerControls = document.querySelector(".header-controls");
+        if (!headerControls) return;
+
+        const mobileHeaderQuery = window.matchMedia("(max-width: 760px)");
+        const imageCount = document.getElementById("imageCount");
+        let fitFrame = null;
+
+        function fitsWithinRow() {
+          const containerRect = headerControls.getBoundingClientRect();
+          const controls = headerControls.querySelectorAll(
+            ".image-count, .language-switch, .theme-switch, .settings-button"
+          );
+          const tolerance = 0.75;
+
+          return Array.from(controls).every((control) => {
+            const rect = control.getBoundingClientRect();
+            return rect.left >= containerRect.left - tolerance
+              && rect.right <= containerRect.right + tolerance;
+          });
+        }
+
+        function updateFit() {
+          headerControls.classList.remove("is-tight", "is-compact");
+          if (!mobileHeaderQuery.matches) return;
+
+          void headerControls.offsetWidth;
+          if (fitsWithinRow()) return;
+
+          headerControls.classList.add("is-tight");
+          void headerControls.offsetWidth;
+          if (fitsWithinRow()) return;
+
+          headerControls.classList.add("is-compact");
+        }
+
+        function scheduleFit() {
+          if (fitFrame !== null) cancelAnimationFrame(fitFrame);
+          fitFrame = requestAnimationFrame(() => {
+            fitFrame = null;
+            updateFit();
+          });
+        }
+
+        window.addEventListener("resize", scheduleFit, { passive: true });
+        window.addEventListener("orientationchange", scheduleFit, { passive: true });
+        mobileHeaderQuery.addEventListener?.("change", scheduleFit);
+
+        const observer = new MutationObserver(scheduleFit);
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["lang"]
+        });
+
+        if (imageCount) {
+          observer.observe(imageCount, {
+            attributes: true,
+            childList: true,
+            characterData: true,
+            subtree: true
+          });
+        }
+
+        scheduleFit();
+      }
+
+      setupResponsiveHeaderControls();
+
       const tutorialSteps = [
         { targets: [".brand-lockup"], title: "welcomeTitle", body: "welcomeBody" },
         { targets: ["#browseButton"], title: "addTitle", body: "addBody" },
