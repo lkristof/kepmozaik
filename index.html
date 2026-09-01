@@ -6952,12 +6952,39 @@
           : tutorialT("next");
       }
 
-      function isTutorialTargetVisible(element) {
-        if (!element || !element.isConnected) return false;
+      function getTutorialTargetRect(element) {
+        if (!element || !element.isConnected) return null;
         const style = window.getComputedStyle(element);
-        if (style.display === "none" || style.visibility === "hidden") return false;
+        if (style.display === "none" || style.visibility === "hidden") return null;
+
         const rect = element.getBoundingClientRect();
-        return rect.width > 0 && rect.height > 0;
+        if (rect.width > 0 && rect.height > 0) return rect;
+        if (style.display !== "contents") return null;
+
+        const childRects = Array.from(element.children)
+          .map((child) => getTutorialTargetRect(child))
+          .filter(Boolean);
+        if (!childRects.length) return null;
+
+        const left = Math.min(...childRects.map((childRect) => childRect.left));
+        const top = Math.min(...childRects.map((childRect) => childRect.top));
+        const right = Math.max(...childRects.map((childRect) => childRect.right));
+        const bottom = Math.max(...childRects.map((childRect) => childRect.bottom));
+
+        return {
+          left,
+          top,
+          right,
+          bottom,
+          width: right - left,
+          height: bottom - top,
+          x: left,
+          y: top
+        };
+      }
+
+      function isTutorialTargetVisible(element) {
+        return Boolean(getTutorialTargetRect(element));
       }
 
       function getTutorialTarget(step) {
@@ -6993,11 +7020,12 @@
       }
 
       function positionTutorial() {
-        if (!tutorialActive || !tutorialTarget || !isTutorialTargetVisible(tutorialTarget)) return;
+        if (!tutorialActive || !tutorialTarget) return;
+        const targetRect = getTutorialTargetRect(tutorialTarget);
+        if (!targetRect) return;
 
         const viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
         const viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-        const targetRect = tutorialTarget.getBoundingClientRect();
         const spotlightPadding = viewportWidth <= 520 ? 6 : 8;
         const spotlightLeft = Math.max(6, targetRect.left - spotlightPadding);
         const spotlightTop = Math.max(6, targetRect.top - spotlightPadding);
