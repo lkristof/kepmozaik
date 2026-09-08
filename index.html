@@ -2163,6 +2163,14 @@
       background: #101319;
     }
 
+    @media (pointer: coarse) {
+      .image-frame {
+        touch-action: pan-x pan-y;
+        overscroll-behavior-x: auto;
+        overscroll-behavior-y: auto;
+      }
+    }
+
     .image-frame:focus-visible {
       box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.80);
     }
@@ -6094,7 +6102,7 @@
           "card.next": "Következő",
           "card.nextTitle": "Kártya mozgatása a következő helyre",
           "card.panMouse": "Húzd a képet a vágáshoz",
-          "card.panTouch": "Egy ujjal mozgasd, két ujjal nagyítsd",
+          "card.panTouch": "Két ujjal vághatod a képet",
           "card.previous": "Előző",
           "card.previousTitle": "Kártya mozgatása az előző helyre",
           "card.reset": "Alaphelyzet",
@@ -6310,7 +6318,7 @@
           "card.next": "Next",
           "card.nextTitle": "Move card to the next position",
           "card.panMouse": "Drag the image to adjust the crop",
-          "card.panTouch": "Move with one finger, zoom with two",
+          "card.panTouch": "Crop the image with two fingers",
           "card.previous": "Previous",
           "card.previousTitle": "Move card to the previous position",
           "card.reset": "Reset",
@@ -8383,6 +8391,7 @@
       function installImageCropping(card, frame, img) {
         const activePointers = new Map();
         let gesture = null;
+        let touchCropSessionActive = false;
         let wheelCropUiTimer = 0;
 
         function setCropGestureActive(active) {
@@ -8402,11 +8411,29 @@
         function preventNativeCropGesture(event) {
           const interactiveControl = event.target.closest &&
             event.target.closest("input, textarea, button, select, .drag-badge");
-          const touchCount = event.touches ? event.touches.length : 0;
+          const eventTouchCount = event.touches ? event.touches.length : 0;
+          const activeTouchCount = [...activePointers.values()]
+            .filter((point) => point.pointerType === "touch").length;
+          const touchCount = Math.max(eventTouchCount, activeTouchCount);
 
-          if (touchCount >= 2 || !interactiveControl) {
+          // A fresh one-finger touch stays native so the page can be scrolled.
+          // Once a two-finger crop session has started, the remaining finger may
+          // keep moving the image, so native scrolling must stay suppressed
+          // until every finger from that crop session has been released.
+          if (!interactiveControl && (touchCount >= 2 || (touchCropSessionActive && touchCount >= 1))) {
             event.preventDefault();
           }
+        }
+
+        function isTouchPointer(event) {
+          return event.pointerType === "touch";
+        }
+
+        function captureActiveTouchPointers() {
+          activePointers.forEach((point, pointerId) => {
+            if (point.pointerType !== "touch") return;
+            try { frame.setPointerCapture(pointerId); } catch (_) {}
+          });
         }
 
         function getPointerPair(ids = null) {
@@ -8548,13 +8575,23 @@
             y: event.clientY,
             pointerType: event.pointerType
           });
+
+          if (isTouchPointer(event)) {
+            // A single finger is reserved for native page scrolling.
+            // Cropping starts only when the second touch is present.
+            if (activePointers.size >= 2) {
+              touchCropSessionActive = true;
+              captureActiveTouchPointers();
+              setCropGestureActive(true);
+              beginPinch();
+              event.preventDefault();
+            }
+            return;
+          }
+
           setCropGestureActive(true);
-
           try { frame.setPointerCapture(event.pointerId); } catch (_) {}
-
-          if (activePointers.size >= 2) beginPinch();
-          else beginPan(event.pointerId);
-
+          beginPan(event.pointerId);
           event.preventDefault();
         });
 
@@ -8620,6 +8657,9 @@
               : 50;
 
             setCardPosition(card, x, y);
+          } else {
+            // No active crop gesture: let a one-finger touch scroll normally.
+            return;
           }
 
           event.preventDefault();
@@ -8632,17 +8672,37 @@
           try { frame.releasePointerCapture(event.pointerId); } catch (_) {}
 
           if (activePointers.size >= 2) {
+            setCropGestureActive(true);
             beginPinch();
           } else if (activePointers.size === 1) {
-            beginPan([...activePointers.keys()][0]);
+            const remainingId = [...activePointers.keys()][0];
+            const remainingPointer = activePointers.get(remainingId);
+
+            if (remainingPointer?.pointerType === "touch" && touchCropSessionActive) {
+              // The two-finger gesture already unlocked cropping for this touch session.
+              // Keep the remaining finger captured and continue seamlessly as a pan.
+              setCropGestureActive(true);
+              beginPan(remainingId);
+            } else if (remainingPointer?.pointerType === "touch") {
+              // A touch that never became a two-finger crop gesture remains native scrolling.
+              gesture = null;
+              frame.classList.remove("panning", "pinching");
+              setCardCropUiInteraction(card, "pointer-crop", false);
+              setCropGestureActive(false);
+              try { frame.releasePointerCapture(remainingId); } catch (_) {}
+            } else {
+              beginPan(remainingId);
+            }
           } else {
             gesture = null;
+            touchCropSessionActive = false;
             frame.classList.remove("panning", "pinching");
             setCardCropUiInteraction(card, "pointer-crop", false);
             setCropGestureActive(false);
           }
         }
 
+        frame.addEventListener("touchstart", preventNativeCropGesture, { passive: false });
         frame.addEventListener("touchmove", preventNativeCropGesture, { passive: false });
         frame.addEventListener("gesturestart", preventNativeCropGesture, { passive: false });
         frame.addEventListener("gesturechange", preventNativeCropGesture, { passive: false });
