@@ -9299,6 +9299,7 @@
         const fileSizeElement = fragment.querySelector(".file-size");
 
         const fileName = String(state.fileName || file.name || "kep");
+        const displayFileName = filenameForDownloadedBlob(fileName, file);
         const fileType = String(state.fileType || file.type || "image/png");
         const fileSize = Number.isFinite(Number(state.fileSize))
           ? Number(state.fileSize)
@@ -9345,9 +9346,9 @@
         img.alt = titleInput.value.trim().replace(/\s+/g, " ") || t("card.uploadedImage");
         img.decoding = "async";
         frame.classList.add("preview-loading");
-        fileNameElement.textContent = fileName;
+        fileNameElement.textContent = displayFileName;
         fileSizeElement.textContent = formatBytes(fileSize);
-        fileInfo.title = fileName;
+        fileInfo.title = displayFileName;
         zoomRange.max = String(getMaxZoom());
         zoomRange.value = String(initialZoom);
         zoomValue.textContent = `${Math.round(initialZoom * 100)}%`;
