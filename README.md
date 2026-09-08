@@ -16,9 +16,11 @@ Mirror: [GitHub Pages](https://lkristof.github.io/kepmozaik/)
 
 * Load multiple images at once
 * Add images using the file picker or drag and drop
+* Browse loaded images with filename, file size, and resolution details
+* Download loaded images individually
 * Rearrange the order of images
 * Position and zoom images within the crop area
-* Touchscreen panning and zooming
+* Two-finger image cropping on touch devices with one-finger page scrolling
 * Predefined and custom aspect ratios
 * Layouts with 1–20 columns, with a configurable maximum
 * Multi-line image captions
@@ -49,7 +51,7 @@ The application does not upload selected images to any external server. Project 
 1. Open the [online application](https://kepmozaik.pages.dev).
 2. Click the **Browse Images** button or drag images into the upload area.
 3. Set the aspect ratio and number of columns.
-4. Move and zoom the images to achieve the desired crop.
+4. Move and zoom the images to achieve the desired crop. On touch devices, use two fingers to adjust the image while one-finger gestures remain available for page scrolling.
 5. Rearrange the images into the desired order.
 6. Add captions and customize their appearance.
 7. Select the export size, grid spacing, corner rounding, caption visibility, and desired colors.
