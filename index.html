@@ -9757,11 +9757,27 @@
           ctx.imageSmoothingQuality = "high";
           ctx.drawImage(decoded.source, 0, 0, width, height);
 
-          let optimizedBlob;
-          try {
-            optimizedBlob = await canvasToBlob(canvas, "image/webp", quality);
-          } catch (_) {
-            optimizedBlob = await canvasToBlob(canvas, "image/png");
+          let optimizedBlob = null;
+
+          if (webpExportSupported) {
+            try {
+              const webpBlob = await canvasToBlob(canvas, "image/webp", quality);
+              if (String(webpBlob.type || "").toLowerCase() === "image/webp") {
+                optimizedBlob = webpBlob;
+              }
+            } catch (_) {}
+          }
+
+          if (!optimizedBlob) {
+            const fallbackBlob = await canvasToBlob(canvas, "image/jpeg", quality);
+
+            // Some browsers may silently return a different format than requested.
+            // If WebP is unavailable, always keep recovery/project images compressed as JPEG.
+            if (String(fallbackBlob.type || "").toLowerCase() !== "image/jpeg") {
+              throw new Error(t("error.compress"));
+            }
+
+            optimizedBlob = fallbackBlob;
           }
 
           return {
