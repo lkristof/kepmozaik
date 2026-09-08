@@ -5246,6 +5246,278 @@
       }
     }
 
+    .image-count {
+      appearance: none;
+      font: inherit;
+    }
+
+    .image-count:not(:disabled) {
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .image-count:disabled {
+      cursor: default;
+    }
+
+    .image-count:not(:disabled):hover {
+      border-color: color-mix(in srgb, var(--accent) 34%, var(--line));
+      background: color-mix(in srgb, var(--accent) 5%, var(--panel));
+    }
+
+    .image-count:not(:disabled):active {
+      background: color-mix(in srgb, var(--accent) 9%, var(--panel));
+    }
+
+    .image-count:focus-visible {
+      outline: 3px solid var(--ring);
+      outline-offset: 2px;
+    }
+
+    .image-library-dialog {
+      width: min(760px, calc(100% - 24px));
+      max-width: none;
+      max-height: calc(100vh - 24px);
+      max-height: calc(100dvh - 24px);
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--text);
+      box-shadow: 0 30px 90px rgba(16, 24, 40, 0.26);
+      backdrop-filter: blur(22px) saturate(1.2);
+      -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    }
+
+    .image-library-dialog::backdrop {
+      background: var(--dialog-backdrop);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .image-library-dialog-content {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 24px);
+      max-height: calc(100dvh - 24px);
+      margin: 0;
+    }
+
+    .image-library-dialog-header {
+      display: grid;
+      flex: 0 0 auto;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 16px;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .image-library-dialog-heading { min-width: 0; }
+
+    .image-library-dialog-title {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.25;
+    }
+
+    .image-library-dialog-description {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .image-library-dialog-close {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .image-library-dialog-close:hover {
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+      color: var(--text);
+    }
+
+    .image-library-dialog-close:focus-visible {
+      outline: 3px solid var(--ring);
+      outline-offset: 1px;
+    }
+
+    .image-library-dialog-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 14px 16px 18px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .image-library-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .image-library-item {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: color-mix(in srgb, var(--surface-soft) 74%, var(--surface-strong));
+    }
+
+    .image-library-preview {
+      display: block;
+      width: 88px;
+      height: 66px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #101319;
+      object-fit: cover;
+    }
+
+    .image-library-info {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .image-library-name {
+      overflow: hidden;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 800;
+      line-height: 1.25;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .image-library-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 12px;
+      min-width: 0;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.3;
+    }
+
+    .image-library-meta-item {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .image-library-meta-label {
+      font-weight: 700;
+    }
+
+    .image-library-download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 40px;
+      padding: 8px 11px;
+      border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--accent) 6%, var(--surface-strong));
+      color: var(--accent-ink);
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .image-library-download:hover {
+      border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+      background: color-mix(in srgb, var(--accent) 11%, var(--surface-strong));
+    }
+
+    .image-library-download:focus-visible {
+      outline: 3px solid var(--ring);
+      outline-offset: 2px;
+    }
+
+    .image-library-download svg {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 auto;
+      stroke-width: 2.15;
+    }
+
+    .image-library-empty {
+      padding: 28px 16px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.88rem;
+    }
+
+    :root[data-theme="dark"] .image-library-dialog {
+      background: rgba(20, 25, 34, 0.97);
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.48);
+    }
+
+    :root[data-theme="dark"] .image-library-item {
+      background: color-mix(in srgb, var(--surface-soft) 80%, var(--surface-strong));
+    }
+
+    @media (max-width: 560px) {
+      .image-library-dialog {
+        width: calc(100% - 16px);
+        border-radius: 18px;
+      }
+
+      .image-library-dialog-header {
+        gap: 10px;
+        padding: 16px 14px 13px;
+      }
+
+      .image-library-dialog-body {
+        padding: 10px 10px 14px;
+      }
+
+      .image-library-item {
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 10px;
+        padding: 8px;
+      }
+
+      .image-library-preview {
+        width: 72px;
+        height: 58px;
+      }
+
+      .image-library-download {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-height: 44px;
+      }
+
+      .image-library-meta {
+        display: grid;
+        gap: 3px;
+      }
+    }
+
 
   </style>
 </head>
@@ -5263,7 +5535,7 @@
       </div>
 
       <div class="header-controls">
-        <span class="image-count" id="imageCount" data-empty="true" role="status" aria-live="polite" aria-atomic="true" aria-label="Üres projekt">
+        <button class="image-count" id="imageCount" type="button" data-empty="true" aria-haspopup="dialog" aria-controls="imageLibraryDialog" aria-label="Üres projekt" disabled>
             <span class="image-count-icon" aria-hidden="true">
               <svg class="lucide lucide-images" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16"></path>
@@ -5274,7 +5546,7 @@
             </span>
             <strong class="image-count-value" id="imageCountValue" hidden>0</strong>
             <span class="image-count-label" id="imageCountLabel">Üres projekt</span>
-        </span>
+        </button>
 
         <div class="appearance-controls">
           <button class="language-switch" id="languageSwitch" type="button" role="switch" aria-checked="false" aria-label="Váltás angol nyelvre" title="Váltás angol nyelvre">
@@ -5581,6 +5853,28 @@
         <span class="toast-timer" aria-hidden="true"></span>
       </div>
     </div>
+
+    <dialog
+      class="image-library-dialog"
+      id="imageLibraryDialog"
+      aria-labelledby="imageLibraryDialogTitle"
+      aria-describedby="imageLibraryDialogDescription"
+    >
+      <form class="image-library-dialog-content" method="dialog">
+        <div class="image-library-dialog-header">
+          <div class="image-library-dialog-heading">
+            <h2 class="image-library-dialog-title" id="imageLibraryDialogTitle">Betöltött képek</h2>
+            <p class="image-library-dialog-description" id="imageLibraryDialogDescription">
+              A projektben lévő képek adatai és letöltési lehetőségei.
+            </p>
+          </div>
+          <button class="image-library-dialog-close" id="imageLibraryDialogClose" type="submit" value="cancel" aria-label="Képlista bezárása">×</button>
+        </div>
+        <div class="image-library-dialog-body">
+          <div class="image-library-list" id="imageLibraryList"></div>
+        </div>
+      </form>
+    </dialog>
 
     <dialog
       class="clear-dialog"
@@ -6001,6 +6295,9 @@
       const imageCount = document.getElementById("imageCount");
       const imageCountValue = document.getElementById("imageCountValue");
       const imageCountLabel = document.getElementById("imageCountLabel");
+      const imageLibraryDialog = document.getElementById("imageLibraryDialog");
+      const imageLibraryDialogClose = document.getElementById("imageLibraryDialogClose");
+      const imageLibraryList = document.getElementById("imageLibraryList");
       const exportOpenButton = document.getElementById("exportOpenButton");
       const exportDialog = document.getElementById("exportDialog");
       const exportForm = document.getElementById("exportForm");
@@ -6114,6 +6411,18 @@
           "card.uploadedImage": "Feltöltött kép",
           "card.zoom": "Nagyítás",
           "card.zoomAria": "Kép nagyítása",
+          "imageLibrary.title": "Betöltött képek",
+          "imageLibrary.description": "A projektben lévő képek adatai és letöltési lehetőségei.",
+          "imageLibrary.close": "Képlista bezárása",
+          "imageLibrary.openAria": "{count} {noun}. Betöltött képek megnyitása",
+          "imageLibrary.name": "Név",
+          "imageLibrary.size": "Méret",
+          "imageLibrary.resolution": "Felbontás",
+          "imageLibrary.resolutionLoading": "Betöltés…",
+          "imageLibrary.resolutionUnknown": "Ismeretlen",
+          "imageLibrary.download": "Letöltés",
+          "imageLibrary.downloadAria": "{name} letöltése",
+          "imageLibrary.empty": "Nincs betöltött kép.",
           "clear.cancel": "Mégse",
           "clear.confirm": "Összes törlése",
           "clear.deleted": "{count} {noun} törölve.",
@@ -6330,6 +6639,18 @@
           "card.uploadedImage": "Uploaded image",
           "card.zoom": "Zoom",
           "card.zoomAria": "Zoom image",
+          "imageLibrary.title": "Loaded images",
+          "imageLibrary.description": "Image details and download options for the pictures in this project.",
+          "imageLibrary.close": "Close image list",
+          "imageLibrary.openAria": "{count} {noun}. Open loaded images",
+          "imageLibrary.name": "Name",
+          "imageLibrary.size": "Size",
+          "imageLibrary.resolution": "Resolution",
+          "imageLibrary.resolutionLoading": "Loading…",
+          "imageLibrary.resolutionUnknown": "Unknown",
+          "imageLibrary.download": "Download",
+          "imageLibrary.downloadAria": "Download {name}",
+          "imageLibrary.empty": "No images are loaded.",
           "clear.cancel": "Cancel",
           "clear.confirm": "Clear all",
           "clear.deleted": "Deleted {count} {noun}.",
@@ -6686,6 +7007,9 @@
         setAttribute(document, "#settingsButton", "aria-label", "settings.open");
         setAttribute(document, "#settingsButton", "title", "settings.title");
         setText(document, "#settingsDialogTitle", "settings.title");
+        setText(document, "#imageLibraryDialogTitle", "imageLibrary.title");
+        setText(document, "#imageLibraryDialogDescription", "imageLibrary.description");
+        setAttribute(document, "#imageLibraryDialogClose", "aria-label", "imageLibrary.close");
         setText(document, "#settingsDialogDescription", "settings.description");
         setAttribute(document, "#settingsCloseButton", "aria-label", "settings.close");
         setText(document, 'label[for="settingsMaxZoom"]', "settings.maxZoom");
@@ -6801,6 +7125,7 @@
           if (image) image.alt = title || t("card.uploadedImage");
           syncReorderModeCard(card);
         });
+        if (imageLibraryDialog.open) renderImageLibraryDialog();
       }
 
       function applyLanguage(language, { animateToggle = false } = {}) {
@@ -7857,13 +8182,18 @@
         saveProjectButton.disabled = !hasCards;
         exportOpenButton.disabled = !hasCards;
         imageCount.dataset.empty = String(!hasCards);
+        imageCount.disabled = !hasCards;
         imageCountValue.hidden = !hasCards;
         imageCountValue.textContent = String(cardCount);
         imageCountLabel.textContent = hasCards ? imageNoun(cardCount) : t("project.empty");
         imageCount.setAttribute(
           "aria-label",
-          hasCards ? `${cardCount} ${imageNoun(cardCount)}` : t("project.empty")
+          hasCards
+            ? t("imageLibrary.openAria", { count: cardCount, noun: imageNoun(cardCount) })
+            : t("project.empty")
         );
+        if (!hasCards && imageLibraryDialog.open) imageLibraryDialog.close("empty");
+        else if (hasCards && imageLibraryDialog.open) renderImageLibraryDialog();
         updateReorderModeAvailability();
         updateEditorPlaceholders();
         updateGridLayout();
@@ -7874,6 +8204,216 @@
         const units = ["B", "KB", "MB", "GB"];
         const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
         return `${(bytes / Math.pow(1024, index)).toFixed(index ? 1 : 0)} ${units[index]}`;
+      }
+
+      function imageExtensionForType(type) {
+        return {
+          "image/jpeg": "jpg",
+          "image/png": "png",
+          "image/webp": "webp",
+          "image/gif": "gif",
+          "image/svg+xml": "svg",
+          "image/avif": "avif",
+          "image/bmp": "bmp"
+        }[String(type || "").toLowerCase()] || "";
+      }
+
+      function filenameForDownloadedBlob(filename, blob) {
+        const safeName = String(filename || (currentLanguage === "en" ? "image" : "kep"));
+        const blobExtension = imageExtensionForType(blob?.type);
+        if (!blobExtension) return safeName;
+
+        const dotIndex = safeName.lastIndexOf(".");
+        if (dotIndex <= 0) return `${safeName}.${blobExtension}`;
+        const currentExtension = safeName.slice(dotIndex + 1).toLowerCase();
+        const equivalentExtensions = blobExtension === "jpg" ? ["jpg", "jpeg"] : [blobExtension];
+        if (equivalentExtensions.includes(currentExtension)) return safeName;
+        return `${safeName.slice(0, dotIndex)}.${blobExtension}`;
+      }
+
+      function getKnownDownloadDimensions(card, blob) {
+        if (!(blob instanceof Blob)) return null;
+
+        if (
+          card._downloadDimensionsBlob === blob &&
+          card._downloadDimensions?.width > 0 &&
+          card._downloadDimensions?.height > 0
+        ) {
+          return card._downloadDimensions;
+        }
+
+        // A restored project stores the downloadable optimized blob itself.
+        // In that case its stored dimensions exactly match the file that will download.
+        if (card._projectSaveBlob === blob) {
+          const width = Number(card._projectSaveInfo?.width || 0);
+          const height = Number(card._projectSaveInfo?.height || 0);
+          if (width > 0 && height > 0) {
+            card._downloadDimensionsBlob = blob;
+            card._downloadDimensions = { width, height };
+            return card._downloadDimensions;
+          }
+        }
+
+        return null;
+      }
+
+      async function ensureDownloadDimensions(card, blob) {
+        const known = getKnownDownloadDimensions(card, blob);
+        if (known) return known;
+        if (!(blob instanceof Blob)) return null;
+
+        if (card._downloadDimensionsPromise && card._downloadDimensionsPromiseBlob === blob) {
+          return card._downloadDimensionsPromise;
+        }
+
+        card._downloadDimensionsPromiseBlob = blob;
+        card._downloadDimensionsPromise = (async () => {
+          const decoded = await decodeImageBlob(blob);
+          try {
+            const dimensions = {
+              width: Number(decoded.width || 0),
+              height: Number(decoded.height || 0)
+            };
+            if (dimensions.width > 0 && dimensions.height > 0) {
+              card._downloadDimensionsBlob = blob;
+              card._downloadDimensions = dimensions;
+              return dimensions;
+            }
+            return null;
+          } finally {
+            decoded.cleanup();
+          }
+        })();
+
+        try {
+          return await card._downloadDimensionsPromise;
+        } finally {
+          card._downloadDimensionsPromise = null;
+          card._downloadDimensionsPromiseBlob = null;
+        }
+      }
+
+      function createImageLibraryMetaItem(labelKey, value, valueClass = "") {
+        const item = document.createElement("span");
+        item.className = "image-library-meta-item";
+
+        const label = document.createElement("span");
+        label.className = "image-library-meta-label";
+        label.textContent = `${t(labelKey)}:`;
+
+        const valueElement = document.createElement("span");
+        if (valueClass) valueElement.className = valueClass;
+        valueElement.textContent = value;
+
+        item.append(label, valueElement);
+        return { item, valueElement };
+      }
+
+      function renderImageLibraryDialog() {
+        const cards = getCards();
+        imageLibraryList.replaceChildren();
+
+        if (!cards.length) {
+          const empty = document.createElement("p");
+          empty.className = "image-library-empty";
+          empty.textContent = t("imageLibrary.empty");
+          imageLibraryList.append(empty);
+          return;
+        }
+
+        cards.forEach((card, index) => {
+          const meta = card._fileMeta || {};
+          const sourceBlob = card._imageBlob;
+          const originalName = String(meta.name || sourceBlob?.name || `${t("card.uploadedImage")} ${index + 1}`);
+          const fileName = sourceBlob
+            ? filenameForDownloadedBlob(originalName, sourceBlob)
+            : originalName;
+          const fileSize = Number(sourceBlob?.size || 0);
+          const row = document.createElement("article");
+          row.className = "image-library-item";
+
+          const preview = document.createElement("img");
+          preview.className = "image-library-preview";
+          preview.alt = "";
+          preview.loading = "lazy";
+          preview.decoding = "async";
+          const cardImage = card.querySelector("img");
+          const syncLibraryPreview = () => {
+            if (!cardImage) return;
+            const previewUrl = cardImage.currentSrc || cardImage.getAttribute("src") || "";
+            if (!previewUrl) return;
+            if (preview.getAttribute("src") !== previewUrl) preview.src = previewUrl;
+          };
+
+          // If the library opens before the editor preview exists, keep listening
+          // for that card's actual image load. As soon as the queued preview is
+          // assigned and loaded in the editor, the library thumbnail is filled in.
+          syncLibraryPreview();
+          if (cardImage && (!cardImage.complete || cardImage.naturalWidth === 0)) {
+            cardImage.addEventListener("load", syncLibraryPreview, { once: true });
+          }
+
+          const info = document.createElement("div");
+          info.className = "image-library-info";
+
+          const name = document.createElement("div");
+          name.className = "image-library-name";
+          name.textContent = fileName;
+          name.title = fileName;
+
+          const metaRow = document.createElement("div");
+          metaRow.className = "image-library-meta";
+          const sizeMeta = createImageLibraryMetaItem("imageLibrary.size", formatBytes(fileSize));
+          const knownDimensions = getKnownDownloadDimensions(card, sourceBlob);
+          const initialResolution = knownDimensions
+            ? `${knownDimensions.width} × ${knownDimensions.height} px`
+            : t("imageLibrary.resolutionLoading");
+          const resolutionMeta = createImageLibraryMetaItem(
+            "imageLibrary.resolution",
+            initialResolution,
+            "image-library-resolution"
+          );
+          metaRow.append(sizeMeta.item, resolutionMeta.item);
+          info.append(name, metaRow);
+
+          const downloadButton = document.createElement("button");
+          downloadButton.type = "button";
+          downloadButton.className = "image-library-download";
+          downloadButton.setAttribute("aria-label", t("imageLibrary.downloadAria", { name: fileName }));
+          downloadButton.innerHTML = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg><span>${t("imageLibrary.download")}</span>`;
+          downloadButton.addEventListener("click", () => {
+            if (!sourceBlob) return;
+            downloadBlob(sourceBlob, fileName);
+          });
+
+          row.append(preview, info, downloadButton);
+          imageLibraryList.append(row);
+
+          if (!knownDimensions) {
+            ensureDownloadDimensions(card, sourceBlob)
+              .then((dimensions) => {
+                if (!resolutionMeta.valueElement.isConnected) return;
+                resolutionMeta.valueElement.textContent = dimensions
+                  ? `${dimensions.width} × ${dimensions.height} px`
+                  : t("imageLibrary.resolutionUnknown");
+              })
+              .catch(() => {
+                if (resolutionMeta.valueElement.isConnected) {
+                  resolutionMeta.valueElement.textContent = t("imageLibrary.resolutionUnknown");
+                }
+              });
+          }
+        });
+      }
+
+      function openImageLibraryDialog() {
+        if (!getCards().length) return;
+        renderImageLibraryDialog();
+        if (typeof imageLibraryDialog.showModal === "function") {
+          imageLibraryDialog.showModal();
+          return;
+        }
+        imageLibraryDialog.setAttribute("open", "");
       }
 
       function filenameWithoutExtension(filename) {
@@ -8772,6 +9312,12 @@
 
         card._resourcesRevoked = false;
         card._imageBlob = file;
+        const sourceWidth = Number(state.originalWidth || 0);
+        const sourceHeight = Number(state.originalHeight || 0);
+        card._sourceDimensions = sourceWidth > 0 && sourceHeight > 0
+          ? { width: sourceWidth, height: sourceHeight }
+          : null;
+        card._sourceDimensionsPromise = null;
         card._fileMeta = {
           name: fileName,
           type: String(state.originalFileType || fileType),
@@ -10026,6 +10572,12 @@
 
       exportTitles.addEventListener("change", syncCaptionEditorState);
 
+      imageCount.addEventListener("click", openImageLibraryDialog);
+
+      imageLibraryDialog.addEventListener("click", (event) => {
+        if (event.target === imageLibraryDialog) imageLibraryDialog.close("backdrop");
+      });
+
       browseButton.addEventListener("click", () => fileInput.click());
       dropZone.addEventListener("click", () => fileInput.click());
 
@@ -10044,7 +10596,7 @@
       window.addEventListener("pointermove", handleReorderPointerMove, { passive: false });
       window.addEventListener("pointerup", handleReorderPointerEnd, { passive: false });
       document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape" || !reorderModeActive || settingsDialog.open || exportDialog.open) return;
+        if (event.key !== "Escape" || !reorderModeActive || settingsDialog.open || exportDialog.open || imageLibraryDialog.open) return;
         setReorderMode(false);
       });
       window.addEventListener("pointercancel", (event) => {
