@@ -2169,6 +2169,11 @@
         overscroll-behavior-x: auto;
         overscroll-behavior-y: auto;
       }
+
+      .image-frame.pen-crop-armed {
+        touch-action: none;
+        overscroll-behavior: none;
+      }
     }
 
     .image-frame:focus-visible {
@@ -8948,6 +8953,14 @@
           document.body.classList.toggle("crop-gesture-active", hasActiveCropGesture);
         }
 
+        function eventHasStylusTouch(event) {
+          const touches = [
+            ...(event.touches ? Array.from(event.touches) : []),
+            ...(event.changedTouches ? Array.from(event.changedTouches) : [])
+          ];
+          return touches.some((touch) => String(touch.touchType || "").toLowerCase() === "stylus");
+        }
+
         function preventNativeCropGesture(event) {
           const interactiveControl = event.target.closest &&
             event.target.closest("input, textarea, button, select, .drag-badge");
@@ -8955,6 +8968,14 @@
           const activeTouchCount = [...activePointers.values()]
             .filter((point) => point.pointerType === "touch").length;
           const touchCount = Math.max(eventTouchCount, activeTouchCount);
+
+          // WebKit exposes Apple Pencil touches as touchType="stylus". Prevent
+          // Safari from turning that stroke into page scrolling. Pointer Events
+          // still handle the actual crop movement via pointerType="pen".
+          if (!interactiveControl && eventHasStylusTouch(event)) {
+            event.preventDefault();
+            return;
+          }
 
           // A fresh one-finger touch stays native so the page can be scrolled.
           // Once a two-finger crop session has started, the remaining finger may
@@ -8967,6 +8988,21 @@
 
         function isTouchPointer(event) {
           return event.pointerType === "touch";
+        }
+
+        function isPenPointer(event) {
+          return event.pointerType === "pen";
+        }
+
+        function armPenCrop(event) {
+          if (isPenPointer(event)) frame.classList.add("pen-crop-armed");
+        }
+
+        function disarmPenCrop(event) {
+          if (!isPenPointer(event)) return;
+          const hasActivePen = [...activePointers.values()]
+            .some((point) => point.pointerType === "pen");
+          if (!hasActivePen) frame.classList.remove("pen-crop-armed");
         }
 
         function captureActiveTouchPointers() {
@@ -9101,7 +9137,16 @@
           zoomAtClientPoint(event.clientX, event.clientY, nextZoom);
         }, { passive: false });
 
+        // pointerenter/pointerover happen before pointerdown for Pencil input.
+        // Arming touch-action:none at that point prevents WebKit from stealing
+        // the following pen stroke for native page panning.
+        frame.addEventListener("pointerenter", armPenCrop);
+        frame.addEventListener("pointerover", armPenCrop);
+        frame.addEventListener("pointermove", armPenCrop);
+        frame.addEventListener("pointerleave", disarmPenCrop);
+
         frame.addEventListener("pointerdown", (event) => {
+          armPenCrop(event);
           if (reorderModeActive) {
             event.preventDefault();
             return;
